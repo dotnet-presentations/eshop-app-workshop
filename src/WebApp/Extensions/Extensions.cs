@@ -23,15 +23,15 @@ public static class Extensions
         builder.Services.AddSingleton<OrderStatusNotificationService>();
         builder.Services.AddSingleton<IProductImageUrlProvider, ProductImageUrlProvider>();
 
-        // HTTP and GRPC client registrations
-        builder.Services.AddGrpcClient<Basket.BasketClient>(o => o.Address = new("http://basket-api"))
-            .AddAuthToken();
+        // HTTP and gRPC client registrations
+        builder.Services.AddGrpcClient<Basket.BasketClient>(o => o.Address = new("http://basket-api"));
+        //.AddAuthToken();
 
-        builder.Services.AddHttpClient<CatalogService>(o => o.BaseAddress = new("http://catalog-api"))
-            .AddAuthToken();
+        builder.Services.AddHttpClient<CatalogService>(o => o.BaseAddress = new("http://catalog-api"));
+        //.AddAuthToken();
 
-        builder.Services.AddHttpClient<OrderingService>(o => o.BaseAddress = new("http://ordering-api"))
-            .AddAuthToken();
+        builder.Services.AddHttpClient<OrderingService>(o => o.BaseAddress = new("http://ordering-api"));
+            //.AddAuthToken();
     }
 
     //public static void AddEventBusSubscriptions(this IEventBusBuilder eventBus)
