@@ -11,12 +11,13 @@ var idp = builder.AddContainer("keycloak", image: "quay.io/keycloak/keycloak", t
     .WithEnvironment("KEYCLOAK_ADMIN", "admin")
     .WithEnvironment("KEYCLOAK_ADMIN_PASSWORD", "admin")
     .WithEnvironment("KC_HOSTNAME", "localhost")
+    .WithVolumeMount("../Keycloak/data/import", "/opt/keycloak/data/import", VolumeMountType.Bind)
     // Keycloak defaults to "dev-file" for database storage but Postgres might be more desirable
     //.WithEnvironment("KC_DB", "postgres")
     //.WithEnvironment("KC_DB_URL", () => $"postgres://{new Uri(postgres.GetEndpoint("tcp").UriString).GetComponents(UriComponents.HostAndPort, UriFormat.UriEscaped)}")
     //.WithEnvironment("KC_DB_USERNAME", "postgres")
     //.WithEnvironment("KC_DB_PASSWORD", () => postgres.Resource.Password)
-    .WithArgs("start-dev");
+    .WithArgs("start-dev", "--import-realm");
 
 var catalogDb = postgres.AddDatabase("CatalogDB");
 //var identityDb = postgres.AddDatabase("IdentityDB");
