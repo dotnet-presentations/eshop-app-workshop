@@ -1,9 +1,10 @@
 ﻿@using System.Net
 @attribute [StreamRendering]
+@implements IDisposable
+
 @inject BasketState Basket
 @inject LogOutService LogOutService
 @inject NavigationManager NavigationManager
-@implements IDisposable
 
 <a aria-label="cart" href="cart">
     <img role="presentation" src="icons/cart.svg" />

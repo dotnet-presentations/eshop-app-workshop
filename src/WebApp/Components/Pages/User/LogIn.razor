@@ -1,6 +1,8 @@
 ﻿@page "/user/login"
-@inject NavigationManager Nav
 @attribute [Authorize]
+
+@inject NavigationManager Nav
+
 @code {
     [SupplyParameterFromQuery]
     public string? ReturnUrl { get; set; }
