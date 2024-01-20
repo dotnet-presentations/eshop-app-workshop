@@ -10,13 +10,8 @@ var orderDb = postgres.AddDatabase("OrderingDB");
 
 // Identity Providers
 
-var idp = builder.AddContainer("keycloak", image: "quay.io/keycloak/keycloak", tag: "23.0")
-    .WithServiceBinding(hostPort: 8080, containerPort: 8080, scheme: "http")
-    .WithEnvironment("KEYCLOAK_ADMIN", "admin")
-    .WithEnvironment("KEYCLOAK_ADMIN_PASSWORD", "admin")
-    .WithEnvironment("KC_HOSTNAME", "localhost")
-    .WithVolumeMount("../Keycloak/data/import", "/opt/keycloak/data/import", VolumeMountType.Bind)
-    .WithArgs("start-dev", "--import-realm");
+var keycloak = builder.AddKeycloakContainer("keycloak", tag: "23.0")
+    .ImportRealms("../Keycloak/data/import");
 
 // API Apps
 
@@ -27,12 +22,14 @@ var catalogApi = builder.AddProject<Projects.Catalog_API>("catalog-api")
 var basketApi = builder.AddProject<Projects.Basket_API>("basket-api")
     .WithReference(redis)
     .WithReference(rabbitMq)
-    .WithEnvironment("Identity__Url", GetKeycloakRealmUrl);
+    .WithReference(keycloak);
+    //.WithEnvironment("Identity__Url", GetKeycloakRealmUrl);
 
 var orderingApi = builder.AddProject<Projects.Ordering_API>("ordering-api")
     .WithReference(rabbitMq)
     .WithReference(orderDb)
-    .WithEnvironment("Identity__Url", GetKeycloakRealmUrl);
+    .WithReference(keycloak);
+    //.WithEnvironment("Identity__Url", GetKeycloakRealmUrl);
 
 // Apps
 
@@ -41,7 +38,8 @@ var webApp = builder.AddProject<Projects.WebApp>("webapp")
     .WithReference(catalogApi)
     .WithReference(orderingApi)
     .WithReference(rabbitMq)
-    .WithEnvironment("IdentityUrl", GetKeycloakRealmUrl)
+    .WithReference(keycloak)
+    //.WithEnvironment("IdentityUrl", GetKeycloakRealmUrl)
     // Force HTTPS profile for web app (required for OIDC operations)
     .WithLaunchProfile("https");
 
@@ -50,9 +48,9 @@ webApp.WithEnvironment("CallBackUrl", webApp.GetEndpoint("https"));
 
 builder.Build().Run();
 
-string GetKeycloakRealmUrl()
-{
-    var baseUri = new Uri(idp.GetEndpoint("http").UriString);
-    var realmUri = new Uri(baseUri, "/realms/eShop");
-    return realmUri.ToString();
-}
+//string GetKeycloakRealmUrl()
+//{
+//    var baseUri = new Uri(idp.GetEndpoint("http").UriString);
+//    var realmUri = new Uri(baseUri, "/realms/eShop");
+//    return realmUri.ToString();
+//}
