@@ -1,7 +1,6 @@
 ﻿var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
-
 builder.AddApplicationServices();
 
 builder.Services.AddGrpc();

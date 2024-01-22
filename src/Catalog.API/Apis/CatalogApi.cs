@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
-//using Pgvector.EntityFrameworkCore;
 
 namespace eShop.Catalog.API;
 
@@ -13,9 +12,6 @@ public static class CatalogApi
         app.MapGet("/items/{id:int}", GetItemById);
         app.MapGet("/items/by/{name:minlength(1)}", GetItemsByName);
         app.MapGet("/items/{catalogItemId:int}/pic", GetItemPictureById);
-
-        // Routes for resolving catalog items using AI.
-        app.MapGet("/items/withsemanticrelevance/{text:minlength(1)}",  GetItemsBySemanticRelevance);
 
         // Routes for resolving catalog items by type and brand.
         app.MapGet("/items/type/{typeId}/brand/{brandId?}", GetItemsByBrandAndTypeId);
@@ -127,50 +123,7 @@ public static class CatalogApi
         [AsParameters] CatalogServices services,
         string text)
     {
-        var pageSize = paginationRequest.PageSize;
-        var pageIndex = paginationRequest.PageIndex;
-
-        if (!services.CatalogAI.IsEnabled)
-        {
-           return await GetItemsByName(paginationRequest, services, text);
-        }
-
-        throw new NotImplementedException("No AI stuff");
-
-        //// Create an embedding for the input search
-        //var vector = await services.CatalogAI.GetEmbeddingAsync(text);
-
-        //// Get the total number of items
-        //var totalItems = await services.Context.CatalogItems
-        //    .LongCountAsync();
-
-        //// Get the next page of items, ordered by most similar (smallest distance) to the input search
-        //List<CatalogItem> itemsOnPage;
-        //if (services.Logger.IsEnabled(LogLevel.Debug))
-        //{
-        //    var itemsWithDistance = await services.Context.CatalogItems
-        //        .Select(c => new { Item = c, Distance = c.Embedding.CosineDistance(vector) })
-        //        .OrderBy(c => c.Distance)
-        //        .Skip(pageSize * pageIndex)
-        //        .Take(pageSize)
-        //        .ToListAsync();
-
-        //    //services.Logger.LogDebug("Results from {text}: {results}", text, string.Join(", ", itemsWithDistance.Select(i => $"{i.Item.Name} => {i.Distance}")));
-
-        //    itemsOnPage = itemsWithDistance.Select(i => i.Item).ToList();
-        //}
-        //else
-        //{
-        //    itemsOnPage = await services.Context.CatalogItems
-        //        .OrderBy(c => c.Embedding.CosineDistance(vector))
-        //        .Skip(pageSize * pageIndex)
-        //        .Take(pageSize)
-        //        .ToListAsync();
-        //}
-
-        //itemsOnPage = ChangeUriPlaceholder(services.Options.Value, itemsOnPage);
-
-        //return TypedResults.Ok(new PaginatedItems<CatalogItem>(pageIndex, pageSize, totalItems, itemsOnPage));
+        return await GetItemsByName(paginationRequest, services, text);
     }
 
     public static async Task<Ok<PaginatedItems<CatalogItem>>> GetItemsByBrandAndTypeId(
@@ -243,25 +196,8 @@ public static class CatalogApi
         var catalogEntry = services.Context.Entry(catalogItem);
         catalogEntry.CurrentValues.SetValues(productToUpdate);
 
-        //catalogItem.Embedding = await services.CatalogAI.GetEmbeddingAsync(catalogItem);
+        await services.Context.SaveChangesAsync();
 
-        var priceEntry = catalogEntry.Property(i => i.Price);
-
-        if (priceEntry.IsModified) // Save product's data and publish integration event through the Event Bus if price has changed
-        {
-            //Create Integration Event to be published through the Event Bus
-            var priceChangedEvent = new ProductPriceChangedIntegrationEvent(catalogItem.Id, productToUpdate.Price, priceEntry.OriginalValue);
-
-            // Achieving atomicity between original Catalog database operation and the IntegrationEventLog thanks to a local transaction
-            await services.EventService.SaveEventAndCatalogContextChangesAsync(priceChangedEvent);
-
-            // Publish through the Event Bus and mark the saved event as published
-            await services.EventService.PublishThroughEventBusAsync(priceChangedEvent);
-        }
-        else // Just save the updated product because the Product's Price hasn't changed.
-        {
-            await services.Context.SaveChangesAsync();
-        }
         return TypedResults.Created($"/api/v1/catalog/items/{productToUpdate.Id}");
     }
 
@@ -283,7 +219,6 @@ public static class CatalogApi
             RestockThreshold = product.RestockThreshold,
             MaxStockThreshold = product.MaxStockThreshold
         };
-        //item.Embedding = await services.CatalogAI.GetEmbeddingAsync(item);
 
         services.Context.CatalogItems.Add(item);
         await services.Context.SaveChangesAsync();

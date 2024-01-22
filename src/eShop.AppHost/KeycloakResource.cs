@@ -30,7 +30,7 @@ internal static class KeycloakHostingExtensions
             .WithVolumeMount(source, "/opt/keycloak/data/import", VolumeMountType.Bind)
             .WithAnnotation(new ExecutableArgsCallbackAnnotation(args =>
             {
-                args.Remove("start-dev");
+                args.Clear();
                 args.Add("start-dev");
                 args.Add("--import-realm");
             }));
