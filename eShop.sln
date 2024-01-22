@@ -15,8 +15,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApp", "src\WebApp\WebApp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "eShop.AppHost", "src\eShop.AppHost\eShop.AppHost.csproj", "{2F3143A9-1565-43BF-8BF2-18B13F604CE9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAppComponents", "src\WebAppComponents\WebAppComponents.csproj", "{CCD3F69F-91BE-418A-BFEA-AD500D879FE1}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventBus", "src\EventBus\EventBus.csproj", "{4DEAE8EF-EE4A-4815-ABBC-C2DD4304364D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventBusRabbitMQ", "src\EventBusRabbitMQ\EventBusRabbitMQ.csproj", "{255AFBE5-96E7-47FE-9F29-28B195B47AA8}"
@@ -68,10 +66,6 @@ Global
 		{2F3143A9-1565-43BF-8BF2-18B13F604CE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F3143A9-1565-43BF-8BF2-18B13F604CE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2F3143A9-1565-43BF-8BF2-18B13F604CE9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CCD3F69F-91BE-418A-BFEA-AD500D879FE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CCD3F69F-91BE-418A-BFEA-AD500D879FE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CCD3F69F-91BE-418A-BFEA-AD500D879FE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CCD3F69F-91BE-418A-BFEA-AD500D879FE1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4DEAE8EF-EE4A-4815-ABBC-C2DD4304364D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4DEAE8EF-EE4A-4815-ABBC-C2DD4304364D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4DEAE8EF-EE4A-4815-ABBC-C2DD4304364D}.Release|Any CPU.ActiveCfg = Release|Any CPU

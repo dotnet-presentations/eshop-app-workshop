@@ -1,6 +1,6 @@
-﻿using eShop.WebAppComponents.Catalog;
+﻿using eShop.WebApp.Components.Catalog;
 
-namespace eShop.WebAppComponents.Services;
+namespace eShop.WebApp.Services;
 
 public interface IProductImageUrlProvider
 {

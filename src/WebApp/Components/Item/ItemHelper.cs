@@ -1,4 +1,4 @@
-﻿using eShop.WebAppComponents.Catalog;
+﻿using eShop.WebApp.Components.Catalog;
 
 namespace eShop.WebAppComponents.Item;
 
