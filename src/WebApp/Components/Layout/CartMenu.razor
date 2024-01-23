@@ -19,7 +19,7 @@
     private IReadOnlyCollection<BasketItem>? basketItems;
 
     [CascadingParameter]
-    public HttpContext? HttpContext { get; set; }
+    public required HttpContext HttpContext { get; set; }
 
     private int? TotalQuantity => basketItems?.Sum(i => i.Quantity);
 
@@ -28,8 +28,7 @@
         // The basket contents may change during the lifetime of this component (e.g., when an item is
         // added during the current request). If this EventCallback is invoked, it will cause this
         // component to re-render with the updated data.
-        basketStateSubscription = Basket.NotifyOnChange(
-            EventCallback.Factory.Create(this, UpdateBasketItemsAsync));
+        basketStateSubscription = Basket.NotifyOnChange(EventCallback.Factory.Create(this, UpdateBasketItemsAsync));
 
         try
         {
@@ -37,7 +36,7 @@
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
         {
-            await LogOutService.LogOutAsync(HttpContext!);
+            await LogOutService.LogOutAsync(HttpContext);
         }
     }
 

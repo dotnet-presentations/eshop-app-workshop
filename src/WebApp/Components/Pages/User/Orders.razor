@@ -1,15 +1,22 @@
 ﻿@page "/user/orders"
+@using Microsoft.AspNetCore.Authentication
+
 @attribute [Authorize]
 @attribute [StreamRendering]
 
 @inject OrderingService OrderingService
+@inject NavigationManager Nav
 
 <PageTitle>Orders | Northern Mountains</PageTitle>
 <SectionContent SectionName="page-header-title">Orders</SectionContent>
 <OrdersRefreshOnStatusChange />
 
 <div class="orders">
-@if (orders is null)
+@if (signInRequired)
+{
+    <p>There was an issue accessing your orders. Please use the user menu to log out and log in again.</p>
+}
+else if (orders is null)
 {
     <p>Loading...</p>
 }
@@ -51,9 +58,21 @@ else
 
 @code {
     private OrderRecord[]? orders;
+    private bool signInRequired = false;
+
+    [CascadingParameter]
+    public required HttpContext HttpContext {get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        orders = await OrderingService.GetOrders();
+        try
+        {
+            orders = await OrderingService.GetOrders();
+        }
+        catch (HttpRequestException hre) when (hre.StatusCode is System.Net.HttpStatusCode.Unauthorized)
+        {
+            // Issue with the access token, force user to sign in again
+            signInRequired = true;
+        }
     }
 }

@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using System.Net.Http.Headers;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+﻿using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 

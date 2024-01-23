@@ -1,7 +1,12 @@
 ﻿@page "/item/{itemId:int}"
+
 @using System.Net
+@using Microsoft.AspNetCore.Authentication
+@using Grpc.Core
+
 @inject CatalogService CatalogService
 @inject BasketState BasketState
+@inject LogOutService LogOutService
 @inject NavigationManager Nav
 @inject IProductImageUrlProvider ProductImages
 
@@ -45,6 +50,11 @@
                 }
             </form>
 
+            @if (!isLoggedIn && WasLoggedOut)
+            {
+                <p>There was an issue, please <a href="@User.LogIn.Url(Nav, preserveQuery: false)">sign-in</a> again.</p>
+            }
+
             @if (numInCart > 0)
             {
                 <p><strong>@numInCart</strong> in <a href="cart">shopping bag</a></p>
@@ -69,20 +79,24 @@ else if (notFound)
     [Parameter]
     public int ItemId { get; set; }
 
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public bool WasLoggedOut { get; set; }
+
     [CascadingParameter]
-    public HttpContext? HttpContext { get; set; }
+    public required HttpContext HttpContext { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            isLoggedIn = HttpContext?.User.Identity?.IsAuthenticated == true;
+            isLoggedIn = HttpContext.User.Identity?.IsAuthenticated == true;
             item = await CatalogService.GetCatalogItem(ItemId);
             await UpdateNumInCartAsync();
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
         {
-            HttpContext!.Response.StatusCode = 404;
+            HttpContext.Response.StatusCode = 404;
             notFound = true;
         }
     }
@@ -91,14 +105,24 @@ else if (notFound)
     {
         if (!isLoggedIn)
         {
-            Nav.NavigateTo(Pages.User.LogIn.Url(Nav));
+            Nav.NavigateTo(Pages.User.LogIn.Url(Nav, preserveQuery: false));
             return;
         }
 
         if (item is not null)
         {
-            await BasketState.AddAsync(item);
-            await UpdateNumInCartAsync();
+            try
+            {
+                await BasketState.AddAsync(item);
+                await UpdateNumInCartAsync();
+            }
+            catch (RpcException ex) when (ex.StatusCode is StatusCode.Unauthenticated)
+            {
+                // There was an issue with the user's access token, sign-out and refresh the page with a message
+                await LogOutService.LogOutAsync(HttpContext);
+                Nav.NavigateTo(Nav.GetUriWithQueryParameter(nameof(WasLoggedOut), true));
+                return;
+            }
         }
     }
 
