@@ -1,11 +1,16 @@
 ﻿using System.Text.Json;
+using eShop.Catalog.API.Model;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Npgsql;
 
 namespace eShop.Catalog.API.Infrastructure;
 
 public partial class CatalogContextSeed(
     IWebHostEnvironment env,
     IOptions<CatalogOptions> settings,
-    ILogger<CatalogContextSeed> logger) : IDbSeeder<CatalogContext>
+    ILogger<CatalogContextSeed> logger)
+    : IDbSeeder<CatalogContext>
 {
     public async Task SeedAsync(CatalogContext context)
     {
@@ -21,7 +26,8 @@ public partial class CatalogContextSeed(
         {
             var sourcePath = Path.Combine(contentRootPath, "Setup", "catalog.json");
             var sourceJson = File.ReadAllText(sourcePath);
-            var sourceItems = JsonSerializer.Deserialize<CatalogSourceEntry[]>(sourceJson);
+            var sourceItems = JsonSerializer.Deserialize<CatalogSourceEntry[]>(sourceJson)
+                ?? throw new InvalidOperationException($"Seed data file was found but it contained no data: '{sourcePath}'");
 
             context.CatalogBrands.RemoveRange(context.CatalogBrands);
             await context.CatalogBrands.AddRangeAsync(sourceItems.Select(x => x.Brand).Distinct()
@@ -60,11 +66,10 @@ public partial class CatalogContextSeed(
     private class CatalogSourceEntry
     {
         public int Id { get; set; }
-        public string Type { get; set; }
-        public string Brand { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
+        public required string Type { get; set; }
+        public required string Brand { get; set; }
+        public required string Name { get; set; }
+        public required string Description { get; set; }
         public decimal Price { get; set; }
-        public float[] Embedding { get; set; }
     }
 }

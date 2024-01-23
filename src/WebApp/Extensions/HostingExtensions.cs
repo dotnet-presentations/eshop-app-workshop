@@ -4,8 +4,12 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
 using Microsoft.IdentityModel.JsonWebTokens;
+using eShop.Basket.API.Grpc;
+using eShop.WebApp.Services;
 
-public static class Extensions
+namespace Microsoft.Extensions.Hosting;
+
+public static class HostingExtensions
 {
     public static void AddApplicationServices(this IHostApplicationBuilder builder)
     {

@@ -1,6 +1,4 @@
-﻿using System.Security.Claims;
-
-namespace eShop.ServiceDefaults;
+﻿namespace System.Security.Claims;
 
 public static class ClaimsPrincipalExtensions
 {

@@ -115,7 +115,6 @@
     background-color: #000;
 }
 
-
 @media only screen and (max-width: 480px) { 
     .catalog {
         padding: 0 1rem;

@@ -1,4 +1,4 @@
-﻿namespace eShop.Catalog.API.Extensions;
+﻿namespace eShop.Catalog.API.Model;
 
 public static class CatalogItemExtensions
 {

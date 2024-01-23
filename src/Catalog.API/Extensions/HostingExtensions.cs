@@ -1,4 +1,9 @@
-﻿public static class Extensions
+﻿using eShop.Catalog.API;
+using eShop.Catalog.API.Infrastructure;
+
+namespace Microsoft.Extensions.Hosting;
+
+public static class HostingExtensions
 {
     public static void AddApplicationServices(this IHostApplicationBuilder builder)
     {

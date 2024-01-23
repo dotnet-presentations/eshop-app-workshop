@@ -2,6 +2,8 @@
 using CardType = eShop.Ordering.API.Application.Queries.CardType;
 using Order = eShop.Ordering.API.Application.Queries.Order;
 
+namespace Microsoft.AspNetCore.Builder;
+
 public static class OrdersApi
 {
     public static RouteGroupBuilder MapOrdersApi(this RouteGroupBuilder app)

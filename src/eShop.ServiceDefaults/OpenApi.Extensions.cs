@@ -3,13 +3,12 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace eShop.ServiceDefaults;
+namespace Microsoft.Extensions.Hosting;
 
-public static partial class Extensions
+public static partial class HostingExtensions
 {
     public static IApplicationBuilder UseDefaultOpenApi(this WebApplication app)
     {
@@ -153,13 +152,13 @@ public static partial class Extensions
                 Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oauth2" }
             };
 
-            operation.Security = new List<OpenApiSecurityRequirement>
-            {
+            operation.Security =
+            [
                 new()
                 {
                     [ oAuthScheme ] = scopes
                 }
-            };
+            ];
         }
     }
 }

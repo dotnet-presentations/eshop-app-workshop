@@ -1,4 +1,6 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿using eShop.WebApp.Components;
+
+var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
@@ -8,8 +10,6 @@ builder.AddApplicationServices();
 
 var app = builder.Build();
 
-app.MapDefaultEndpoints();
-
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -18,11 +18,13 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseAntiforgery();
-
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
+
+app.UseAntiforgery();
+
+app.MapDefaultEndpoints();
 
 app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 

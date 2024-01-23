@@ -21,7 +21,6 @@ namespace eShop.Catalog.API.Infrastructure.Migrations
                 .HasAnnotation("ProductVersion", "8.0.0-rtm.23512.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            //NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "vector");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("eShop.Catalog.API.Model.CatalogBrand", b =>
@@ -61,9 +60,6 @@ namespace eShop.Catalog.API.Infrastructure.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
-
-                    //b.Property<Vector>("Embedding")
-                    //    .HasColumnType("vector(1536)");
 
                     b.Property<int>("MaxStockThreshold")
                         .HasColumnType("integer");
@@ -112,37 +108,6 @@ namespace eShop.Catalog.API.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CatalogType", (string)null);
-                });
-
-            modelBuilder.Entity("eShop.IntegrationEventLogEF.IntegrationEventLogEntry", b =>
-                {
-                    b.Property<Guid>("EventId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("EventTypeName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("State")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TimesSent")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("TransactionId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("EventId");
-
-                    b.ToTable("IntegrationEventLog", (string)null);
                 });
 
             modelBuilder.Entity("eShop.Catalog.API.Model.CatalogItem", b =>

@@ -12,7 +12,7 @@ If you're in an instructor-led workshop session and have issues downloading the 
 
 ## What you'll be building
 
-In this workshop, you'll learn by building out features of the [eShop Reference Application](https://github.com/dotnet/eshop). We'll start from File/New and build up to some API back-end applications, a web front-end application, and a [].NET Aspire](https://learn.microsoft.com/dotnet/aspire/get-started/aspire-overview) [AppHost project](https://learn.microsoft.com/dotnet/aspire/fundamentals/app-host-overview#app-host-project) to coordinate them all together.
+In this workshop, you'll learn by building out features of the [eShop Reference Application](https://github.com/dotnet/eshop). We'll start from File/New and build up to some API back-end applications, a web front-end application, and a [.NET Aspire](https://learn.microsoft.com/dotnet/aspire/get-started/aspire-overview) [AppHost project](https://learn.microsoft.com/dotnet/aspire/fundamentals/app-host-overview#app-host-project) to coordinate them all together.
 
 ![eShop Home](./assets/eshop-home-screenshot.png)
 

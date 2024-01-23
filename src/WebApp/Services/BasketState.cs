@@ -12,7 +12,7 @@ public class BasketState(
     AuthenticationStateProvider authenticationStateProvider)
 {
     private Task<IReadOnlyCollection<BasketItem>>? _cachedBasket;
-    private HashSet<BasketStateChangedSubscription> _changeSubscriptions = new();
+    private readonly HashSet<BasketStateChangedSubscription> _changeSubscriptions = [];
 
     public Task DeleteBasketAsync()
         => basketService.DeleteBasketAsync();

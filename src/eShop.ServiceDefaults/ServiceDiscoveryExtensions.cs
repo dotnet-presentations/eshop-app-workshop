@@ -1,7 +1,6 @@
 ﻿using System.Net;
-using Microsoft.Extensions.ServiceDiscovery.Http;
 
-namespace eShop.ServiceDefaults;
+namespace Microsoft.Extensions.ServiceDiscovery.Http;
 
 public static class ServiceDiscoveryExtensions
 {

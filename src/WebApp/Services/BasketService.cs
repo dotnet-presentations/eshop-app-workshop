@@ -37,6 +37,7 @@ public class BasketService(GrpcBasketClient basketClient)
     private static List<BasketQuantity> MapToBasket(CustomerBasketResponse response)
     {
         var result = new List<BasketQuantity>();
+
         foreach (var item in response.Items)
         {
             result.Add(new BasketQuantity(item.ProductId, item.Quantity));

@@ -1,4 +1,6 @@
-﻿namespace eShop.Basket.API.IntegrationEvents.EventHandling.Events;
+﻿using eShop.EventBus.Events;
+
+namespace eShop.Basket.API.IntegrationEvents.Events;
 
 // Integration Events notes:
 // An Event is "something that has happened in the past", therefore its name has to be

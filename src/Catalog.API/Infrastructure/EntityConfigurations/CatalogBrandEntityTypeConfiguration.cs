@@ -1,7 +1,10 @@
-﻿namespace eShop.Catalog.API.Infrastructure.EntityConfigurations;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using eShop.Catalog.API.Model;
 
-class CatalogBrandEntityTypeConfiguration
-    : IEntityTypeConfiguration<CatalogBrand>
+namespace eShop.Catalog.API.Infrastructure.EntityConfigurations;
+
+class CatalogBrandEntityTypeConfiguration : IEntityTypeConfiguration<CatalogBrand>
 {
     public void Configure(EntityTypeBuilder<CatalogBrand> builder)
     {

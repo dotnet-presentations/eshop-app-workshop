@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.JsonWebTokens;
-using Microsoft.AspNetCore.Authentication;
 
-namespace eShop.ServiceDefaults;
+namespace Microsoft.Extensions.Hosting;
 
 public static class AuthenticationExtensions
 {

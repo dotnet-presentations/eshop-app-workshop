@@ -34,5 +34,4 @@ global using eShop.Ordering.Infrastructure.Repositories;
 global using Microsoft.Extensions.Options;
 global using Polly;
 global using Polly.Retry;
-global using eShop.ServiceDefaults;
 global using Swashbuckle.AspNetCore.SwaggerGen;

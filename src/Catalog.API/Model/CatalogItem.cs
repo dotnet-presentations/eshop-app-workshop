@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using eShop.Catalog.API.Infrastructure.Exceptions;
 //using Pgvector;
 
 namespace eShop.Catalog.API.Model;
@@ -9,23 +10,23 @@ public class CatalogItem
     public int Id { get; set; }
 
     [Required]
-    public string Name { get; set; }
+    public required string Name { get; set; }
 
-    public string Description { get; set; }
+    public required string Description { get; set; }
 
     public decimal Price { get; set; }
 
-    public string PictureFileName { get; set; }
+    public required string PictureFileName { get; set; }
 
-    public string PictureUri { get; set; }
+    public string? PictureUri { get; set; }
 
     public int CatalogTypeId { get; set; }
 
-    public CatalogType CatalogType { get; set; }
+    public CatalogType? CatalogType { get; set; }
 
     public int CatalogBrandId { get; set; }
 
-    public CatalogBrand CatalogBrand { get; set; }
+    public CatalogBrand? CatalogBrand { get; set; }
 
     // Quantity in stock
     public int AvailableStock { get; set; }

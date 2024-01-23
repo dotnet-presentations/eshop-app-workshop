@@ -1,10 +1,15 @@
-﻿namespace eShop.Catalog.API.IntegrationEvents.EventHandling;
+﻿using eShop.Catalog.API.Infrastructure;
+using eShop.Catalog.API.IntegrationEvents.Events;
+using eShop.EventBus.Abstractions;
+using eShop.EventBus.Events;
+
+namespace eShop.Catalog.API.IntegrationEvents.EventHandling;
 
 public class OrderStatusChangedToAwaitingValidationIntegrationEventHandler(
     CatalogContext catalogContext,
     ICatalogIntegrationEventService catalogIntegrationEventService,
-    ILogger<OrderStatusChangedToAwaitingValidationIntegrationEventHandler> logger) :
-    IIntegrationEventHandler<OrderStatusChangedToAwaitingValidationIntegrationEvent>
+    ILogger<OrderStatusChangedToAwaitingValidationIntegrationEventHandler> logger)
+    : IIntegrationEventHandler<OrderStatusChangedToAwaitingValidationIntegrationEvent>
 {
     public async Task Handle(OrderStatusChangedToAwaitingValidationIntegrationEvent @event)
     {
@@ -15,6 +20,13 @@ public class OrderStatusChangedToAwaitingValidationIntegrationEventHandler(
         foreach (var orderStockItem in @event.OrderStockItems)
         {
             var catalogItem = catalogContext.CatalogItems.Find(orderStockItem.ProductId);
+
+            if (catalogItem is null)
+            {
+                logger.LogWarning("Catalog item with ProductId '{ProductId}' not found", orderStockItem.ProductId);
+                continue;
+            }
+
             var hasStock = catalogItem.AvailableStock >= orderStockItem.Units;
             var confirmedOrderStockItem = new ConfirmedOrderStockItem(catalogItem.Id, hasStock);
 

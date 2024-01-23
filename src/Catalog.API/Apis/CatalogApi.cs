@@ -1,6 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
+using eShop.Catalog.API;
+using eShop.Catalog.API.Infrastructure;
+using eShop.Catalog.API.Model;
 
-namespace eShop.Catalog.API;
+namespace Microsoft.AspNetCore.Builder;
 
 public static class CatalogApi
 {

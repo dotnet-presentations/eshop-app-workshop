@@ -1,6 +1,6 @@
-﻿#nullable enable
+﻿using System.Security.Claims;
 
-namespace eShop.Basket.API.Extensions;
+namespace Grpc.Core;
 
 internal static class ServerCallContextIdentityExtensions
 {

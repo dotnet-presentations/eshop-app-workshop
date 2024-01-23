@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Net.Http.Headers;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.AspNetCore.Authentication;
 
-namespace eShop.ServiceDefaults;
+namespace Microsoft.Extensions.DependencyInjection;
 
 public static class HttpClientExtensions
 {

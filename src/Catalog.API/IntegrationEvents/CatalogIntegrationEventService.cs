@@ -1,10 +1,13 @@
-﻿namespace eShop.Catalog.API.IntegrationEvents;
+﻿using eShop.Catalog.API.Infrastructure;
+using eShop.EventBus.Abstractions;
+using eShop.EventBus.Events;
 
-public sealed class CatalogIntegrationEventService(ILogger<CatalogIntegrationEventService> logger,
+namespace eShop.Catalog.API.IntegrationEvents;
+
+public sealed class CatalogIntegrationEventService(
+    ILogger<CatalogIntegrationEventService> logger,
     IEventBus eventBus,
-    CatalogContext catalogContext
-    //,IIntegrationEventLogService integrationEventLogService
-    )
+    CatalogContext catalogContext)
     : ICatalogIntegrationEventService, IDisposable
 {
     private volatile bool disposedValue;
@@ -30,8 +33,8 @@ public sealed class CatalogIntegrationEventService(ILogger<CatalogIntegrationEve
     {
         logger.LogInformation("CatalogIntegrationEventService - Saving changes and integrationEvent: {IntegrationEventId}", evt.Id);
 
-        //Use of an EF Core resiliency strategy when using multiple DbContexts within an explicit BeginTransaction():
-        //See: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency
+        // Use of an EF Core resiliency strategy when using multiple DbContexts within an explicit BeginTransaction():
+        // See: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency
         //await ResilientTransaction.New(catalogContext).ExecuteAsync(async () =>
         //{
             // Achieving atomicity between original catalog database operation and the IntegrationEventLog thanks to a local transaction

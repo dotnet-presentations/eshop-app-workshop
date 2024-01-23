@@ -1,5 +1,7 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 using eShop.Basket.API.Model;
+using StackExchange.Redis;
 
 namespace eShop.Basket.API.Repositories;
 
@@ -7,10 +9,8 @@ public class RedisBasketRepository(ILogger<RedisBasketRepository> logger, IConne
 {
     private readonly IDatabase _database = redis.GetDatabase();
 
-    // implementation:
-
-    // - /backet/{id} "string" per unique basket
-    private static RedisKey BasketKeyPrefix = "/basket/"u8.ToArray();
+    // - /basket/{id} "string" per unique basket
+    private static readonly RedisKey BasketKeyPrefix = "/basket/"u8.ToArray();
     // note on UTF8 here: library limitation (to be fixed) - prefixes are more efficient as blobs
 
     private static RedisKey GetBasketKey(string userId) => BasketKeyPrefix.Append(userId);
@@ -20,7 +20,7 @@ public class RedisBasketRepository(ILogger<RedisBasketRepository> logger, IConne
         return await _database.KeyDeleteAsync(GetBasketKey(id));
     }
 
-    public async Task<CustomerBasket> GetBasketAsync(string customerId)
+    public async Task<CustomerBasket?> GetBasketAsync(string customerId)
     {
         using var data = await _database.StringGetLeaseAsync(GetBasketKey(customerId));
 
@@ -28,10 +28,11 @@ public class RedisBasketRepository(ILogger<RedisBasketRepository> logger, IConne
         {
             return null;
         }
+
         return JsonSerializer.Deserialize(data.Span, BasketSerializationContext.Default.CustomerBasket);
     }
 
-    public async Task<CustomerBasket> UpdateBasketAsync(CustomerBasket basket)
+    public async Task<CustomerBasket?> UpdateBasketAsync(CustomerBasket basket)
     {
         var json = JsonSerializer.SerializeToUtf8Bytes(basket, BasketSerializationContext.Default.CustomerBasket);
         var created = await _database.StringSetAsync(GetBasketKey(basket.BuyerId), json);

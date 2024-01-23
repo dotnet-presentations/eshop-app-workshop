@@ -1,7 +1,10 @@
-﻿namespace eShop.Catalog.API.Infrastructure.EntityConfigurations;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using eShop.Catalog.API.Model;
 
-class CatalogItemEntityTypeConfiguration
-    : IEntityTypeConfiguration<CatalogItem>
+namespace eShop.Catalog.API.Infrastructure.EntityConfigurations;
+
+class CatalogItemEntityTypeConfiguration : IEntityTypeConfiguration<CatalogItem>
 {
     public void Configure(EntityTypeBuilder<CatalogItem> builder)
     {

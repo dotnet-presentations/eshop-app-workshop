@@ -1,9 +1,11 @@
 ﻿@page "/cart"
+
+@attribute [StreamRendering]
+@attribute [Authorize]
+
 @inject NavigationManager Nav
 @inject BasketState Basket
 @inject IProductImageUrlProvider ProductImages
-@attribute [StreamRendering]
-@attribute [Authorize]
 
 <PageTitle>Shopping Bag | Northern Mountains</PageTitle>
 <SectionContent SectionName="page-header-title">Shopping bag</SectionContent>

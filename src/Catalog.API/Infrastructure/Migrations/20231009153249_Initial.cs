@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
-//using Pgvector;
 
 #nullable disable
 
@@ -12,7 +11,6 @@ namespace eShop.Catalog.API.Infrastructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterDatabase();
-                //.Annotation("Npgsql:PostgresExtension:vector", ",,");
 
             migrationBuilder.CreateSequence(
                 name: "catalog_brand_hilo",
