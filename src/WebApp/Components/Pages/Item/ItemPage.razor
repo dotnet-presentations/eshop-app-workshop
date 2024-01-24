@@ -50,9 +50,9 @@
                 }
             </form>
 
-            @if (!isLoggedIn && WasLoggedOut)
+            @if (isLoggedIn && WasLoggedOut)
             {
-                <p>There was an issue, please <a href="@User.LogIn.Url(Nav, preserveQuery: false)">sign-in</a> again.</p>
+                <p class="validation-message">There was an issue adding the item to your shopping bag. <br />Please try again.</p>
             }
 
             @if (numInCart > 0)
@@ -115,12 +115,20 @@ else if (notFound)
             {
                 await BasketState.AddAsync(item);
                 await UpdateNumInCartAsync();
+
+                if (WasLoggedOut)
+                {
+                    // Remove the flag from the URL by forcing a full page navigation
+                    var url = new Uri(Nav.Uri).GetComponents(UriComponents.SchemeAndServer | UriComponents.Path, UriFormat.SafeUnescaped);
+                    Nav.NavigateTo(url, HttpContext, forceFullNavigation: true);
+                }
             }
             catch (RpcException ex) when (ex.StatusCode is StatusCode.Unauthenticated)
             {
-                // There was an issue with the user's access token, sign-out and refresh the page with a message
-                await LogOutService.LogOutAsync(HttpContext);
-                Nav.NavigateTo(Nav.GetUriWithQueryParameter(nameof(WasLoggedOut), true));
+                // There was an issue with the user's access token, force login again and refresh the page with a message
+                var returnUrl = Nav.GetUriWithQueryParameter(nameof(WasLoggedOut), true);
+                var loginUrl = Pages.User.LogIn.Url(Nav, returnUrl, forceLogIn: true);
+                Nav.NavigateTo(loginUrl, HttpContext, forceFullNavigation: true);
                 return;
             }
         }

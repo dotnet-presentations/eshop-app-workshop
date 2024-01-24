@@ -71,8 +71,8 @@ else
         }
         catch (HttpRequestException hre) when (hre.StatusCode is System.Net.HttpStatusCode.Unauthorized)
         {
-            // Issue with the access token, force user to sign in again
-            signInRequired = true;
+            // Issue with the access token so force the user to login again
+            Nav.NavigateTo(Pages.User.LogIn.Url(Nav, forceLogIn: true));
         }
     }
 }
