@@ -18,8 +18,4 @@ public class OrderingService(HttpClient httpClient)
     }
 }
 
-public record OrderRecord(
-    int OrderNumber,
-    DateTime Date,
-    string Status,
-    decimal Total);
+public record OrderRecord(int OrderNumber, DateTime Date, string Status, decimal Total);

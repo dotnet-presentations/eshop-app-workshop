@@ -9,7 +9,7 @@ public static class HostingExtensions
     {
         builder.AddNpgsqlDbContext<CatalogContext>("CatalogDB");
 
-        // REVIEW: This is done for development ease but shouldn't be here in production
+        // TODO: Move this to a CatalogDbManager project
         builder.Services.AddMigration<CatalogContext, CatalogContextSeed>();
 
         builder.Services.Configure<CatalogOptions>(builder.Configuration.GetSection(nameof(CatalogOptions)));

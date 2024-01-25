@@ -19,7 +19,8 @@ public static class AuthenticationExtensions
         // }
 
         // Prevent from mapping "sub" claim to nameidentifier.
-        JsonWebTokenHandler.DefaultInboundClaimTypeMap.Remove("sub");
+        //JsonWebTokenHandler.DefaultInboundClaimTypeMap.Remove("sub");
+
 
         builder.Services.AddHttpClient("JwtBearerBackchannel", o => o.BaseAddress = new("http://keycloak"));
 
@@ -56,6 +57,8 @@ public static class AuthenticationExtensions
             options.RequireHttpsMetadata = false;
             options.Audience = audience;
             options.TokenValidationParameters.ValidateAudience = false;
+            // Prevent from mapping "sub" claim to nameidentifier.
+            options.MapInboundClaims = false;
         }
     }
 }

@@ -3,9 +3,9 @@ using System.Text.Json.Serialization;
 using eShop.Basket.API.Model;
 using StackExchange.Redis;
 
-namespace eShop.Basket.API.Repositories;
+namespace eShop.Basket.API.Storage;
 
-public class RedisBasketRepository(ILogger<RedisBasketRepository> logger, IConnectionMultiplexer redis) : IBasketRepository
+public class RedisBasketStore(ILogger<RedisBasketStore> logger, IConnectionMultiplexer redis) : IBasketStore
 {
     private readonly IDatabase _database = redis.GetDatabase();
 

@@ -20,7 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EventBusRabbitMQ\EventBusRabbitMQ.csproj" />
     <ProjectReference Include="..\eShop.ServiceDefaults\eShop.ServiceDefaults.csproj" />
   </ItemGroup>
 

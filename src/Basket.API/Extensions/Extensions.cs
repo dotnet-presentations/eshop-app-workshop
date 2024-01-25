@@ -1,7 +1,5 @@
 ﻿using System.Text.Json.Serialization;
-using eShop.Basket.API.Repositories;
-using eShop.Basket.API.IntegrationEvents.EventHandling;
-using eShop.Basket.API.IntegrationEvents.Events;
+using eShop.Basket.API.Storage;
 
 namespace Microsoft.Extensions.Hosting;
 
@@ -11,18 +9,8 @@ public static class Extensions
     {
         builder.AddDefaultAuthentication();
 
-        builder.AddRedis("redis");
+        builder.AddRedis("basketStore");
 
-        builder.Services.AddSingleton<IBasketRepository, RedisBasketRepository>();
-
-        builder.AddRabbitMqEventBus("EventBus")
-               .AddSubscription<OrderStartedIntegrationEvent, OrderStartedIntegrationEventHandler>()
-               .ConfigureJsonOptions(options => options.TypeInfoResolverChain.Add(IntegrationEventContext.Default));
+        builder.Services.AddSingleton<IBasketStore, RedisBasketStore>();
     }
-}
-
-[JsonSerializable(typeof(OrderStartedIntegrationEvent))]
-partial class IntegrationEventContext : JsonSerializerContext
-{
-
 }

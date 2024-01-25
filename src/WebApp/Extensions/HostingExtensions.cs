@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
-using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using eShop.Basket.API.Grpc;
 using eShop.WebApp.Services;
 
@@ -21,7 +21,6 @@ public static class HostingExtensions
         builder.Services.AddScoped<BasketState>();
         builder.Services.AddScoped<LogOutService>();
         builder.Services.AddSingleton<BasketService>();
-        builder.Services.AddSingleton<OrderStatusNotificationService>();
         builder.Services.AddSingleton<IProductImageUrlProvider, ProductImageUrlProvider>();
 
         // HTTP and gRPC client registrations
@@ -42,7 +41,7 @@ public static class HostingExtensions
         var configuration = builder.Configuration;
         var services = builder.Services;
 
-        JsonWebTokenHandler.DefaultInboundClaimTypeMap.Remove("sub");
+        //JsonWebTokenHandler.DefaultInboundClaimTypeMap.Remove("sub");
 
         var sessionCookieLifetime = configuration.GetValue("SessionCookieLifetimeMinutes", 60);
 
@@ -66,32 +65,31 @@ public static class HostingExtensions
     {
         // Named options
         authentication.Services.AddOptions<OpenIdConnectOptions>(OpenIdConnectDefaults.AuthenticationScheme)
-            .Configure<IConfiguration, IHttpClientFactory>(configure);
+            .Configure<IConfiguration, IHttpClientFactory, IHostEnvironment>(configure);
 
         // Unnamed options
         authentication.Services.AddOptions<OpenIdConnectOptions>()
-            .Configure<IConfiguration, IHttpClientFactory>(configure);
+            .Configure<IConfiguration, IHttpClientFactory, IHostEnvironment> (configure);
 
-        static void configure(OpenIdConnectOptions options, IConfiguration configuration, IHttpClientFactory httpClientFactory)
+        static void configure(OpenIdConnectOptions options, IConfiguration configuration, IHttpClientFactory httpClientFactory, IHostEnvironment hostEnvironment)
         {
             var identitySection = configuration.GetSection("Identity");
 
-            var callBackUrl = identitySection.GetRequiredValue("CallBackUrl");
             var clientSecret = identitySection.GetRequiredValue("ClientSecret");
             var backchannelClient = httpClientFactory.CreateClient("OpenIdConnectBackchannel");
             var realm = identitySection["Realm"] ?? "eShop";
-            var identityUri = new Uri(backchannelClient.BaseAddress!, $"/realms/{realm}");
+            var authorityUri = new Uri(
+                backchannelClient.BaseAddress ?? throw new InvalidOperationException("OIDC backchannel HttpClient.BaseAddress not configured."),
+                $"/realms/{realm}");
 
             options.Backchannel = backchannelClient;
-            options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            options.Authority = identityUri.ToString();
-            options.SignedOutRedirectUri = callBackUrl;
+            options.Authority = authorityUri.ToString();
             options.ClientId = "webapp";
             options.ClientSecret = clientSecret;
-            options.ResponseType = "code";
-            options.SaveTokens = true;
-            options.GetClaimsFromUserInfoEndpoint = true;
-            options.RequireHttpsMetadata = false;
+            options.ResponseType = OpenIdConnectResponseType.Code;
+            options.SaveTokens = true; // Preserve the access token so it can be used to call backend APIs
+            options.RequireHttpsMetadata = !hostEnvironment.IsDevelopment();
+            options.MapInboundClaims = false; // Prevent from mapping "sub" claim to nameidentifier.
         }
     }
 

@@ -89,7 +89,7 @@ public class BasketState(
 
         // Call into Ordering.API to create the order using those details
         var request = new CreateOrderRequest(
-            UserId: buyerId,
+            //UserId: buyerId,
             UserName: userName,
             City: checkoutInfo.City!,
             Street: checkoutInfo.Street!,
@@ -155,7 +155,7 @@ public class BasketState(
 }
 
 public record CreateOrderRequest(
-    string UserId,
+    //string UserId,
     string UserName,
     string City,
     string Street,

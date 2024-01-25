@@ -1,8 +1,8 @@
 ﻿using eShop.Basket.API.Model;
 
-namespace eShop.Basket.API.Repositories;
+namespace eShop.Basket.API.Storage;
 
-public interface IBasketRepository
+public interface IBasketStore
 {
     Task<CustomerBasket?> GetBasketAsync(string customerId);
 
