@@ -3,8 +3,8 @@
 // Databases & Message Brokers
 
 var rabbitMq = builder.AddRabbitMQContainer("EventBus");
-var redis = builder.AddRedis("redis");
-var postgres = builder.AddPostgres("postgres");
+var redis = builder.AddRedis("redis").WithRedisCommander();
+var postgres = builder.AddPostgres("postgres").WithPgAdmin();
 var catalogDb = postgres.AddDatabase("CatalogDB");
 var orderDb = postgres.AddDatabase("OrderingDB");
 
