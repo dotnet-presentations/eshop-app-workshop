@@ -17,7 +17,7 @@ internal static class KeycloakHostingExtensions
         return builder
             .AddResource(keycloakContainer)
             .WithAnnotation(new ContainerImageAnnotation { Registry = "quay.io", Image = "keycloak/keycloak", Tag = tag ?? "latest" })
-            .WithServiceBinding(hostPort: port, containerPort: DefaultContainerPort, scheme: "http")
+            .WithHttpEndpoint(hostPort: port, containerPort: DefaultContainerPort)
             .WithEnvironment("KEYCLOAK_ADMIN", "admin")
             .WithEnvironment("KEYCLOAK_ADMIN_PASSWORD", "admin")
             .WithArgs("start-dev")
