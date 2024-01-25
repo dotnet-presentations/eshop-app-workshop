@@ -1,5 +1,9 @@
 # .NET eShop - App Building Workshop
 
+## WORK IN PROGRESS
+
+This repo is a work in progress and not ready for consumption as a workshop as yet. Stay tuned.
+
 ## Setup
 
 [Download](https://www.microsoft.com/net/download) and install the .NET SDK.
