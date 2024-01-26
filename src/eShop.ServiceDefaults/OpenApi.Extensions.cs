@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.ServiceDiscovery;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -73,7 +74,7 @@ public static partial class HostingExtensions
         services.AddSwaggerGen();
 
         services.AddOptions<SwaggerGenOptions>()
-            .Configure<IHttpClientFactory>((options, httpClientFactory) =>
+            .Configure<IHttpClientFactory, ServiceEndPointResolverRegistry>((options, httpClientFactory, serviceEndPointResolver) =>
             {
                 /// {
                 ///   "OpenApi": {
@@ -112,8 +113,8 @@ public static partial class HostingExtensions
                 //    }
                 // }
 
-                var identityUrlExternal = identitySection.GetRequiredValue("Url");
-                //var identityUrlExternal = httpClientFactory.GetIdpAuthorityUrl(configuration, AuthenticationExtensions.JwtBearerBackchannel);
+                var identityUri = serviceEndPointResolver.ResolveIdpAuthorityUri(configuration);
+
                 var scopes = identitySection.GetSection("Scopes").GetChildren().ToDictionary(p => p.Key, p => p.Value);
 
                 options.AddSecurityDefinition("oauth2", new()
@@ -124,8 +125,8 @@ public static partial class HostingExtensions
                         // TODO: Change this to use Authorization Code flow with PKCE
                         Implicit = new()
                         {
-                            AuthorizationUrl = new Uri($"{identityUrlExternal}/protocol/openid-connect/auth"),
-                            TokenUrl = new Uri($"{identityUrlExternal}/protocol/openid-connect/token"),
+                            AuthorizationUrl = new Uri(identityUri, "protocol/openid-connect/auth"),
+                            TokenUrl = new Uri(identityUri, "protocol/openid-connect/token"),
                             Scopes = scopes,
                         }
                     }

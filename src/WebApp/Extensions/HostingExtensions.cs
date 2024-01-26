@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -6,7 +7,6 @@ using Microsoft.AspNetCore.Components.Server;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using eShop.Basket.API.Grpc;
 using eShop.WebApp.Services;
-using System.Security.Claims;
 
 namespace Microsoft.Extensions.Hosting;
 
@@ -36,15 +36,13 @@ public static class HostingExtensions
         builder.Services.AddHttpClient<OrderingService>(o => o.BaseAddress = new("http://ordering-api"))
             .AddAuthToken();
 
-        builder.Services.AddHttpClient(OpenIdConnectBackchannel, o => o.BaseAddress = new("http://keycloak"));
+        builder.Services.AddHttpClient(OpenIdConnectBackchannel, o => o.BaseAddress = new("http://idp"));
     }
 
     public static void AddAuthenticationServices(this IHostApplicationBuilder builder)
     {
         var configuration = builder.Configuration;
         var services = builder.Services;
-
-        //JsonWebTokenHandler.DefaultInboundClaimTypeMap.Remove("sub");
 
         var sessionCookieLifetime = configuration.GetValue("SessionCookieLifetimeMinutes", 60);
 
@@ -76,14 +74,11 @@ public static class HostingExtensions
 
         static void configure(OpenIdConnectOptions options, IConfiguration configuration, IHttpClientFactory httpClientFactory, IHostEnvironment hostEnvironment)
         {
-            var identitySection = configuration.GetSection("Identity");
-            var clientSecret = identitySection.GetRequiredValue("ClientSecret");
-            var backchannelClient = httpClientFactory.CreateClient(OpenIdConnectBackchannel);
-            var realm = identitySection["Realm"] ?? "eShop";
-            var authorityUri = httpClientFactory.GetIdpAuthorityUrl(configuration, OpenIdConnectBackchannel);
+            var clientSecret = configuration.GetRequiredSection("Identity").GetRequiredValue("ClientSecret");
+            var backchannelHttpClient = httpClientFactory.CreateClient(OpenIdConnectBackchannel);
 
-            options.Backchannel = backchannelClient;
-            options.Authority = authorityUri.ToString();
+            options.Backchannel = backchannelHttpClient;
+            options.Authority = backchannelHttpClient.GetIdpAuthorityUri(configuration).ToString();
             options.ClientId = "webapp";
             options.ClientSecret = clientSecret;
             options.ResponseType = OpenIdConnectResponseType.Code;

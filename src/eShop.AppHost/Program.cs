@@ -9,7 +9,7 @@ var orderDb = postgres.AddDatabase("OrderingDB");
 
 // Identity Providers
 
-var keycloak = builder.AddKeycloakContainer("keycloak", tag: "23.0")
+var keycloak = builder.AddKeycloakContainer("idp", tag: "23.0")
     .ImportRealms("../Keycloak/data/import");
 
 // API Apps
@@ -35,10 +35,9 @@ var webApp = builder.AddProject<Projects.WebApp>("webapp")
     // Force HTTPS profile for web app (required for OIDC operations)
     .WithLaunchProfile("https");
 
-// Wire up the URLs for OIDC configuration
+// Inject the project URLs for Keycloak realm configuration
 keycloak.WithEnvironment("WEBAPP_HTTP", () => webApp.GetEndpoint("http").UriString);
 keycloak.WithEnvironment("WEBAPP_HTTPS", () => webApp.GetEndpoint("https").UriString);
 keycloak.WithEnvironment("ORDERINGAPI_HTTP", () => orderingApi.GetEndpoint("http").UriString);
-orderingApi.WithEnvironment("Identity__Url", () => $"{keycloak.GetEndpoint("http").UriString}/realms/eShop");
 
 builder.Build().Run();

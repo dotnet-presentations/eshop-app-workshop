@@ -1,42 +1,25 @@
-﻿using System.Net;
-
-namespace Microsoft.Extensions.ServiceDiscovery.Http;
+﻿namespace Microsoft.Extensions.ServiceDiscovery;
 
 public static class ServiceDiscoveryExtensions
 {
-    public static async Task<Uri> ResolveUriAsync(this HttpServiceEndPointResolver resolver, Uri originalUri)
+    public static async ValueTask<string?> ResolveEndPointUrlAsync(this ServiceEndPointResolverRegistry resolver, string serviceName, CancellationToken cancellationToken = default)
     {
-        // Copied from ResolvingHttpDelegatingHandler.GetUriWithEndPoint
-        var dummyRequest = new HttpRequestMessage(HttpMethod.Get, originalUri);
-        var endpoint = (await resolver.GetEndpointAsync(dummyRequest, default)).EndPoint;
-
-        string host;
-        int port;
-        switch (endpoint)
+        var scheme = ExtractScheme(serviceName);
+        var endpoints = await resolver.GetEndPointsAsync(serviceName, cancellationToken);
+        if (endpoints.Count > 0)
         {
-            case IPEndPoint ip:
-                host = ip.Address.ToString();
-                port = ip.Port;
-                break;
-            case DnsEndPoint dns:
-                host = dns.Host;
-                port = dns.Port;
-                break;
-            default:
-                throw new InvalidOperationException($"Endpoints of type {endpoint.GetType()} are not supported");
+            var address = endpoints[0].GetEndPointString();
+            return $"{scheme}://{address}";
         }
+        return null;
+    }
 
-        var builder = new UriBuilder(originalUri)
+    private static string? ExtractScheme(string serviceName)
+    {
+        if (Uri.TryCreate(serviceName, UriKind.Absolute, out var uri))
         {
-            Host = host,
-        };
-
-        // Default to the default port for the scheme.
-        if (port > 0)
-        {
-            builder.Port = port;
+            return uri.Scheme;
         }
-
-        return builder.Uri;
+        return null;
     }
 }

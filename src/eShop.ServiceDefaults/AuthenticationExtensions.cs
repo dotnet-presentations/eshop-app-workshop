@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.ServiceDiscovery.Abstractions;
+using Microsoft.Extensions.ServiceDiscovery;
 
 namespace Microsoft.Extensions.Hosting;
 
@@ -23,7 +25,7 @@ public static class AuthenticationExtensions
         //JsonWebTokenHandler.DefaultInboundClaimTypeMap.Remove("sub");
 
 
-        builder.Services.AddHttpClient(JwtBearerBackchannel, o => o.BaseAddress = new("http://keycloak"));
+        builder.Services.AddHttpClient(JwtBearerBackchannel, o => o.BaseAddress = new("http://idp"));
 
         services.AddAuthentication()
             .AddJwtBearer()
@@ -34,16 +36,31 @@ public static class AuthenticationExtensions
         return services;
     }
 
-    public static string GetIdpAuthorityUrl(this IHttpClientFactory httpClientFactory, IConfiguration configuration, string httpClientName)
+    public static Uri GetIdpAuthorityUri(this HttpClient httpClient, IConfiguration configuration)
+    {
+        var idpBaseUri = httpClient.BaseAddress
+            ?? throw new InvalidOperationException($"HttpClient instance does not have a BaseAddress configured.");
+        var identityUri = GetIdpRealmUri(idpBaseUri, configuration);
+
+        return identityUri;
+    }
+
+    public static Uri ResolveIdpAuthorityUri(this ServiceEndPointResolverRegistry resolver, IConfiguration configuration, string serviceName = "http://idp")
+    {
+        // Sync over async :(
+        var idpBaseUrl = resolver.ResolveEndPointUrlAsync(serviceName).AsTask().GetAwaiter().GetResult()
+            ?? throw new InvalidOperationException($"Could not resolve IDP address using service name '{serviceName}'.");
+        var identityUri = GetIdpRealmUri(new Uri(idpBaseUrl), configuration);
+
+        return identityUri;
+    }
+
+    private static Uri GetIdpRealmUri(Uri idpBaseUri, IConfiguration configuration)
     {
         var identitySection = configuration.GetSection("Identity");
-        var backchannelClient = httpClientFactory.CreateClient(httpClientName);
         var realm = identitySection["Realm"] ?? "eShop";
-        var identityUri = new Uri(
-            backchannelClient.BaseAddress ?? throw new InvalidOperationException("OIDC backchannel HttpClient.BaseAddress not configured."),
-            $"/realms/{realm}");
 
-        return identityUri.ToString();
+        return new Uri(idpBaseUri, $"realms/{realm}/");
     }
 
     private static void ConfigureDefaultJwtBearer(this AuthenticationBuilder authentication)
@@ -60,9 +77,10 @@ public static class AuthenticationExtensions
         {
             var identitySection = configuration.GetSection("Identity");
             var audience = identitySection.GetRequiredValue("Audience");
+            var backchannelHttpClient = httpClientFactory.CreateClient(JwtBearerBackchannel);
 
-            options.Backchannel = httpClientFactory.CreateClient(JwtBearerBackchannel);
-            options.Authority = httpClientFactory.GetIdpAuthorityUrl(configuration, JwtBearerBackchannel);
+            options.Backchannel = backchannelHttpClient;
+            options.Authority = backchannelHttpClient.GetIdpAuthorityUri(configuration).ToString();
             options.RequireHttpsMetadata = false;
             options.Audience = audience;
             options.TokenValidationParameters.ValidateAudience = false;
