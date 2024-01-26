@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.Build.NoTargets/3.7.0">
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <RepoSlns Include="$(MSBuildThisFileDirectory)../*.sln" />
+        <AppHostProjects Include="$(MSBuildThisFileDirectory)../src/**/*.AppHost/*.AppHost.csproj" />
+    </ItemGroup>
+
+    <Target Name="BuildRepoSlns" BeforeTargets="Build">
+        <Message Text="Building @(RepoSlns->Count()) solutions" Importance="High" />
+
+        <MSBuild Projects="@(RepoSlns)" Targets="Restore" />
+        <MSBuild Projects="@(RepoSlns)" Targets="Build" BuildInParallel="True" />
+
+        <Message Text="@(RepoSlns->Count()) solutions successfully built" Importance="High" />
+    </Target>
+
+    <!-- <Target Name="PublishRepoSlns" AfterTargets="BuildRepoSlns">
+        <Message Text="Publishing @(RepoSlns->Count()) solutions" Importance="High" />
+
+        <MSBuild Projects="@(RepoSlns)" Targets="Restore" />
+        <MSBuild Projects="@(RepoSlns)" Targets="Publish" BuildInParallel="True" />
+
+        <Message Text="@(RepoSlns->Count()) solutions successfully published" Importance="High" />
+    </Target> -->
+
+    <Target Name="GenerateAppHostManifests" AfterTargets="PublishRepoSlns">
+        <Message Text="Generating manifests for @(AppHostProjects->Count()) AppHost projects" Importance="High" />
+
+        <MSBuild Projects="@(AppHostProjects)" Targets="GenerateAspireManifest" BuildInParallel="True">
+            <Output TaskParameter="TargetOutputs" ItemName="GeneratedManifestFiles" />
+        </MSBuild>
+
+        <Message Text="Generated manifest for '%(GeneratedManifestFiles.MSBuildSourceProjectFile)'" Importance="High" />
+        <Message Text="@(AppHostProjects->Count()) manifests generated" Importance="High" />
+    </Target>
+</Project>
