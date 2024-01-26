@@ -3,9 +3,9 @@ using eShop.Catalog.API.Infrastructure;
 
 namespace eShop.Catalog.API.Model;
 
-public class CatalogServices(CatalogContext context, IOptions<CatalogOptions> options, ILogger<CatalogServices> logger)
+public readonly struct CatalogServices(CatalogDbContext dbContext, IOptions<CatalogOptions> options, ILogger<CatalogServices> logger)
 {
-    public CatalogContext Context { get; } = context;
+    public CatalogDbContext DbContext { get; } = dbContext;
 
     public IOptions<CatalogOptions> Options { get; } = options;
     

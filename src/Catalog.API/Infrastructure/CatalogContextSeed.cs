@@ -1,18 +1,15 @@
 ﻿using System.Text.Json;
-using eShop.Catalog.API.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Npgsql;
+using eShop.Catalog.API.Model;
 
 namespace eShop.Catalog.API.Infrastructure;
 
-public partial class CatalogContextSeed(
-    IWebHostEnvironment env,
-    IOptions<CatalogOptions> settings,
-    ILogger<CatalogContextSeed> logger)
-    : IDbSeeder<CatalogContext>
+public partial class CatalogContextSeed(IWebHostEnvironment env, IOptions<CatalogOptions> settings, ILogger<CatalogContextSeed> logger)
+    : IDbSeeder<CatalogDbContext>
 {
-    public async Task SeedAsync(CatalogContext context)
+    public async Task SeedAsync(CatalogDbContext context)
     {
         var useCustomizationData = settings.Value.UseCustomizationData;
         var contentRootPath = env.ContentRootPath;
@@ -59,6 +56,7 @@ public partial class CatalogContextSeed(
             }));
 
             logger.LogInformation("Seeded catalog with {NumItems} items", context.CatalogItems.Count());
+
             await context.SaveChangesAsync();
         }
     }

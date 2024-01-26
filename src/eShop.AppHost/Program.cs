@@ -38,5 +38,7 @@ var webApp = builder.AddProject<Projects.WebApp>("webapp")
 // Wire up the URLs for OIDC configuration
 keycloak.WithEnvironment("WEBAPP_HTTP", () => webApp.GetEndpoint("http").UriString);
 keycloak.WithEnvironment("WEBAPP_HTTPS", () => webApp.GetEndpoint("https").UriString);
+keycloak.WithEnvironment("ORDERINGAPI_HTTP", () => orderingApi.GetEndpoint("http").UriString);
+orderingApi.WithEnvironment("Identity__Url", () => $"{keycloak.GetEndpoint("http").UriString}/realms/eShop");
 
 builder.Build().Run();

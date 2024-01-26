@@ -70,65 +70,69 @@ public static partial class HostingExtensions
 
         services.AddEndpointsApiExplorer();
 
-        services.AddSwaggerGen(options =>
-        {
-            /// {
-            ///   "OpenApi": {
-            ///     "Document": {
-            ///         "Title": ..
-            ///         "Version": ..
-            ///         "Description": ..
-            ///     }
-            ///   }
-            /// }
-            var document = openApi.GetRequiredSection("Document");
+        services.AddSwaggerGen();
 
-            var version = document.GetRequiredValue("Version") ?? "v1";
-
-            options.SwaggerDoc(version, new OpenApiInfo
+        services.AddOptions<SwaggerGenOptions>()
+            .Configure<IHttpClientFactory>((options, httpClientFactory) =>
             {
-                Title = document.GetRequiredValue("Title"),
-                Version = version,
-                Description = document.GetRequiredValue("Description")
+                /// {
+                ///   "OpenApi": {
+                ///     "Document": {
+                ///         "Title": ..
+                ///         "Version": ..
+                ///         "Description": ..
+                ///     }
+                ///   }
+                /// }
+                var document = openApi.GetRequiredSection("Document");
+
+                var version = document.GetRequiredValue("Version") ?? "v1";
+
+                options.SwaggerDoc(version, new()
+                {
+                    Title = document.GetRequiredValue("Title"),
+                    Version = version,
+                    Description = document.GetRequiredValue("Description")
+                });
+
+                var identitySection = configuration.GetSection("Identity");
+
+                if (!identitySection.Exists())
+                {
+                    // No identity section, so no authentication OpenAPI definition
+                    return;
+                }
+
+                // {
+                //   "Identity": {
+                //     "Audience": "orders",
+                //     "Scopes": {
+                //         "basket": "Basket API"
+                //      }
+                //    }
+                // }
+
+                var identityUrlExternal = identitySection.GetRequiredValue("Url");
+                //var identityUrlExternal = httpClientFactory.GetIdpAuthorityUrl(configuration, AuthenticationExtensions.JwtBearerBackchannel);
+                var scopes = identitySection.GetSection("Scopes").GetChildren().ToDictionary(p => p.Key, p => p.Value);
+
+                options.AddSecurityDefinition("oauth2", new()
+                {
+                    Type = SecuritySchemeType.OAuth2,
+                    Flows = new OpenApiOAuthFlows
+                    {
+                        // TODO: Change this to use Authorization Code flow with PKCE
+                        Implicit = new()
+                        {
+                            AuthorizationUrl = new Uri($"{identityUrlExternal}/protocol/openid-connect/auth"),
+                            TokenUrl = new Uri($"{identityUrlExternal}/protocol/openid-connect/token"),
+                            Scopes = scopes,
+                        }
+                    }
+                });
+
+                options.OperationFilter<AuthorizeCheckOperationFilter>([scopes.Keys.ToArray()]);
             });
-
-            var identitySection = configuration.GetSection("Identity");
-
-            if (!identitySection.Exists())
-            {
-                // No identity section, so no authentication open api definition
-                return;
-            }
-
-            // {
-            //   "Identity": {
-            //     "Url": "http://identity",
-            //     "Scopes": {
-            //         "basket": "Basket API"
-            //      }
-            //    }
-            // }
-
-            //var identityUrlExternal = identitySection.GetRequiredValue("Url");
-            //var scopes = identitySection.GetRequiredSection("Scopes").GetChildren().ToDictionary(p => p.Key, p => p.Value);
-
-            //options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
-            //{
-            //    Type = SecuritySchemeType.OAuth2,
-            //    Flows = new OpenApiOAuthFlows()
-            //    {
-            //        // TODO: Change this to use Authorization Code flow with PKCE
-            //        Implicit = new OpenApiOAuthFlow()
-            //        {
-            //            AuthorizationUrl = new Uri($"{identityUrlExternal}/connect/authorize"),
-            //            TokenUrl = new Uri($"{identityUrlExternal}/connect/token"),
-            //            Scopes = scopes,
-            //        }
-            //    }
-            //});
-
-            //options.OperationFilter<AuthorizeCheckOperationFilter>([scopes.Keys.ToArray()]);
-        });
 
         return builder;
     }

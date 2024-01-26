@@ -5,13 +5,12 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using eShop.Catalog.API.Infrastructure;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-//using Pgvector;
 
 #nullable disable
 
 namespace eShop.Catalog.API.Infrastructure.Migrations
 {
-    [DbContext(typeof(CatalogContext))]
+    [DbContext(typeof(CatalogDbContext))]
     partial class CatalogContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

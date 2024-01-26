@@ -6,11 +6,14 @@ using Microsoft.AspNetCore.Components.Server;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using eShop.Basket.API.Grpc;
 using eShop.WebApp.Services;
+using System.Security.Claims;
 
 namespace Microsoft.Extensions.Hosting;
 
 public static class HostingExtensions
 {
+    public const string OpenIdConnectBackchannel = "OpenIdConnectBackchannel";
+
     public static void AddApplicationServices(this IHostApplicationBuilder builder)
     {
         builder.AddAuthenticationServices();
@@ -33,7 +36,7 @@ public static class HostingExtensions
         builder.Services.AddHttpClient<OrderingService>(o => o.BaseAddress = new("http://ordering-api"))
             .AddAuthToken();
 
-        builder.Services.AddHttpClient("OpenIdConnectBackchannel", o => o.BaseAddress = new("http://keycloak"));
+        builder.Services.AddHttpClient(OpenIdConnectBackchannel, o => o.BaseAddress = new("http://keycloak"));
     }
 
     public static void AddAuthenticationServices(this IHostApplicationBuilder builder)
@@ -74,13 +77,10 @@ public static class HostingExtensions
         static void configure(OpenIdConnectOptions options, IConfiguration configuration, IHttpClientFactory httpClientFactory, IHostEnvironment hostEnvironment)
         {
             var identitySection = configuration.GetSection("Identity");
-
             var clientSecret = identitySection.GetRequiredValue("ClientSecret");
-            var backchannelClient = httpClientFactory.CreateClient("OpenIdConnectBackchannel");
+            var backchannelClient = httpClientFactory.CreateClient(OpenIdConnectBackchannel);
             var realm = identitySection["Realm"] ?? "eShop";
-            var authorityUri = new Uri(
-                backchannelClient.BaseAddress ?? throw new InvalidOperationException("OIDC backchannel HttpClient.BaseAddress not configured."),
-                $"/realms/{realm}");
+            var authorityUri = httpClientFactory.GetIdpAuthorityUrl(configuration, OpenIdConnectBackchannel);
 
             options.Backchannel = backchannelClient;
             options.Authority = authorityUri.ToString();
@@ -97,13 +97,13 @@ public static class HostingExtensions
     {
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
-        return user.FindFirst("sub")?.Value;
+        return user.GetUserId();
     }
 
     public static async Task<string?> GetUserNameAsync(this AuthenticationStateProvider authenticationStateProvider)
     {
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
-        return user.FindFirst("name")?.Value;
+        return user.GetUserName();
     }
 }

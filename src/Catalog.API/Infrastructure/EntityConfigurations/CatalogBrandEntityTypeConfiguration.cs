@@ -4,7 +4,7 @@ using eShop.Catalog.API.Model;
 
 namespace eShop.Catalog.API.Infrastructure.EntityConfigurations;
 
-class CatalogBrandEntityTypeConfiguration : IEntityTypeConfiguration<CatalogBrand>
+internal class CatalogBrandEntityTypeConfiguration : IEntityTypeConfiguration<CatalogBrand>
 {
     public void Configure(EntityTypeBuilder<CatalogBrand> builder)
     {

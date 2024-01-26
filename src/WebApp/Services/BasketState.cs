@@ -81,7 +81,6 @@ public class BasketState(
             checkoutInfo.RequestId = Guid.NewGuid();
         }
 
-        var buyerId = await authenticationStateProvider.GetBuyerIdAsync() ?? throw new InvalidOperationException("User does not have a buyer ID");
         var userName = await authenticationStateProvider.GetUserNameAsync() ?? throw new InvalidOperationException("User does not have a user name");
 
         // Get details for the items in the basket
@@ -89,7 +88,6 @@ public class BasketState(
 
         // Call into Ordering.API to create the order using those details
         var request = new CreateOrderRequest(
-            //UserId: buyerId,
             UserName: userName,
             City: checkoutInfo.City!,
             Street: checkoutInfo.Street!,
@@ -101,9 +99,11 @@ public class BasketState(
             CardExpiration: checkoutInfo.CardExpiration!.Value, 
             CardSecurityNumber: checkoutInfo.CardSecurityNumber!,
             CardTypeId: checkoutInfo.CardTypeId,
-            Buyer: buyerId,
             Items: [.. orderItems]);
+        
         await orderingService.CreateOrder(request, checkoutInfo.RequestId);
+
+        // Delete the basket
         await DeleteBasketAsync();
     }
 
@@ -155,7 +155,6 @@ public class BasketState(
 }
 
 public record CreateOrderRequest(
-    //string UserId,
     string UserName,
     string City,
     string Street,
@@ -167,5 +166,4 @@ public record CreateOrderRequest(
     DateTime CardExpiration,
     string CardSecurityNumber,
     int CardTypeId,
-    string Buyer,
     List<BasketItem> Items);

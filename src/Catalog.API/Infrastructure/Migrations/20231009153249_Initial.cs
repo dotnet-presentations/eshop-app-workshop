@@ -12,20 +12,26 @@ namespace eShop.Catalog.API.Infrastructure.Migrations
         {
             migrationBuilder.AlterDatabase();
 
+            migrationBuilder.EnsureSchema("catalog");
+
             migrationBuilder.CreateSequence(
                 name: "catalog_brand_hilo",
+                schema: "catalog",
                 incrementBy: 10);
 
             migrationBuilder.CreateSequence(
                 name: "catalog_hilo",
+                schema: "catalog",
                 incrementBy: 10);
 
             migrationBuilder.CreateSequence(
                 name: "catalog_type_hilo",
+                schema: "catalog",
                 incrementBy: 10);
 
             migrationBuilder.CreateTable(
                 name: "CatalogBrand",
+                schema: "catalog",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false),
@@ -38,6 +44,7 @@ namespace eShop.Catalog.API.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "CatalogType",
+                schema: "catalog",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false),
@@ -50,6 +57,7 @@ namespace eShop.Catalog.API.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Catalog",
+                schema: "catalog",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false),
@@ -62,7 +70,6 @@ namespace eShop.Catalog.API.Infrastructure.Migrations
                     AvailableStock = table.Column<int>(type: "integer", nullable: false),
                     RestockThreshold = table.Column<int>(type: "integer", nullable: false),
                     MaxStockThreshold = table.Column<int>(type: "integer", nullable: false),
-                    //Embedding = table.Column<Vector>(type: "vector(1536)", nullable: true),
                     OnReorder = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
@@ -72,12 +79,14 @@ namespace eShop.Catalog.API.Infrastructure.Migrations
                         name: "FK_Catalog_CatalogBrand_CatalogBrandId",
                         column: x => x.CatalogBrandId,
                         principalTable: "CatalogBrand",
+                        principalSchema: "catalog",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Catalog_CatalogType_CatalogTypeId",
                         column: x => x.CatalogTypeId,
                         principalTable: "CatalogType",
+                        principalSchema: "catalog",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -85,11 +94,13 @@ namespace eShop.Catalog.API.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Catalog_CatalogBrandId",
                 table: "Catalog",
+                schema: "catalog",
                 column: "CatalogBrandId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Catalog_CatalogTypeId",
                 table: "Catalog",
+                schema: "catalog",
                 column: "CatalogTypeId");
         }
 
@@ -97,22 +108,28 @@ namespace eShop.Catalog.API.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Catalog");
+                name: "Catalog",
+                schema: "catalog");
 
             migrationBuilder.DropTable(
-                name: "CatalogBrand");
+                name: "CatalogBrand",
+                schema: "catalog");
 
             migrationBuilder.DropTable(
-                name: "CatalogType");
+                name: "CatalogType",
+                schema: "catalog");
 
             migrationBuilder.DropSequence(
-                name: "catalog_brand_hilo");
+                name: "catalog_brand_hilo",
+                schema: "catalog");
 
             migrationBuilder.DropSequence(
-                name: "catalog_hilo");
+                name: "catalog_hilo",
+                schema: "catalog");
 
             migrationBuilder.DropSequence(
-                name: "catalog_type_hilo");
+                name: "catalog_type_hilo",
+                schema: "catalog");
         }
     }
 }

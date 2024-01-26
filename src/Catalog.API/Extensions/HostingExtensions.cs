@@ -7,10 +7,10 @@ public static class HostingExtensions
 {
     public static void AddApplicationServices(this IHostApplicationBuilder builder)
     {
-        builder.AddNpgsqlDbContext<CatalogContext>("CatalogDB");
+        builder.AddNpgsqlDbContext<CatalogDbContext>("CatalogDB");
 
         // TODO: Move this to a CatalogDbManager project
-        builder.Services.AddMigration<CatalogContext, CatalogContextSeed>();
+        builder.Services.AddMigration<CatalogDbContext, CatalogContextSeed>();
 
         builder.Services.Configure<CatalogOptions>(builder.Configuration.GetSection(nameof(CatalogOptions)));
     }

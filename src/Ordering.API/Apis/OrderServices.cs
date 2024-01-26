@@ -1,11 +1,13 @@
-﻿public class OrderServices(
-    IMediator mediator,
-    IOrderQueries queries,
-    IIdentityService identityService,
-    ILogger<OrderServices> logger)
+﻿using eShop.Ordering.API.Data;
+using eShop.Ordering.API.Infrastructure.Services;
+
+namespace eShop.Ordering.API.Apis;
+
+public class OrderServices(OrderingDbContext dbContext, IIdentityService identityService, ILogger<OrderServices> logger)
 {
-    public IMediator Mediator { get; set; } = mediator;
-    public ILogger<OrderServices> Logger { get; } = logger;
-    public IOrderQueries Queries { get; } = queries;
+    public OrderingDbContext DbContext { get; } = dbContext;
+
     public IIdentityService IdentityService { get; } = identityService;
+
+    public ILogger<OrderServices> Logger { get; } = logger;
 }

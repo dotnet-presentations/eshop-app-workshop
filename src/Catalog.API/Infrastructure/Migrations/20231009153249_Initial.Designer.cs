@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace eShop.Catalog.API.Infrastructure.Migrations
 {
-    [DbContext(typeof(CatalogContext))]
+    [DbContext(typeof(CatalogDbContext))]
     [Migration("20231009153249_Initial")]
     partial class Initial
     {

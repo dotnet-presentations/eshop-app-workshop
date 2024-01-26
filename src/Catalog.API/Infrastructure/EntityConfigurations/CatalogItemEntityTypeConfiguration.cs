@@ -4,7 +4,7 @@ using eShop.Catalog.API.Model;
 
 namespace eShop.Catalog.API.Infrastructure.EntityConfigurations;
 
-class CatalogItemEntityTypeConfiguration : IEntityTypeConfiguration<CatalogItem>
+internal class CatalogItemEntityTypeConfiguration : IEntityTypeConfiguration<CatalogItem>
 {
     public void Configure(EntityTypeBuilder<CatalogItem> builder)
     {
@@ -14,9 +14,6 @@ class CatalogItemEntityTypeConfiguration : IEntityTypeConfiguration<CatalogItem>
             .HasMaxLength(50);
 
         builder.Ignore(ci => ci.PictureUri);
-
-        //builder.Property(ci => ci.Embedding)
-        //    .HasColumnType("vector(1536)");
 
         builder.HasOne(ci => ci.CatalogBrand)
             .WithMany();
