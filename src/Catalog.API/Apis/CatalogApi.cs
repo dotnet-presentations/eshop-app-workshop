@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using eShop.Catalog.API;
-using eShop.Catalog.API.Infrastructure;
+using eShop.Catalog.API.Data;
 using eShop.Catalog.API.Model;
 
 namespace Microsoft.AspNetCore.Builder;

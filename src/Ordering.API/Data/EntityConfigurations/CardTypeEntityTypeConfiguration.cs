@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace eShop.Ordering.API.Data;
+namespace eShop.Ordering.API.Data.EntityConfigurations;
 
 class CardTypeEntityTypeConfiguration : IEntityTypeConfiguration<CardType>
 {

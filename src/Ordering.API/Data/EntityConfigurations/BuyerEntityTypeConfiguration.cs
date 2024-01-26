@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace eShop.Ordering.API.Data;
+namespace eShop.Ordering.API.Data.EntityConfigurations;
 
 class BuyerEntityTypeConfiguration : IEntityTypeConfiguration<Buyer>
 {
@@ -9,16 +9,17 @@ class BuyerEntityTypeConfiguration : IEntityTypeConfiguration<Buyer>
     {
         buyerConfiguration.ToTable("buyers");
 
-        buyerConfiguration.Property(b => b.Id)
+        buyerConfiguration.Property("Id")
             .UseHiLo("buyerseq");
 
-        buyerConfiguration.Property(b => b.IdentityGuid)
+        buyerConfiguration.Property("IdentityGuid")
             .HasMaxLength(200);
 
         buyerConfiguration.HasIndex("IdentityGuid")
             .IsUnique(true);
 
-        buyerConfiguration.HasMany(b => b.PaymentMethods)
-            .WithOne();
+        buyerConfiguration.HasMany<PaymentMethod>("PaymentMethods")
+            .WithOne()
+            .HasForeignKey("BuyerId");
     }
 }

@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace eShop.Catalog.API.Infrastructure.Migrations
+namespace eShop.Catalog.API.Data.Migrations
 {
     /// <inheritdoc />
     public partial class Initial : Migration

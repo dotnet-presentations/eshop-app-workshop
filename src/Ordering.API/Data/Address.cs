@@ -1,23 +1,12 @@
 ﻿namespace eShop.Ordering.API.Data;
 
-public class Address : ValueObject
+public class Address(string street, string city, string state, string country, string zipCode) : ValueObject
 {
-    public string Street { get; private set; }
-    public string City { get; private set; }
-    public string State { get; private set; }
-    public string Country { get; private set; }
-    public string ZipCode { get; private set; }
-
-    public Address() { }
-
-    public Address(string street, string city, string state, string country, string zipcode)
-    {
-        Street = street;
-        City = city;
-        State = state;
-        Country = country;
-        ZipCode = zipcode;
-    }
+    public string Street { get; private set; } = street;
+    public string City { get; private set; } = city;
+    public string State { get; private set; } = state;
+    public string Country { get; private set; } = country;
+    public string ZipCode { get; private set; } = zipCode;
 
     protected override IEnumerable<object> GetEqualityComponents()
     {

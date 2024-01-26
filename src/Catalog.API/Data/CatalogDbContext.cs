@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using eShop.Catalog.API.Infrastructure.EntityConfigurations;
+using eShop.Catalog.API.Data.EntityConfigurations;
 using eShop.Catalog.API.Model;
 
-namespace eShop.Catalog.API.Infrastructure;
+namespace eShop.Catalog.API.Data;
 
 /// <remarks>
 /// Add migrations using the following command inside the 'Catalog.API' project directory:

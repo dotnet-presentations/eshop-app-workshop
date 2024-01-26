@@ -3,13 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using eShop.Catalog.API.Infrastructure;
+using eShop.Catalog.API.Data;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 //using Pgvector;
 
 #nullable disable
 
-namespace eShop.Catalog.API.Infrastructure.Migrations
+namespace eShop.Catalog.API.Data.Migrations
 {
     [DbContext(typeof(CatalogDbContext))]
     [Migration("20231009153249_Initial")]

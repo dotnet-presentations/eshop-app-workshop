@@ -1,5 +1,5 @@
 ﻿using eShop.Catalog.API;
-using eShop.Catalog.API.Infrastructure;
+using eShop.Catalog.API.Data;
 
 namespace Microsoft.Extensions.Hosting;
 

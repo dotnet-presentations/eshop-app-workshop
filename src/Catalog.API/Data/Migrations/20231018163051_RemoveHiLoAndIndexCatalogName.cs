@@ -3,7 +3,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace eShop.Catalog.API.Infrastructure.Migrations
+namespace eShop.Catalog.API.Data.Migrations
 {
     /// <inheritdoc />
     public partial class RemoveHiLoAndIndexCatalogName : Migration

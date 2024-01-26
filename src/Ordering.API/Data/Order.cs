@@ -9,11 +9,11 @@ public class Order
     public DateTime OrderDate { get; set; } = DateTime.UtcNow;
 
     [Required]
-    public Address Address { get; set; }
+    public required Address Address { get; set; }
 
     public int? BuyerId { get; set; }
 
-    public virtual Buyer Buyer { get; set; }
+    public required Buyer Buyer { get; set; }
 
     public OrderStatus OrderStatus { get; private set; } = OrderStatus.Submitted;
 
@@ -21,7 +21,7 @@ public class Order
 
     public int? PaymentMethodId { get; set; }
 
-    public virtual PaymentMethod PaymentMethod { get; set; }
+    public required PaymentMethod PaymentMethod { get; set; }
 
     internal decimal GetTotal()
     {

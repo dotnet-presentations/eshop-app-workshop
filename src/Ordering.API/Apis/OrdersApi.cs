@@ -38,6 +38,11 @@ public static class OrdersApi
     {
         var userId = services.IdentityService.GetUserIdentity();
 
+        if (userId is null)
+        {
+            throw new InvalidOperationException("User identity could not be found. This endpoint requires aut");
+        }
+
         if (requestId == Guid.Empty)
         {
             services.Logger.LogWarning("Invalid IntegrationEvent - RequestId is missing - {@IntegrationEvent}", request);
@@ -57,7 +62,10 @@ public static class OrdersApi
 
         var buyer = await services.DbContext.Buyers
             .Where(b => b.IdentityGuid == userId)
-            .Include(b => b.PaymentMethods.Where(pm => pm.IsEqualTo(requestPaymentMethod.CardTypeId, requestPaymentMethod.CardNumber, requestPaymentMethod.Expiration)))
+            .Include(b => b.PaymentMethods
+                .Where(pm => pm.CardTypeId == requestPaymentMethod.CardTypeId
+                             && pm.CardNumber == requestPaymentMethod.CardNumber
+                             && pm.Expiration == requestPaymentMethod.Expiration))
             .SingleOrDefaultAsync();
 
         if (buyer is null)
@@ -70,7 +78,7 @@ public static class OrdersApi
             services.DbContext.Buyers.Add(buyer);
         }
 
-        if (buyer?.PaymentMethods.SingleOrDefault() is null)
+        if (buyer.PaymentMethods.SingleOrDefault() is null)
         {
             buyer.PaymentMethods.Add(new PaymentMethod
             {

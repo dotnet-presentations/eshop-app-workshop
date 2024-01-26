@@ -1,8 +1,7 @@
-﻿using eShop.Ordering.API.Data;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace eShop.Ordering.API.Data;
+namespace eShop.Ordering.API.Data.EntityConfigurations;
 
 class PaymentMethodEntityTypeConfiguration : IEntityTypeConfiguration<PaymentMethod>
 {
@@ -10,23 +9,21 @@ class PaymentMethodEntityTypeConfiguration : IEntityTypeConfiguration<PaymentMet
     {
         paymentConfiguration.ToTable("paymentmethods");
 
-        paymentConfiguration.Property(b => b.Id)
+        paymentConfiguration.Property("Id")
             .UseHiLo("paymentseq");
 
-        paymentConfiguration.Property<int>("BuyerId");
-
-        paymentConfiguration.HasOne<Buyer>()
-            .WithMany()
-            .HasForeignKey("BuyerId");
-
-        paymentConfiguration
-            .Property("CardHolderName")
-            .HasMaxLength(200);
+        paymentConfiguration.Property("BuyerId")
+            .HasColumnName("BuyerId");
 
         paymentConfiguration
             .Property("Alias")
             .HasColumnName("Alias")
             .HasMaxLength(200);
+
+        paymentConfiguration
+            .Property("CardHolderName")
+            .HasMaxLength(200)
+            .IsRequired();
 
         paymentConfiguration
             .Property("CardNumber")
@@ -37,13 +34,14 @@ class PaymentMethodEntityTypeConfiguration : IEntityTypeConfiguration<PaymentMet
         paymentConfiguration
             .Property("Expiration")
             .HasColumnName("Expiration")
-            .HasMaxLength(25);
+            .HasMaxLength(25)
+            .IsRequired();
 
         paymentConfiguration
             .Property("CardTypeId")
             .HasColumnName("CardTypeId");
 
-        paymentConfiguration.HasOne(p => p.CardType)
+        paymentConfiguration.HasOne<CardType>("CardType")
             .WithMany()
             .HasForeignKey("CardTypeId");
     }

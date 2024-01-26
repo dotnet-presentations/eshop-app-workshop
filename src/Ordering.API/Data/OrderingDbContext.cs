@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using eShop.Ordering.API.Data.EntityConfigurations;
 
 namespace eShop.Ordering.API.Data;
 
@@ -30,5 +31,3 @@ public class OrderingDbContext(DbContextOptions<OrderingDbContext> options) : Db
         modelBuilder.ApplyConfiguration(new CardTypeEntityTypeConfiguration());
     }
 }
-
-#nullable enable

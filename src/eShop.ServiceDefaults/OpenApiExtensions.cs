@@ -9,7 +9,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Microsoft.Extensions.Hosting;
 
-public static partial class HostingExtensions
+public static class OpenApiExtensions
 {
     public static IApplicationBuilder UseDefaultOpenApi(this WebApplication app)
     {

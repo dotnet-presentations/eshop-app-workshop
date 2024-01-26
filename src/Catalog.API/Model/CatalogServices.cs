@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
-using eShop.Catalog.API.Infrastructure;
+using eShop.Catalog.API.Data;
 
 namespace eShop.Catalog.API.Model;
 

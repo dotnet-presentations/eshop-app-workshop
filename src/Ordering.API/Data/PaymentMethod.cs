@@ -17,12 +17,15 @@ public class PaymentMethod
 
     [Required]
     public required string CardHolderName { get; set; }
-    
+
+    [Required]
     public required DateTime Expiration { get; set; }
+
+    public int BuyerId { get; set; }
 
     public int CardTypeId { get; set;}
 
-    public CardType CardType { get; set; }
+    public CardType? CardType { get; set; }
 
     public bool IsEqualTo(int cardTypeId, string cardNumber, DateTime expiration)
     {

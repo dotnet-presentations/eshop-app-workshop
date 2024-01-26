@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>eShop.Ordering.API</RootNamespace>
     <UserSecretsId>7161b768-033d-41c7-bc5d-37528275e1f3</UserSecretsId>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,6 +23,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Data\Migrations\" />
   </ItemGroup>
 
 </Project>

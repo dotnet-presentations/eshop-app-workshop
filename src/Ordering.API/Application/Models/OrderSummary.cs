@@ -8,7 +8,7 @@ public class OrderSummary
 
     public DateTime Date { get; init; }
 
-    public string Status { get; init; }
+    public required string Status { get; init; }
 
     public decimal Total { get; init; }
 

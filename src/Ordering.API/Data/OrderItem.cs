@@ -7,9 +7,9 @@ public class OrderItem
     public int Id { get; set; }
 
     [Required]
-    public string ProductName { get; set; }
+    public required string ProductName { get; set; }
 
-    public string PictureUrl { get; set; }
+    public string? PictureUrl { get; set; }
 
     public decimal UnitPrice { get; set; }
 
@@ -21,5 +21,5 @@ public class OrderItem
 
     public int OrderId { get; set; }
 
-    public Order Order { get; set; }
+    public Order? Order { get; set; }
 }

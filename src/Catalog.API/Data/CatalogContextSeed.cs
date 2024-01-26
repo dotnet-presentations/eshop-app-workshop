@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 using Npgsql;
 using eShop.Catalog.API.Model;
 
-namespace eShop.Catalog.API.Infrastructure;
+namespace eShop.Catalog.API.Data;
 
 public partial class CatalogContextSeed(IWebHostEnvironment env, IOptions<CatalogOptions> settings, ILogger<CatalogContextSeed> logger)
     : IDbSeeder<CatalogDbContext>
