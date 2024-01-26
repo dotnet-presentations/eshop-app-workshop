@@ -25,6 +25,8 @@ jobs:
     name: Build Repo
     env:
       DOTNET_CLI_TELEMETRY_OPTOUT: true
+      DOTNET_NOLOGO: true
+      DOTNET_MULTILEVEL_LOOKUP: false
     steps:
     - uses: actions/checkout@v3
 
