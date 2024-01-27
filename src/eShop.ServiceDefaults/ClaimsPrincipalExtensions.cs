@@ -6,5 +6,5 @@ public static class ClaimsPrincipalExtensions
         => principal.FindFirst("sub")?.Value;
 
     public static string? GetUserName(this ClaimsPrincipal principal) =>
-        principal.FindFirst(x => x.Type == ClaimTypes.Name)?.Value;
+        principal.FindFirst(x => x.Type == "name")?.Value;
 }

@@ -36,12 +36,8 @@ public static class OrdersApi
         CreateOrderRequest request,
         [AsParameters] OrderServices services)
     {
-        var userId = services.IdentityService.GetUserIdentity();
-
-        if (userId is null)
-        {
-            throw new InvalidOperationException("User identity could not be found. This endpoint requires aut");
-        }
+        var userId = services.IdentityService.GetUserIdentity()
+            ?? throw new InvalidOperationException("User identity could not be found. This endpoint requires authorization.");
 
         if (requestId == Guid.Empty)
         {
