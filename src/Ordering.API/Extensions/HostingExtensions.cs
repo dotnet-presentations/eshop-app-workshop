@@ -1,5 +1,5 @@
 ﻿using eShop.Ordering.API.Data;
-using eShop.Ordering.API.Infrastructure.Services;
+using eShop.Ordering.API.Services;
 
 namespace Microsoft.Extensions.Hosting;
 

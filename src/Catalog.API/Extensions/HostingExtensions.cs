@@ -1,5 +1,6 @@
 ﻿using eShop.Catalog.API;
 using eShop.Catalog.API.Data;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.Hosting;
 
@@ -13,5 +14,11 @@ public static class HostingExtensions
         builder.Services.AddMigration<CatalogDbContext, CatalogContextSeed>();
 
         builder.Services.Configure<CatalogOptions>(builder.Configuration.GetSection(nameof(CatalogOptions)));
+    }
+
+    public static TOptions GetOptions<TOptions>(this IHost host)
+        where TOptions : class, new()
+    {
+        return host.Services.GetRequiredService<IOptions<TOptions>>().Value;
     }
 }

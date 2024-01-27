@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using eShop.Catalog.API.Model;
 
 namespace eShop.Catalog.API.Data.EntityConfigurations;
 

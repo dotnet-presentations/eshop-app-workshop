@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using eShop.Ordering.API.Apis;
 using eShop.Ordering.API.Data;
-using eShop.Ordering.API.Application.Models;
+using eShop.Ordering.API.Model;
+using MinimalApis.Extensions.Filters;
 
 namespace Microsoft.AspNetCore.Builder;
 
@@ -11,7 +11,8 @@ public static class OrdersApi
 {
     public static RouteGroupBuilder MapOrdersApi(this RouteGroupBuilder app)
     {
-        app.MapPost("/", CreateOrderAsync);
+        app.MapPost("/", CreateOrderAsync)
+            .WithParameterValidation(requireParameterAttribute: true);
         app.MapGet("/", GetOrdersByUserAsync);
 
         return app;
@@ -19,21 +20,23 @@ public static class OrdersApi
 
     public static async Task<Ok<OrderSummary[]>> GetOrdersByUserAsync([AsParameters] OrderServices services)
     {
-        var userId = services.IdentityService.GetUserIdentity();
+        var userId = services.IdentityService.GetUserIdentity()
+            ?? throw new InvalidOperationException("User identity could not be found. This endpoint requires authorization.");
 
         var orders = await services.DbContext.Orders
             .Include(o => o.OrderItems)
             .Include(o => o.Buyer)
             .Where(o => o.Buyer.IdentityGuid == userId)
             .Select(o => OrderSummary.FromOrder(o))
+            .AsNoTracking()
             .ToArrayAsync();
 
         return TypedResults.Ok(orders);
     }
 
-    public static async Task<Results<Ok, BadRequest<string>>> CreateOrderAsync(
+    public static async Task<Results<Ok, BadRequest<string>, ValidationProblem>> CreateOrderAsync(
         [FromHeader(Name = "x-requestid")] Guid requestId,
-        CreateOrderRequest request,
+        [Validate] CreateOrderRequest request,
         [AsParameters] OrderServices services)
     {
         var userId = services.IdentityService.GetUserIdentity()
@@ -41,11 +44,17 @@ public static class OrdersApi
 
         if (requestId == Guid.Empty)
         {
-            services.Logger.LogWarning("Invalid IntegrationEvent - RequestId is missing - {@IntegrationEvent}", request);
             return TypedResults.BadRequest("RequestId is missing.");
         }
 
-        // TODO: Validation
+        if (!Enumeration.IsValid<CardType>(request.CardTypeId))
+        {
+            var errors = new Dictionary<string, string[]>
+            {
+                [nameof(CreateOrderRequest.CardTypeId)] = [$"Card type ID '{request.CardTypeId}' is invalid."]
+            };
+            return TypedResults.ValidationProblem(errors);
+        }
 
         var requestPaymentMethod = new PaymentMethod
         {
@@ -110,17 +119,3 @@ public static class OrdersApi
         return TypedResults.Ok();
     }
 }
-
-public record CreateOrderRequest(
-    string UserName,
-    string City,
-    string Street,
-    string State,
-    string Country,
-    string ZipCode,
-    string CardNumber,
-    string CardHolderName,
-    DateTime CardExpiration,
-    string CardSecurityNumber,
-    int CardTypeId,
-    IReadOnlyCollection<BasketItem> Items);

@@ -40,4 +40,7 @@ keycloak.WithEnvironment("WEBAPP_HTTP", () => webApp.GetEndpoint("http").UriStri
 keycloak.WithEnvironment("WEBAPP_HTTPS", () => webApp.GetEndpoint("https").UriString);
 keycloak.WithEnvironment("ORDERINGAPI_HTTP", () => orderingApi.GetEndpoint("http").UriString);
 
+// Inject assigned URLs for Catalog API
+catalogApi.WithEnvironment("CatalogOptions__PicBaseAddress", () => catalogApi.GetEndpoint("http").UriString);
+
 builder.Build().Run();

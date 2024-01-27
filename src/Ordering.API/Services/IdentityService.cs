@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 
-namespace eShop.Ordering.API.Infrastructure.Services;
+namespace eShop.Ordering.API.Services;
 
 public class IdentityService(IHttpContextAccessor context) : IIdentityService
 {

@@ -1,4 +1,6 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿using eShop.Catalog.API;
+
+var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 builder.AddDefaultOpenApi();
@@ -12,7 +14,7 @@ app.UseDefaultOpenApi();
 
 app.MapDefaultEndpoints();
 
-app.MapGroup("/api/v1/catalog")
+app.MapGroup(app.GetOptions<CatalogOptions>().ApiBasePath)
     .WithTags("Catalog API")
     .MapCatalogApi();
 

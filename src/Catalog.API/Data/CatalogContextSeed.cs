@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Npgsql;
-using eShop.Catalog.API.Model;
 
 namespace eShop.Catalog.API.Data;
 

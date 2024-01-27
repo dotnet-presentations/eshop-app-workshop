@@ -1,4 +1,4 @@
-﻿namespace eShop.Ordering.API.Infrastructure.Services;
+﻿namespace eShop.Ordering.API.Services;
 
 public interface IIdentityService
 {

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using eShop.Catalog.API;
 using eShop.Catalog.API.Data;
@@ -8,6 +9,8 @@ namespace Microsoft.AspNetCore.Builder;
 
 public static class CatalogApi
 {
+    private static readonly FileExtensionContentTypeProvider _fileContentTypeProvider = new();
+
     public static IEndpointRouteBuilder MapCatalogApi(this IEndpointRouteBuilder app)
     {
         // Routes for querying catalog items.
@@ -20,8 +23,8 @@ public static class CatalogApi
         // Routes for resolving catalog items by type and brand.
         app.MapGet("/items/type/{typeId}/brand/{brandId?}", GetItemsByBrandAndTypeId);
         app.MapGet("/items/type/all/brand/{brandId:int?}", GetItemsByBrandId);
-        app.MapGet("/catalogtypes", async (CatalogDbContext context) => await context.CatalogTypes.OrderBy(x => x.Type).ToListAsync());
-        app.MapGet("/catalogbrands", async (CatalogDbContext context) => await context.CatalogBrands.OrderBy(x => x.Brand).ToListAsync());
+        app.MapGet("/catalogtypes", async (CatalogDbContext context) => await context.CatalogTypes.OrderBy(x => x.Type).AsNoTracking().ToListAsync());
+        app.MapGet("/catalogbrands", async (CatalogDbContext context) => await context.CatalogBrands.OrderBy(x => x.Brand).AsNoTracking().ToListAsync());
 
         return app;
     }
@@ -40,9 +43,10 @@ public static class CatalogApi
             .OrderBy(c => c.Name)
             .Skip(pageSize * pageIndex)
             .Take(pageSize)
+            .AsNoTracking()
             .ToListAsync();
 
-        itemsOnPage = ChangeUriPlaceholder(services.Options.Value, itemsOnPage);
+        ChangeUriPlaceholder(services.Options.Value, itemsOnPage);
 
         return TypedResults.Ok(new PaginatedItems<CatalogItem>(pageIndex, pageSize, totalItems, itemsOnPage));
     }
@@ -51,8 +55,12 @@ public static class CatalogApi
         [AsParameters] CatalogServices services,
         int[] ids)
     {
-        var items = await services.DbContext.CatalogItems.Where(item => ids.Contains(item.Id)).ToListAsync();
-        items = ChangeUriPlaceholder(services.Options.Value, items);
+        var items = await services.DbContext.CatalogItems
+            .Where(item => ids.Contains(item.Id))
+            .AsNoTracking()
+            .ToListAsync();
+
+        ChangeUriPlaceholder(services.Options.Value, items);
 
         return TypedResults.Ok(items);
     }
@@ -66,14 +74,17 @@ public static class CatalogApi
             return TypedResults.BadRequest("Id is not valid.");
         }
 
-        var item = await services.DbContext.CatalogItems.Include(ci => ci.CatalogBrand).SingleOrDefaultAsync(ci => ci.Id == id);
+        var item = await services.DbContext.CatalogItems
+            .Include(ci => ci.CatalogBrand)
+            .AsNoTracking()
+            .SingleOrDefaultAsync(ci => ci.Id == id);
 
         if (item == null)
         {
             return TypedResults.NotFound();
         }
 
-        item.PictureUri = services.Options.Value.PicBaseUrl.Replace("[0]", item.Id.ToString());
+        item.PictureUri = services.Options.Value.GetPictureUrl(item.Id);
 
         return TypedResults.Ok(item);
     }
@@ -94,16 +105,19 @@ public static class CatalogApi
             .Where(c => c.Name.StartsWith(name))
             .Skip(pageSize * pageIndex)
             .Take(pageSize)
+            .AsNoTracking()
             .ToListAsync();
 
-        itemsOnPage = ChangeUriPlaceholder(services.Options.Value, itemsOnPage);
+        ChangeUriPlaceholder(services.Options.Value, itemsOnPage);
 
         return TypedResults.Ok(new PaginatedItems<CatalogItem>(pageIndex, pageSize, totalItems, itemsOnPage));
     }
 
     public static async Task<Results<NotFound, PhysicalFileHttpResult>> GetItemPictureById(CatalogDbContext context, IWebHostEnvironment environment, int catalogItemId)
     {
-        var item = await context.CatalogItems.FindAsync(catalogItemId);
+        var item = await context.CatalogItems
+            .AsNoTracking()
+            .FirstOrDefaultAsync(i => i.Id == catalogItemId);
 
         if (item is null)
         {
@@ -112,11 +126,11 @@ public static class CatalogApi
 
         var path = GetFullPath(environment.ContentRootPath, item.PictureFileName);
 
-        string imageFileExtension = Path.GetExtension(item.PictureFileName);
-        string mimetype = GetImageMimeTypeFromImageFileExtension(imageFileExtension);
-        DateTime lastModified = File.GetLastWriteTimeUtc(path);
+        var imageFileExtension = Path.GetExtension(item.PictureFileName);
+        _fileContentTypeProvider.TryGetContentType(imageFileExtension, out var contentType);
+        var lastModified = File.GetLastWriteTimeUtc(path);
 
-        return TypedResults.PhysicalFile(path, mimetype, lastModified: lastModified);
+        return TypedResults.PhysicalFile(path, contentType, lastModified: lastModified);
     }
 
     public static async Task<Results<BadRequest<string>, RedirectToRouteHttpResult, Ok<PaginatedItems<CatalogItem>>>> GetItemsBySemanticRelevance(
@@ -136,22 +150,25 @@ public static class CatalogApi
         var pageSize = paginationRequest.PageSize;
         var pageIndex = paginationRequest.PageIndex;
 
-        var root = (IQueryable<CatalogItem>)services.DbContext.CatalogItems;
-        root = root.Where(c => c.CatalogTypeId == typeId);
+        var query = services.DbContext.CatalogItems.AsQueryable();
+        query = query.Where(c => c.CatalogTypeId == typeId);
+
         if (brandId is not null)
         {
-            root = root.Where(c => c.CatalogBrandId == brandId);
+            query = query.Where(c => c.CatalogBrandId == brandId);
         }
 
-        var totalItems = await root
+        var totalItems = await query
             .LongCountAsync();
 
-        var itemsOnPage = await root
+        var itemsOnPage = await query
             .Skip(pageSize * pageIndex)
             .Take(pageSize)
+            .AsNoTracking()
             .ToListAsync();
 
-        itemsOnPage = ChangeUriPlaceholder(services.Options.Value, itemsOnPage);
+        ChangeUriPlaceholder(services.Options.Value, itemsOnPage);
+
         return TypedResults.Ok(new PaginatedItems<CatalogItem>(pageIndex, pageSize, totalItems, itemsOnPage));
     }
 
@@ -176,35 +193,21 @@ public static class CatalogApi
         var itemsOnPage = await root
             .Skip(pageSize * pageIndex)
             .Take(pageSize)
+            .AsNoTracking()
             .ToListAsync();
 
-        itemsOnPage = ChangeUriPlaceholder(services.Options.Value, itemsOnPage);
+        ChangeUriPlaceholder(services.Options.Value, itemsOnPage);
+
         return TypedResults.Ok(new PaginatedItems<CatalogItem>(pageIndex, pageSize, totalItems, itemsOnPage));
     }
 
-    private static List<CatalogItem> ChangeUriPlaceholder(CatalogOptions options, List<CatalogItem> items)
+    private static void ChangeUriPlaceholder(CatalogOptions options, List<CatalogItem> items)
     {
         foreach (var item in items)
         {
-            item.PictureUri = options.PicBaseUrl.Replace("[0]", item.Id.ToString());
+            item.PictureUri = options.GetPictureUrl(item.Id);
         }
-
-        return items;
     }
-
-    private static string GetImageMimeTypeFromImageFileExtension(string extension) => extension switch
-    {
-        ".png" => "image/png",
-        ".gif" => "image/gif",
-        ".jpg" or ".jpeg" => "image/jpeg",
-        ".bmp" => "image/bmp",
-        ".tiff" => "image/tiff",
-        ".wmf" => "image/wmf",
-        ".jp2" => "image/jp2",
-        ".svg" => "image/svg+xml",
-        ".webp" => "image/webp",
-        _ => "application/octet-stream",
-    };
 
     public static string GetFullPath(string contentRootPath, string pictureFileName) =>
         Path.Combine(contentRootPath, "Pics", pictureFileName);

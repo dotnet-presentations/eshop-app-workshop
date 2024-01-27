@@ -8,6 +8,6 @@ public readonly struct CatalogServices(CatalogDbContext dbContext, IOptions<Cata
     public CatalogDbContext DbContext { get; } = dbContext;
 
     public IOptions<CatalogOptions> Options { get; } = options;
-    
+
     public ILogger<CatalogServices> Logger { get; } = logger;
 };

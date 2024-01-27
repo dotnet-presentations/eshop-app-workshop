@@ -21,6 +21,8 @@ public abstract class Enumeration : IComparable
                     .Select(f => f.GetValue(null))
                     .Cast<T>();
 
+    public static bool IsValid<T>(int id) where T : Enumeration => GetAll<T>().Any(e => e.Id == id);
+
     public override bool Equals(object? obj)
     {
         if (obj is not Enumeration otherValue)
