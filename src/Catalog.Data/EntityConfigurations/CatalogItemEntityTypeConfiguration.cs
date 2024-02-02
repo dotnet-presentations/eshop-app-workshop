@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace eShop.Catalog.API.Data.EntityConfigurations;
+namespace eShop.Catalog.Data.EntityConfigurations;
 
 internal class CatalogItemEntityTypeConfiguration : IEntityTypeConfiguration<CatalogItem>
 {

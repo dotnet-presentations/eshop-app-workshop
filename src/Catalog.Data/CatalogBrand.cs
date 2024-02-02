@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace eShop.Catalog.API.Data;
+namespace eShop.Catalog.Data;
 
 public class CatalogBrand
 {

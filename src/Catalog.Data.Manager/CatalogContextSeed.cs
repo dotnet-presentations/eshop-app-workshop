@@ -1,16 +1,14 @@
 ﻿using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Npgsql;
 
-namespace eShop.Catalog.API.Data;
+namespace eShop.Catalog.Data.Manager;
 
-public partial class CatalogContextSeed(IWebHostEnvironment env, IOptions<CatalogOptions> settings, ILogger<CatalogContextSeed> logger)
+public partial class CatalogContextSeed(IWebHostEnvironment env, ILogger<CatalogContextSeed> logger)
     : IDbSeeder<CatalogDbContext>
 {
     public async Task SeedAsync(CatalogDbContext context)
     {
-        var useCustomizationData = settings.Value.UseCustomizationData;
         var contentRootPath = env.ContentRootPath;
         var picturePath = env.WebRootPath;
 

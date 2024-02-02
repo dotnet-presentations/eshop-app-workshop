@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using eShop.Catalog.API.Data.EntityConfigurations;
+using eShop.Catalog.Data.EntityConfigurations;
 
-namespace eShop.Catalog.API.Data;
+namespace eShop.Catalog.Data;
 
 /// <remarks>
-/// Add migrations using the following command inside the 'Catalog.API' project directory:
+/// Add migrations using the following command inside the 'Catalog.Data.Manager' project directory:
 ///
-/// dotnet ef migrations add --context CatalogContext [migration-name]
+/// dotnet ef migrations add --context CatalogDbContext [migration-name]
 /// </remarks>
 public class CatalogDbContext(DbContextOptions<CatalogDbContext> options) : DbContext(options)
 {
