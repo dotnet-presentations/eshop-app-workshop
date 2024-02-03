@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using eShop.Ordering.API.Data.EntityConfigurations;
+using eShop.Ordering.Data.EntityConfigurations;
 
-namespace eShop.Ordering.API.Data;
+namespace eShop.Ordering.Data;
 
 /// <remarks>
-/// Add migrations using the following command inside the 'Ordering.Infrastructure' project directory:
+/// Add migrations using the following command inside the 'Ordering.Data.Manager' project directory:
 ///
-/// dotnet ef migrations add --startup-project Ordering.API --context OrderingContext [migration-name]
+/// dotnet ef migrations add --context OrderingDbContext [migration-name]
 /// </remarks>
 public class OrderingDbContext(DbContextOptions<OrderingDbContext> options) : DbContext(options)
 {

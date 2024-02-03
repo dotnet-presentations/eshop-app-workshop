@@ -1,4 +1,4 @@
-﻿using eShop.Ordering.API.Data;
+﻿using eShop.Ordering.Data;
 using eShop.Ordering.API.Services;
 
 namespace eShop.Ordering.API.Model;

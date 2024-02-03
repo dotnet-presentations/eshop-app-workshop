@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace eShop.Ordering.API.Data;
+namespace eShop.Ordering.Data;
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum OrderStatus

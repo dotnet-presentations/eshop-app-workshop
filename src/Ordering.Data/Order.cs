@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace eShop.Ordering.API.Data;
+namespace eShop.Ordering.Data;
 
 public class Order
 {
@@ -23,7 +23,7 @@ public class Order
 
     public required PaymentMethod PaymentMethod { get; set; }
 
-    internal decimal GetTotal()
+    public decimal GetTotal()
     {
         return OrderItems?.Sum(o => (o.Units * o.UnitPrice) - o.Discount) ?? 0;
     }

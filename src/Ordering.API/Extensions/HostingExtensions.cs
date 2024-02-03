@@ -1,4 +1,4 @@
-﻿using eShop.Ordering.API.Data;
+﻿using eShop.Ordering.Data;
 using eShop.Ordering.API.Services;
 
 namespace Microsoft.Extensions.Hosting;
@@ -13,8 +13,6 @@ internal static class HostingExtensions
         builder.AddDefaultAuthentication();
 
         builder.AddNpgsqlDbContext<OrderingDbContext>("OrderingDB");
-
-        services.AddMigration<OrderingDbContext, OrderingDbContextSeed>();
 
         services.AddHttpContextAccessor();
         services.AddTransient<IIdentityService, IdentityService>();

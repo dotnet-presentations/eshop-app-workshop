@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
-namespace eShop.Ordering.API.Data;
+namespace eShop.Ordering.Data;
 
 public abstract class Enumeration : IComparable
 {

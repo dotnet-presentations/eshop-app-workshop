@@ -1,4 +1,4 @@
-﻿namespace eShop.Ordering.API.Data;
+﻿namespace eShop.Ordering.Data.Manager;
 
 public class OrderingDbContextSeed : IDbSeeder<OrderingDbContext>
 {

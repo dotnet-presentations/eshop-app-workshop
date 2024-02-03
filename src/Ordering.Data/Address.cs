@@ -1,4 +1,4 @@
-﻿namespace eShop.Ordering.API.Data;
+﻿namespace eShop.Ordering.Data;
 
 public class Address(string street, string city, string state, string country, string zipCode) : ValueObject
 {

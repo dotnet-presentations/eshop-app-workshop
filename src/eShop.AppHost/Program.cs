@@ -16,8 +16,11 @@ var idp = builder.AddKeycloakContainer("idp", tag: "23.0")
 
 // DB Manager Apps
 
-var catalogDbManager = builder.AddProject<Catalog_Data_Manager>("catalog-db-mgr")
+builder.AddProject<Catalog_Data_Manager>("catalog-db-mgr")
     .WithReference(catalogDb);
+
+builder.AddProject<Ordering_Data_Manager>("ordering-db-mgr")
+    .WithReference(orderDb);
 
 // API Apps
 

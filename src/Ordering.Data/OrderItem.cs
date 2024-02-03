@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace eShop.Ordering.API.Data;
+namespace eShop.Ordering.Data;
 
 public class OrderItem
 {
