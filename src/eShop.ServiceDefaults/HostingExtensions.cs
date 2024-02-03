@@ -13,7 +13,9 @@ public static partial class HostingExtensions
 {
     public static IHostApplicationBuilder AddServiceDefaults(this IHostApplicationBuilder builder)
     {
-        builder.AddBasicServiceDefaults();
+        builder.AddDefaultHealthChecks();
+
+        builder.ConfigureOpenTelemetry();
 
         builder.Services.AddServiceDiscovery();
 
@@ -25,22 +27,6 @@ public static partial class HostingExtensions
             // Turn on service discovery by default
             http.UseServiceDiscovery();
         });
-
-        return builder;
-    }
-
-    /// <summary>
-    /// Adds the services except for making outgoing HTTP calls.
-    /// </summary>
-    /// <remarks>
-    /// This allows for things like Polly to be trimmed out of the app if it isn't used.
-    /// </remarks>
-    public static IHostApplicationBuilder AddBasicServiceDefaults(this IHostApplicationBuilder builder)
-    {
-        // Default health checks assume the event bus and self health checks
-        builder.AddDefaultHealthChecks();
-
-        builder.ConfigureOpenTelemetry();
 
         return builder;
     }
@@ -97,12 +83,6 @@ public static partial class HostingExtensions
         return builder;
     }
 
-    private static MeterProviderBuilder AddBuiltInMeters(this MeterProviderBuilder meterProviderBuilder) =>
-        meterProviderBuilder.AddMeter(
-            "Microsoft.AspNetCore.Hosting",
-            "Microsoft.AspNetCore.Server.Kestrel",
-            "System.Net.Http");
-
     public static IHostApplicationBuilder AddDefaultHealthChecks(this IHostApplicationBuilder builder)
     {
         builder.Services.AddHealthChecks()
@@ -121,11 +101,17 @@ public static partial class HostingExtensions
         app.MapHealthChecks("/health");
 
         // Only health checks tagged with the "live" tag must pass for app to be considered alive
-        app.MapHealthChecks("/liveness", new HealthCheckOptions
+        app.MapHealthChecks("/alive", new HealthCheckOptions
         {
             Predicate = r => r.Tags.Contains("live")
         });
 
         return app;
     }
+
+    private static MeterProviderBuilder AddBuiltInMeters(this MeterProviderBuilder meterProviderBuilder) =>
+        meterProviderBuilder.AddMeter(
+            "Microsoft.AspNetCore.Hosting",
+            "Microsoft.AspNetCore.Server.Kestrel",
+            "System.Net.Http");
 }

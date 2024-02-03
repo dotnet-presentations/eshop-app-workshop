@@ -28,6 +28,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Keycloak", "Keycloak", "{08
 		src\Keycloak\data\import\eshop-realm.json = src\Keycloak\data\import\eshop-realm.json
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Catalog.Data", "src\Catalog.Data\Catalog.Data.csproj", "{BFF57633-BF05-4D32-826C-212AE7858539}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Catalog.Data.Manager", "src\Catalog.Data.Manager\Catalog.Data.Manager.csproj", "{E1AAD2C8-97A7-404E-9DF7-89A719101631}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ordering.Data", "src\Ordering.Data\Ordering.Data.csproj", "{D68FAD25-C09D-434C-A7AE-8F78DB2D923D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ordering.Data.Manager", "src\Ordering.Data.Manager\Ordering.Data.Manager.csproj", "{4FCA8863-B3C7-47D6-B031-37A0384B40AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -58,6 +66,22 @@ Global
 		{2F3143A9-1565-43BF-8BF2-18B13F604CE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F3143A9-1565-43BF-8BF2-18B13F604CE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2F3143A9-1565-43BF-8BF2-18B13F604CE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFF57633-BF05-4D32-826C-212AE7858539}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFF57633-BF05-4D32-826C-212AE7858539}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFF57633-BF05-4D32-826C-212AE7858539}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFF57633-BF05-4D32-826C-212AE7858539}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1AAD2C8-97A7-404E-9DF7-89A719101631}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1AAD2C8-97A7-404E-9DF7-89A719101631}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1AAD2C8-97A7-404E-9DF7-89A719101631}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1AAD2C8-97A7-404E-9DF7-89A719101631}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D68FAD25-C09D-434C-A7AE-8F78DB2D923D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D68FAD25-C09D-434C-A7AE-8F78DB2D923D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D68FAD25-C09D-434C-A7AE-8F78DB2D923D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D68FAD25-C09D-434C-A7AE-8F78DB2D923D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4FCA8863-B3C7-47D6-B031-37A0384B40AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FCA8863-B3C7-47D6-B031-37A0384B40AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FCA8863-B3C7-47D6-B031-37A0384B40AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FCA8863-B3C7-47D6-B031-37A0384B40AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

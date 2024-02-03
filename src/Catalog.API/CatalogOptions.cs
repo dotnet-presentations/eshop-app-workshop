@@ -10,8 +10,6 @@ public class CatalogOptions
 
     public string PicBasePathFormat { get; set; } = "items/{0}/pic/";
 
-    public bool UseCustomizationData { get; set; }
-
     public string GetPictureUrl(int catalogItemId)
     {
         // PERF: Not ideal

@@ -1,4 +1,6 @@
-﻿var builder = DistributedApplication.CreateBuilder(args);
+using Projects;
+
+var builder = DistributedApplication.CreateBuilder(args);
 
 // Databases
 
@@ -9,36 +11,44 @@ var orderDb = postgres.AddDatabase("OrderingDB");
 
 // Identity Providers
 
-var keycloak = builder.AddKeycloakContainer("idp", tag: "23.0")
+var idp = builder.AddKeycloakContainer("idp", tag: "23.0")
     .ImportRealms("../Keycloak/data/import");
+
+// DB Manager Apps
+
+builder.AddProject<Catalog_Data_Manager>("catalog-db-mgr")
+    .WithReference(catalogDb);
+
+builder.AddProject<Ordering_Data_Manager>("ordering-db-mgr")
+    .WithReference(orderDb);
 
 // API Apps
 
-var catalogApi = builder.AddProject<Projects.Catalog_API>("catalog-api")
+var catalogApi = builder.AddProject<Catalog_API>("catalog-api")
     .WithReference(catalogDb);
 
-var basketApi = builder.AddProject<Projects.Basket_API>("basket-api")
+var basketApi = builder.AddProject<Basket_API>("basket-api")
     .WithReference(basketStore)
-    .WithReference(keycloak);
+    .WithReference(idp);
 
-var orderingApi = builder.AddProject<Projects.Ordering_API>("ordering-api")
+var orderingApi = builder.AddProject<Ordering_API>("ordering-api")
     .WithReference(orderDb)
-    .WithReference(keycloak);
+    .WithReference(idp);
 
 // Apps
 
-var webApp = builder.AddProject<Projects.WebApp>("webapp")
+var webApp = builder.AddProject<WebApp>("webapp")
     .WithReference(basketApi)
     .WithReference(catalogApi)
     .WithReference(orderingApi)
-    .WithReference(keycloak)
+    .WithReference(idp)
     // Force HTTPS profile for web app (required for OIDC operations)
     .WithLaunchProfile("https");
 
 // Inject the project URLs for Keycloak realm configuration
-keycloak.WithEnvironment("WEBAPP_HTTP", () => webApp.GetEndpoint("http").UriString);
-keycloak.WithEnvironment("WEBAPP_HTTPS", () => webApp.GetEndpoint("https").UriString);
-keycloak.WithEnvironment("ORDERINGAPI_HTTP", () => orderingApi.GetEndpoint("http").UriString);
+idp.WithEnvironment("WEBAPP_HTTP", () => webApp.GetEndpoint("http").UriString);
+idp.WithEnvironment("WEBAPP_HTTPS", () => webApp.GetEndpoint("https").UriString);
+idp.WithEnvironment("ORDERINGAPI_HTTP", () => orderingApi.GetEndpoint("http").UriString);
 
 // Inject assigned URLs for Catalog API
 catalogApi.WithEnvironment("CatalogOptions__PicBaseAddress", () => catalogApi.GetEndpoint("http").UriString);

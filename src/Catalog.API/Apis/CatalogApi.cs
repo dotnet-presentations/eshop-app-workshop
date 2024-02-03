@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using eShop.Catalog.API;
-using eShop.Catalog.API.Data;
 using eShop.Catalog.API.Model;
+using eShop.Catalog.Data;
 
 namespace Microsoft.AspNetCore.Builder;
 
@@ -180,17 +180,17 @@ public static class CatalogApi
         var pageSize = paginationRequest.PageSize;
         var pageIndex = paginationRequest.PageIndex;
 
-        var root = (IQueryable<CatalogItem>)services.DbContext.CatalogItems;
+        var query = (IQueryable<CatalogItem>)services.DbContext.CatalogItems;
 
         if (brandId is not null)
         {
-            root = root.Where(ci => ci.CatalogBrandId == brandId);
+            query = query.Where(ci => ci.CatalogBrandId == brandId);
         }
 
-        var totalItems = await root
+        var totalItems = await query
             .LongCountAsync();
 
-        var itemsOnPage = await root
+        var itemsOnPage = await query
             .Skip(pageSize * pageIndex)
             .Take(pageSize)
             .AsNoTracking()
