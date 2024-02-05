@@ -4,8 +4,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <RepoSlns Include="$(MSBuildThisFileDirectory)../*.sln" />
-        <AppHostProjects Include="$(MSBuildThisFileDirectory)../src/**/*.AppHost/*.AppHost.csproj" />
+        <RepoSlns Include="$(MSBuildThisFileDirectory)../**/*.sln" />
+        <AppHostProjects Include="$(MSBuildThisFileDirectory)../**/*.AppHost/*.AppHost.csproj" />
     </ItemGroup>
 
     <Target Name="BuildRepoSlns" BeforeTargets="Build">
