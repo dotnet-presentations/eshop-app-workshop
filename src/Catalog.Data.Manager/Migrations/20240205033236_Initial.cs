@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -10,31 +11,16 @@ namespace eShop.Catalog.Data.Manager.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterDatabase();
-
-            migrationBuilder.EnsureSchema("catalog");
-
-            migrationBuilder.CreateSequence(
-                name: "catalog_brand_hilo",
-                schema: "catalog",
-                incrementBy: 10);
-
-            migrationBuilder.CreateSequence(
-                name: "catalog_hilo",
-                schema: "catalog",
-                incrementBy: 10);
-
-            migrationBuilder.CreateSequence(
-                name: "catalog_type_hilo",
-                schema: "catalog",
-                incrementBy: 10);
+            migrationBuilder.EnsureSchema(
+                name: "catalog");
 
             migrationBuilder.CreateTable(
                 name: "CatalogBrand",
                 schema: "catalog",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Brand = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
@@ -47,7 +33,8 @@ namespace eShop.Catalog.Data.Manager.Migrations
                 schema: "catalog",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Type = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
@@ -60,11 +47,12 @@ namespace eShop.Catalog.Data.Manager.Migrations
                 schema: "catalog",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: true),
+                    Description = table.Column<string>(type: "text", nullable: false),
                     Price = table.Column<decimal>(type: "numeric", nullable: false),
-                    PictureFileName = table.Column<string>(type: "text", nullable: true),
+                    PictureFileName = table.Column<string>(type: "text", nullable: false),
                     CatalogTypeId = table.Column<int>(type: "integer", nullable: false),
                     CatalogBrandId = table.Column<int>(type: "integer", nullable: false),
                     AvailableStock = table.Column<int>(type: "integer", nullable: false),
@@ -78,30 +66,36 @@ namespace eShop.Catalog.Data.Manager.Migrations
                     table.ForeignKey(
                         name: "FK_Catalog_CatalogBrand_CatalogBrandId",
                         column: x => x.CatalogBrandId,
-                        principalTable: "CatalogBrand",
                         principalSchema: "catalog",
+                        principalTable: "CatalogBrand",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Catalog_CatalogType_CatalogTypeId",
                         column: x => x.CatalogTypeId,
-                        principalTable: "CatalogType",
                         principalSchema: "catalog",
+                        principalTable: "CatalogType",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Catalog_CatalogBrandId",
-                table: "Catalog",
                 schema: "catalog",
+                table: "Catalog",
                 column: "CatalogBrandId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Catalog_CatalogTypeId",
-                table: "Catalog",
                 schema: "catalog",
+                table: "Catalog",
                 column: "CatalogTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Catalog_Name",
+                schema: "catalog",
+                table: "Catalog",
+                column: "Name");
         }
 
         /// <inheritdoc />
@@ -117,18 +111,6 @@ namespace eShop.Catalog.Data.Manager.Migrations
 
             migrationBuilder.DropTable(
                 name: "CatalogType",
-                schema: "catalog");
-
-            migrationBuilder.DropSequence(
-                name: "catalog_brand_hilo",
-                schema: "catalog");
-
-            migrationBuilder.DropSequence(
-                name: "catalog_hilo",
-                schema: "catalog");
-
-            migrationBuilder.DropSequence(
-                name: "catalog_type_hilo",
                 schema: "catalog");
         }
     }
