@@ -3,16 +3,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using eShop.Catalog.Data;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-//using Pgvector;
+using eShop.Catalog.Data;
 
 #nullable disable
 
 namespace eShop.Catalog.Data.Manager.Migrations
 {
     [DbContext(typeof(CatalogDbContext))]
-    [Migration("20231009153249_Initial")]
+    [Migration("20240205033236_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -20,27 +19,19 @@ namespace eShop.Catalog.Data.Manager.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.0")
+                .HasDefaultSchema("catalog")
+                .HasAnnotation("ProductVersion", "8.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.HasSequence("catalog_brand_hilo")
-                .IncrementsBy(10);
-
-            modelBuilder.HasSequence("catalog_hilo")
-                .IncrementsBy(10);
-
-            modelBuilder.HasSequence("catalog_type_hilo")
-                .IncrementsBy(10);
-
-            modelBuilder.Entity("eShop.Catalog.API.Model.CatalogBrand", b =>
+            modelBuilder.Entity("eShop.Catalog.Data.CatalogBrand", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "catalog_brand_hilo");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Brand")
                         .IsRequired()
@@ -49,16 +40,16 @@ namespace eShop.Catalog.Data.Manager.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CatalogBrand", (string)null);
+                    b.ToTable("CatalogBrand", "catalog");
                 });
 
-            modelBuilder.Entity("eShop.Catalog.API.Model.CatalogItem", b =>
+            modelBuilder.Entity("eShop.Catalog.Data.CatalogItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "catalog_hilo");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("AvailableStock")
                         .HasColumnType("integer");
@@ -70,6 +61,7 @@ namespace eShop.Catalog.Data.Manager.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("MaxStockThreshold")
@@ -84,6 +76,7 @@ namespace eShop.Catalog.Data.Manager.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("PictureFileName")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<decimal>("Price")
@@ -98,16 +91,18 @@ namespace eShop.Catalog.Data.Manager.Migrations
 
                     b.HasIndex("CatalogTypeId");
 
-                    b.ToTable("Catalog", (string)null);
+                    b.HasIndex("Name");
+
+                    b.ToTable("Catalog", "catalog");
                 });
 
-            modelBuilder.Entity("eShop.Catalog.API.Model.CatalogType", b =>
+            modelBuilder.Entity("eShop.Catalog.Data.CatalogType", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "catalog_type_hilo");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -116,18 +111,18 @@ namespace eShop.Catalog.Data.Manager.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CatalogType", (string)null);
+                    b.ToTable("CatalogType", "catalog");
                 });
 
-            modelBuilder.Entity("eShop.Catalog.API.Model.CatalogItem", b =>
+            modelBuilder.Entity("eShop.Catalog.Data.CatalogItem", b =>
                 {
-                    b.HasOne("eShop.Catalog.API.Model.CatalogBrand", "CatalogBrand")
+                    b.HasOne("eShop.Catalog.Data.CatalogBrand", "CatalogBrand")
                         .WithMany()
                         .HasForeignKey("CatalogBrandId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("eShop.Catalog.API.Model.CatalogType", "CatalogType")
+                    b.HasOne("eShop.Catalog.Data.CatalogType", "CatalogType")
                         .WithMany()
                         .HasForeignKey("CatalogTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
