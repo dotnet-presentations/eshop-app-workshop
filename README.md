@@ -1,5 +1,7 @@
 # .NET eShop - App Building Workshop
 
+![CI](https://github.com/dotnet-presentations/eshop-app-workshop/actions/workflows/ci.yml/badge.svg)
+
 ## WORK IN PROGRESS
 
 This repo is a work in progress and not ready for consumption as a workshop as yet. Stay tuned.
