@@ -40,7 +40,7 @@ public static class OpenApiExtensions
             var authSection = openApiSection.GetSection("Auth");
             var endpointSection = openApiSection.GetRequiredSection("Endpoint");
 
-            var swaggerUrl = endpointSection["Url"] ?? $"{(!string.IsNullOrEmpty(pathBase) ? pathBase : string.Empty)}/swagger/v1/swagger.json";
+            var swaggerUrl = endpointSection["Url"] ?? $"{pathBase}/swagger/v1/swagger.json";
 
             setup.SwaggerEndpoint(swaggerUrl, endpointSection.GetRequiredValue("Name"));
 
@@ -74,7 +74,7 @@ public static class OpenApiExtensions
         services.AddSwaggerGen();
 
         services.AddOptions<SwaggerGenOptions>()
-            .Configure<IHttpClientFactory, ServiceEndPointResolverRegistry>((options, httpClientFactory, serviceEndPointResolver) =>
+            .Configure<ServiceEndPointResolverRegistry>((options, serviceEndPointResolver) =>
             {
                 /// {
                 ///   "OpenApi": {

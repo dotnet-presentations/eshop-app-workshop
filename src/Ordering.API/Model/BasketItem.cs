@@ -4,7 +4,6 @@ namespace eShop.Ordering.API.Model;
 
 public class BasketItem
 {
-    //public required string Id { get; init; }
     [Required]
     public int ProductId { get; init; }
 

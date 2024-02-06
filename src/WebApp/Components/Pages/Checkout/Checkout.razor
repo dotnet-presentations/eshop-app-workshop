@@ -1,14 +1,17 @@
 ﻿@page "/checkout"
+
 @using System.Globalization
 @using System.ComponentModel.DataAnnotations
+
+@attribute [Authorize]
+
 @inject BasketState Basket
 @inject NavigationManager Nav
-@attribute [Authorize]
 
 <PageTitle>Checkout | Northern Mountains</PageTitle>
 <SectionContent SectionName="page-header-title">Checkout</SectionContent>
 
-<div class='checkout'>
+<div class="checkout">
     <EditForm EditContext="@editContext" FormName="checkout" OnSubmit="@HandleSubmitAsync" Enhance>
         <DataAnnotationsValidator />
         <div class="form">

@@ -1,13 +1,8 @@
 ﻿namespace eShop.Ordering.API.Model;
 
-public class CustomerBasket
+public class CustomerBasket(string buyerId, List<BasketItem> items)
 {
-    public string BuyerId { get; set; }
-    public List<BasketItem> Items { get; set; }
+    public string BuyerId { get; set; } = buyerId;
 
-    public CustomerBasket(string buyerId, List<BasketItem> items)
-    {
-        BuyerId = buyerId;
-        Items = items;
-    }
+    public List<BasketItem> Items { get; set; } = items;
 }
