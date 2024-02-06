@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Serialization;
-using eShop.Basket.API.Storage;
+﻿using eShop.Basket.API.Storage;
 
 namespace Microsoft.Extensions.Hosting;
 

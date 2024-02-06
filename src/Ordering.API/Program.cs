@@ -4,9 +4,9 @@ builder.AddServiceDefaults();
 builder.AddDefaultOpenApi();
 builder.AddApplicationServices();
 
-builder.Services.AddProblemDetails();
-
 var app = builder.Build();
+
+app.UseDefaultExceptionHandler();
 
 app.UseDefaultOpenApi();
 

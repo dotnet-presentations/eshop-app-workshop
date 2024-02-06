@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
@@ -90,6 +91,23 @@ public static partial class HostingExtensions
             .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
 
         return builder;
+    }
+
+    public static WebApplication UseDefaultExceptionHandler(this WebApplication app, string? errorHandlingPath = null)
+    {
+        if (!app.Environment.IsDevelopment())
+        {
+            if (errorHandlingPath is not null)
+            {
+                app.UseExceptionHandler(errorHandlingPath);
+            }
+            else if (app.Services.GetService<IProblemDetailsService>() is not null)
+            {
+                app.UseExceptionHandler();
+            }
+        }
+
+        return app;
     }
 
     public static WebApplication MapDefaultEndpoints(this WebApplication app)

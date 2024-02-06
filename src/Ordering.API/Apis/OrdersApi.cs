@@ -13,25 +13,10 @@ public static class OrdersApi
     {
         app.MapPost("/", CreateOrderAsync)
             .WithParameterValidation(requireParameterAttribute: true);
+
         app.MapGet("/", GetOrdersByUserAsync);
 
         return app;
-    }
-
-    public static async Task<Ok<OrderSummary[]>> GetOrdersByUserAsync([AsParameters] OrderServices services)
-    {
-        var userId = services.IdentityService.GetUserIdentity()
-            ?? throw new InvalidOperationException("User identity could not be found. This endpoint requires authorization.");
-
-        var orders = await services.DbContext.Orders
-            .Include(o => o.OrderItems)
-            .Include(o => o.Buyer)
-            .Where(o => o.Buyer.IdentityGuid == userId)
-            .Select(o => OrderSummary.FromOrder(o))
-            .AsNoTracking()
-            .ToArrayAsync();
-
-        return TypedResults.Ok(orders);
     }
 
     public static async Task<Results<Ok, BadRequest<string>, ValidationProblem>> CreateOrderAsync(
@@ -67,6 +52,7 @@ public static class OrdersApi
 
         var buyer = await services.DbContext.Buyers
             .Where(b => b.IdentityGuid == userId)
+            // Include the payment method to check if it already exists
             .Include(b => b.PaymentMethods
                 .Where(pm => pm.CardTypeId == requestPaymentMethod.CardTypeId
                              && pm.CardNumber == requestPaymentMethod.CardNumber
@@ -83,19 +69,20 @@ public static class OrdersApi
             services.DbContext.Buyers.Add(buyer);
         }
 
-        if (buyer.PaymentMethods.SingleOrDefault() is null)
+        var paymentMethod = buyer.PaymentMethods.SingleOrDefault();
+
+        if (paymentMethod is null)
         {
-            buyer.PaymentMethods.Add(new PaymentMethod
+            paymentMethod = new PaymentMethod
             {
                 CardTypeId = request.CardTypeId,
                 CardNumber = request.CardNumber,
                 CardHolderName = request.CardHolderName,
                 Expiration = request.CardExpiration,
                 SecurityNumber = request.CardSecurityNumber
-            });
+            };
+            buyer.PaymentMethods.Add(paymentMethod);
         }
-
-        var paymentMethod = buyer.PaymentMethods.Single();
 
         var order = new Order
         {
@@ -117,5 +104,21 @@ public static class OrdersApi
         await services.DbContext.SaveChangesAsync();
 
         return TypedResults.Ok();
+    }
+
+    public static async Task<Ok<OrderSummary[]>> GetOrdersByUserAsync([AsParameters] OrderServices services)
+    {
+        var userId = services.IdentityService.GetUserIdentity()
+            ?? throw new InvalidOperationException("User identity could not be found. This endpoint requires authorization.");
+
+        var orders = await services.DbContext.Orders
+            .Include(o => o.OrderItems)
+            .Include(o => o.Buyer)
+            .Where(o => o.Buyer.IdentityGuid == userId)
+            .Select(o => OrderSummary.FromOrder(o))
+            .AsNoTracking()
+            .ToArrayAsync();
+
+        return TypedResults.Ok(orders);
     }
 }

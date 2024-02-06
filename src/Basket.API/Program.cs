@@ -9,6 +9,8 @@ builder.Services.AddGrpc();
 
 var app = builder.Build();
 
+app.UseDefaultExceptionHandler();
+
 app.MapDefaultEndpoints();
 
 app.MapGrpcService<BasketService>();

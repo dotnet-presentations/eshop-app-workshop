@@ -16,5 +16,7 @@ internal static class HostingExtensions
 
         services.AddHttpContextAccessor();
         services.AddTransient<IIdentityService, IdentityService>();
+
+        builder.Services.AddProblemDetails();
     }
 }

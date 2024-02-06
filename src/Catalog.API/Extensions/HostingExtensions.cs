@@ -11,6 +11,8 @@ public static class HostingExtensions
         builder.AddNpgsqlDbContext<CatalogDbContext>("CatalogDB");
 
         builder.Services.Configure<CatalogOptions>(builder.Configuration.GetSection(nameof(CatalogOptions)));
+
+        builder.Services.AddProblemDetails();
     }
 
     public static TOptions GetOptions<TOptions>(this IHost host)
