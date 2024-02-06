@@ -13,6 +13,13 @@ public static class NavigationManagerExtensions
         }
 
         // Workaround to force Blazor enhanced navigation to do a full redirect to an internal URL from an enhanced form handler
-        httpContext.Response.Headers["blazor-enhanced-nav-redirect-location"] = url;
+        if (!httpContext.Response.HasStarted)
+        {
+            httpContext.Response.Headers["blazor-enhanced-nav-redirect-location"] = url;
+        }
+        else
+        {
+            throw new InvalidOperationException("Cannot force a full redirect when response has already started, e.g. when Streaming Rendering is enabled.");
+        }
     }
 }

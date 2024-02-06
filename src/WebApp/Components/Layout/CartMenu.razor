@@ -17,6 +17,7 @@
 @code {
     IDisposable? basketStateSubscription;
     private IReadOnlyCollection<BasketItem>? basketItems;
+    private bool? basketUnavailable;
 
     [CascadingParameter]
     public required HttpContext HttpContext { get; set; }
@@ -30,14 +31,7 @@
         // component to re-render with the updated data.
         basketStateSubscription = Basket.NotifyOnChange(EventCallback.Factory.Create(this, UpdateBasketItemsAsync));
 
-        try
-        {
-            await UpdateBasketItemsAsync();
-        }
-        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
-        {
-            await LogOutService.LogOutAsync(HttpContext);
-        }
+        await UpdateBasketItemsAsync();
     }
 
     public void Dispose()
@@ -47,6 +41,17 @@
 
     private async Task UpdateBasketItemsAsync()
     {
-        basketItems = await Basket.GetBasketItemsAsync();
+        try
+        {
+            basketItems = await Basket.GetBasketItemsAsync();
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            await LogOutService.LogOutAsync(HttpContext);
+        }
+        catch
+        {
+            basketUnavailable = true;
+        }
     }
 }

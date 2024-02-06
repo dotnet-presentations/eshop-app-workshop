@@ -11,7 +11,13 @@
 <SectionContent SectionName="page-header-title">Shopping bag</SectionContent>
 
 <div class='cart'>
-    @if (basketItems is null)
+    @if (basketUnavailable == true)
+    {
+        <p class="validation-message">
+            Your shopping bag is currently unavailable. Please try again later.
+        </p>
+    }
+    else if (basketItems is null)
     {
         <p>Loading...</p>
     }
@@ -86,6 +92,7 @@
 
 @code {
     private IReadOnlyCollection<BasketItem>? basketItems;
+    private bool? basketUnavailable;
 
     [SupplyParameterFromForm]
     public int? UpdateQuantityId { get; set; }
@@ -95,7 +102,14 @@
 
     protected override async Task OnInitializedAsync()
     {
-        basketItems = await Basket.GetBasketItemsAsync();
+        try
+        {
+            basketItems = await Basket.GetBasketItemsAsync();
+        }
+        catch
+        {
+            basketUnavailable = true;
+        }
     }
 
     private decimal? TotalPrice => basketItems?.Sum(i => i.Quantity * i.UnitPrice);
@@ -112,7 +126,15 @@
     {
         var id = UpdateQuantityId!.Value;
         var quantity = UpdateQuantityValue!.Value;
-        await Basket.SetQuantityAsync(id, quantity);
-        basketItems = await Basket.GetBasketItemsAsync();
+
+        try
+        {
+            await Basket.SetQuantityAsync(id, quantity);
+            basketItems = await Basket.GetBasketItemsAsync();
+        }
+        catch
+        {
+            basketUnavailable = true;
+        }
     }
 }
