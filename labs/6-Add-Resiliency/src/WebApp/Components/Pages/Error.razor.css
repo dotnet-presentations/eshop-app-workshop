@@ -1,0 +1,21 @@
+﻿.error {
+    padding: 0 10rem;
+    display: flex;
+    gap: 6rem;
+}
+
+@media only screen and (max-width: 480px) {
+    .error {
+        padding: 0 1rem;
+        gap: 1rem;
+        flex-direction: column-reverse
+    }
+}
+
+@media only screen and (min-width: 481px) and (max-width: 1024px) {
+    .error {
+        padding: 0 3rem;
+        gap: 2rem;
+        flex-direction: column-reverse;
+    } 
+}

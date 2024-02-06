@@ -60,14 +60,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            orders = await OrderingService.GetOrders();
-        }
-        catch (HttpRequestException hre) when (hre.StatusCode is System.Net.HttpStatusCode.Unauthorized)
-        {
-            // Issue with the access token so force the user to login again
-            Nav.NavigateTo(Pages.User.LogIn.Url(Nav, forceLogIn: true));
-        }
+        orders = await OrderingService.GetOrders();
     }
 }
