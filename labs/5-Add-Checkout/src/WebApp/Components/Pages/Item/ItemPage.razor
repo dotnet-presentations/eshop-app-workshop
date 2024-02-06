@@ -6,7 +6,6 @@
 
 @inject CatalogService CatalogService
 @inject BasketState BasketState
-@inject LogOutService LogOutService
 @inject NavigationManager Nav
 @inject IProductImageUrlProvider ProductImages
 
@@ -111,26 +110,8 @@ else if (notFound)
 
         if (item is not null)
         {
-            try
-            {
-                await BasketState.AddAsync(item);
-                await UpdateNumInCartAsync();
-
-                if (WasLoggedOut)
-                {
-                    // Remove the flag from the URL by forcing a full page navigation
-                    var url = new Uri(Nav.Uri).GetComponents(UriComponents.SchemeAndServer | UriComponents.Path, UriFormat.SafeUnescaped);
-                    Nav.NavigateTo(url, HttpContext, forceFullNavigation: true);
-                }
-            }
-            catch (RpcException ex) when (ex.StatusCode is StatusCode.Unauthenticated)
-            {
-                // There was an issue with the user's access token, force login again and refresh the page with a message
-                var returnUrl = Nav.GetUriWithQueryParameter(nameof(WasLoggedOut), true);
-                var loginUrl = Pages.User.LogIn.Url(Nav, returnUrl, forceLogIn: true);
-                Nav.NavigateTo(loginUrl, HttpContext, forceFullNavigation: true);
-                return;
-            }
+            await BasketState.AddAsync(item);
+            await UpdateNumInCartAsync();
         }
     }
 
