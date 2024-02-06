@@ -3,7 +3,6 @@
 @implements IDisposable
 
 @inject BasketState Basket
-@inject LogOutService LogOutService
 @inject NavigationManager NavigationManager
 
 <a aria-label="cart" href="cart">
@@ -30,14 +29,7 @@
         // component to re-render with the updated data.
         basketStateSubscription = Basket.NotifyOnChange(EventCallback.Factory.Create(this, UpdateBasketItemsAsync));
 
-        try
-        {
-            await UpdateBasketItemsAsync();
-        }
-        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
-        {
-            await LogOutService.LogOutAsync(HttpContext);
-        }
+        await UpdateBasketItemsAsync();
     }
 
     public void Dispose()

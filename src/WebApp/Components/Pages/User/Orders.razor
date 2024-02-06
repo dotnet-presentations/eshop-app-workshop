@@ -1,4 +1,5 @@
 ﻿@page "/user/orders"
+
 @using Microsoft.AspNetCore.Authentication
 
 @attribute [Authorize]
@@ -11,11 +12,7 @@
 <SectionContent SectionName="page-header-title">Orders</SectionContent>
 
 <div class="orders">
-@if (signInRequired)
-{
-    <p>There was an issue accessing your orders. Please use the user menu to log out and log in again.</p>
-}
-else if (orders is null)
+@if (orders is null)
 {
     <p>Loading...</p>
 }
@@ -57,7 +54,6 @@ else
 
 @code {
     private OrderRecord[]? orders;
-    private bool signInRequired = false;
 
     [CascadingParameter]
     public required HttpContext HttpContext {get; set; }
