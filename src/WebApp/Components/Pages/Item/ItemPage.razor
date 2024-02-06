@@ -38,7 +38,7 @@
                         Add to shopping bag
                     </button>
                 }
-                else
+                else if (!isLoggedIn)
                 {
                     <button type="submit" title="Log in to purchase">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -53,6 +53,10 @@
             @if (isLoggedIn && WasLoggedOut)
             {
                 <p class="validation-message">There was an issue adding the item to your shopping bag. <br />Please try again.</p>
+            }
+            else if (isLoggedIn && basketUnavailable == true)
+            {
+                <p class="validation-message">Your shopping bag is currently unavailable. <br />Please try again later.</p>
             }
 
             @if (numInCart > 0)
@@ -75,6 +79,7 @@ else if (notFound)
     private int numInCart;
     private bool isLoggedIn;
     private bool notFound;
+    private bool? basketUnavailable;
 
     [Parameter]
     public int ItemId { get; set; }
@@ -88,16 +93,31 @@ else if (notFound)
 
     protected override async Task OnInitializedAsync()
     {
+        isLoggedIn = HttpContext.User.Identity?.IsAuthenticated == true;
+
         try
         {
-            isLoggedIn = HttpContext.User.Identity?.IsAuthenticated == true;
             item = await CatalogService.GetCatalogItem(ItemId);
-            await UpdateNumInCartAsync();
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
         {
             HttpContext.Response.StatusCode = 404;
             notFound = true;
+        }
+
+        StateHasChanged();
+
+        if (!notFound && item is not null)
+        {
+            try
+            {
+                await UpdateNumInCartAsync();
+                basketUnavailable = false;
+            }
+            catch
+            {
+                // Ignore basket errors on page load
+            }
         }
     }
 
@@ -116,6 +136,8 @@ else if (notFound)
                 await BasketState.AddAsync(item);
                 await UpdateNumInCartAsync();
 
+                basketUnavailable = false;
+
                 if (WasLoggedOut)
                 {
                     // Remove the flag from the URL by forcing a full page navigation
@@ -130,6 +152,10 @@ else if (notFound)
                 var loginUrl = Pages.User.LogIn.Url(Nav, returnUrl, forceLogIn: true);
                 Nav.NavigateTo(loginUrl, HttpContext, forceFullNavigation: true);
                 return;
+            }
+            catch
+            {
+                basketUnavailable = true;
             }
         }
     }
