@@ -2,7 +2,7 @@
 
 namespace Microsoft.Extensions.Hosting;
 
-public static class Extensions
+public static class HostingExtensions
 {
     public static void AddApplicationServices(this IHostApplicationBuilder builder)
     {
