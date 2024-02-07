@@ -1,6 +1,6 @@
 ﻿namespace eShop.Catalog.API.Model;
 
-public class PaginatedItems<TEntity>(int pageIndex, int pageSize, long count, IEnumerable<TEntity> data) where TEntity : class
+public class PaginatedItems<TItem>(int pageIndex, int pageSize, long count, IEnumerable<TItem> data) where TItem : class
 {
     public int PageIndex { get; } = pageIndex;
 
@@ -8,5 +8,5 @@ public class PaginatedItems<TEntity>(int pageIndex, int pageSize, long count, IE
 
     public long Count { get; } = count;
 
-    public IEnumerable<TEntity> Data { get;} = data;
+    public IEnumerable<TItem> Data { get;} = data;
 }
