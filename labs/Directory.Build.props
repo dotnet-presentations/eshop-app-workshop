@@ -1,9 +1,0 @@
-<Project>
-
-  <PropertyGroup>
-    <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
-  </PropertyGroup>
-
-</Project>
