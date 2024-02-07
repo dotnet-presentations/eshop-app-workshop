@@ -26,10 +26,14 @@ In this workshop, you'll learn by building out features of the [eShop Reference 
 
 TODO
 
-### Database Schema
+## Labs
 
-TODO
+The workshop consists of a series of labs, over which you'll build the eShop application.
 
-## Sessions
-
-TODO
+1. [Create the Catalog API](./labs/1-Create-Catalog-API/)
+2. [Create the Blazor frontend](./labs/2-Create-Blazor-Frontend/)
+3. [Add an Identity Provider & authentication](./labs/3-Add-Identity/)
+4. [Add shopping basket capabilities](./labs/4-Add-Shopping-Basket/)
+5. [Add checkout & order capabilities](./labs/5-Add-Checkout/)
+6. [Add resiliency](./labs/6-Add-Resiliency/)
+7. [Deployment](./labs/7-Deployment/)
