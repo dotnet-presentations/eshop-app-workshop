@@ -13,6 +13,6 @@ public static class HostingExtensions
         builder.Services.AddScoped<LogOutService>();
 
         // HTTP and gRPC client registrations
-        
+        builder.Services.AddHttpClient<CatalogService>(o => o.BaseAddress = new("http://catalog-api"));
     }
 }
