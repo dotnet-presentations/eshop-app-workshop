@@ -27,7 +27,10 @@ var catalogApi = builder.AddProject<Catalog_API>("catalog-api")
 
 
 var webApp = builder.AddProject<WebApp>("webapp")
-    .WithReference(catalogApi);
+        .WithReference(catalogApi)
+        .WithReference(idp)
+        // Force HTTPS profile for web app (required for OIDC operations)
+        .WithLaunchProfile("https");
 
 // Inject the project URLs for Keycloak realm configuration
 idp.WithEnvironment("WEBAPP_HTTP", () => webApp.GetEndpoint("http").UriString);
