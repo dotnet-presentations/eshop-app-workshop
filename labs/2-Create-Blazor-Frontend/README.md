@@ -161,10 +161,10 @@ Now that we have a service we can use to easily retrieve the catalog items from 
     ![Catalog page with no item images](./img/eshop-web-catalog-no-images.png)
 
 1. Open the browser developer tools (<kbd>F12</kbd>) and navigate to the **Network** pane then refresh the page. From the failed requests log we can see the images are trying to be loaded from paths like `/product-images/99`, where `99` is the product ID but the site doesn't have these files or any endpoint configured to serve them. Like the product details, the product images are served by the Catalog API.
-1. [YARP](https://microsoft.github.io/reverse-proxy/) is a package for ASP.NET Core applications that provides highly customizable reverse proxying capabilities. We'll use YARP to proxy the product image requests to the frontend site on to the Catalog API. Add a reference to the `Microsoft.Extensions.ServiceDiscovery.Yarp` package, version `8.0.0-preview.3.24081.13`. You can use the [`dotnet` CLI](https://learn.microsoft.com/dotnet/core/tools/dotnet-add-package), or Visual Studio NuGet Package Manager, or edit the `WebApp.csproj` directly:
+1. [YARP](https://microsoft.github.io/reverse-proxy/) is a package for ASP.NET Core applications that provides highly customizable reverse proxying capabilities. We'll use YARP to proxy the product image requests to the frontend site on to the Catalog API. Add a reference to the `Microsoft.Extensions.ServiceDiscovery.Yarp` package, version `8.0.0-preview.3.24105.21`. You can use the [`dotnet` CLI](https://learn.microsoft.com/dotnet/core/tools/dotnet-add-package), or Visual Studio NuGet Package Manager, or edit the `WebApp.csproj` directly:
 
     ```xml
-    <PackageReference Include="Microsoft.Extensions.ServiceDiscovery.Yarp" Version="8.0.0-preview.3.24081.13" />
+    <PackageReference Include="Microsoft.Extensions.ServiceDiscovery.Yarp" Version="8.0.0-preview.3.24105.21" />
     ```
 
 1. To setup the proxying behavior, first add a line to the `AddApplicationServices` method in the `HostingExtensions.cs` file, to add the require services to the application's DI container:
