@@ -332,3 +332,15 @@ The final piece of catalog functionality to add is the ability to filter the ite
     ![Filtering experience on the catalog](./img/eshop-web-catalog-filtering.png)
 
 
+## Challenge: Update the item details page
+
+If you have time and would like a challenge, try using what you've learned so far and update the `Item.razor` page to display an item's details. This page is linked to from each item on the catalog page.
+
+![The item details page](./img/eshop-web-item-details.png)
+
+Hints:
+
+- The Catalog API provides an endpoint at `/items/{id}` to retrieve an item's details via a `GET` request.
+- You can get image URLs for items from the `IProductImageUrlProvider` service which is already registered in the application's DI container (`@inject`...).
+- The `Item.razor.css` file already defines some styles targeting class names like `item-details` and `description` that should help with styling the content.
+- Think about what should happen if the item ID in the querystring doesn't have a matching catalog item. Displaying a "not found" message and changing the HTTP respsone status code to `404` might be things to consider.
