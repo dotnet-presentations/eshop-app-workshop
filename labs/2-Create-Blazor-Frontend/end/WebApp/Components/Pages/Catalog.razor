@@ -1,5 +1,7 @@
 ﻿@page "/"
 
+@attribute [StreamRendering]
+
 @inject NavigationManager Nav
 @inject CatalogService CatalogService
 
@@ -8,13 +10,24 @@
 <SectionContent SectionName="page-header-subtitle">Start the season with the latest in clothing and equipment.</SectionContent>
 
 <div class="catalog">
-    @if (catalogResult is not null)
+    @if (catalogResult is null)
+    {
+        <p>Loading...</p>
+    }
+    else
     {
         <div>
             <div class="catalog-items">
                 @foreach (var item in catalogResult.Data)
                 {
                     <CatalogListItem Item="@item" />
+                }
+            </div>
+
+            <div class="page-links">
+                @foreach (var pageIndex in GetVisiblePageIndexes(catalogResult))
+                {
+                    <NavLink ActiveClass="active-page" Match="@NavLinkMatch.All" href="@Nav.GetUriWithQueryParameter("page", pageIndex == 1 ? null : pageIndex)">@pageIndex</NavLink>
                 }
             </div>
         </div>
@@ -26,8 +39,14 @@
 
     CatalogResult? catalogResult;
 
+    [SupplyParameterFromQuery]
+    public int? Page { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
-        catalogResult = await CatalogService.GetCatalogItems(0, PageSize, null, null);
+        catalogResult = await CatalogService.GetCatalogItems(Page.GetValueOrDefault(1) - 1, PageSize, null, null);
     }
+
+    static IEnumerable<int> GetVisiblePageIndexes(CatalogResult result)
+        => Enumerable.Range(1, (int)Math.Ceiling(1.0 * result.Count / PageSize));
 }

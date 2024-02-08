@@ -186,3 +186,90 @@ Now that we have a service we can use to easily retrieve the catalog items from 
 1. Navigate to the **Traces** page of the dashboard and locate a trace row for one of the product image requests, then click on the **View** link in the **Details** column to open the trace details page. Notice the information that is displayed in the waterfall diagram of the various spans that make up the traced operation, including the request from the browser to the `webapp` resource, the forwarded request from `webapp` to `catalog-api` (both the outgoing and incoming spans), and finally the database call by `catalog-api` to the `CatalogDB` PostgreSQL resource. Click on any individual span to see all the details included in the trace. See if you can find the actual SQL query that was executed against the database as part of serving the image:
 
     ![The dashboard showing the trace details for a product image request](./img/dashboard-product-image-request-trace.png)
+
+## Improve the user experience while the catalog page is loading
+
+You may have noticed that, when visiting the catalog page, there is a delay before the page is rendered in the browser. This delay is more noticeable when first loading the page after launching the AppHost project, as it takes a bit of time before the various resources involved are fully started. Let's improve this by utilizing the [streaming rendering feature in Blazor](https://learn.microsoft.com/aspnet/core/blazor/components/rendering?view=aspnetcore-8.0#streaming-rendering) to display a loading message while waiting for the catalog items to be returned by the backend service.
+
+1. In the `Catalog.razor` file, update the markup to render a simple "Loading..." message if the `catalogResult` field is `null`, instead of rendering nothing:
+
+    ```razor
+    <div class="catalog">
+        @if (catalogResult is null)
+        {
+            <p>Loading...</p>
+        }
+        else
+        {
+            <div>
+                <div class="catalog-items">
+                    @foreach (var item in catalogResult.Data)
+                    {
+                        <CatalogListItem Item="@item" />
+                    }
+                </div>
+            </div>
+        }
+    </div>
+    ```
+
+    If you try loading the page again at this point, you'll see no change. This is because by default, Blazor doesn't send any response to the browser until the component has completely finished executing, including asynchronous operations started in component lifecycle events, e.g. in the `OnInitializedAsync` method.
+1. Add a directive at the top of the page (after the `@page` directive) to add the `StreamRendering` attribute to the page. This will instruct Blazor to stream the response to the browser as asynchronous operations started by the component complete:
+
+    ```razor
+    @attribute [StreamRendering]
+    ```
+
+1. Load the page again and notice that the loading message is displayed briefly before the catalog items are rendered.
+1. Try forcing a longer delay to make the message easier to see when running locally, by adding a call to `await Task.Delay(1000)` before the call to `CatalogService.GetCatalogItems` in the `OnInitializedAsync` method:
+
+    ```csharp
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Delay(1000);
+        catalogResult = await CatalogService.GetCatalogItems(0, PageSize, null, null);
+    }
+    ```
+
+## Add support for multiple pages of catalog items
+
+The Catalog API supports returning a subset of matching catalog items to allow for building a page-based UI. Let's update the `Catalog.razor` page to display navigating through the paged results.
+
+1. Under the `PageSize` field, declare a new [component parameter](https://learn.microsoft.com/aspnet/core/blazor/components/#component-parameters) to store the current page number being viewed. The value for this will be [bound from the querystring](https://learn.microsoft.com/aspnet/core/blazor/fundamentals/routing#query-strings) of the request URL, e.g. `/?page=2`, by using the `SupplyParameterFromQuery` attribute:
+
+    ```csharp
+    [SupplyParameterFromQuery]
+    public int? Page { get; set; }
+    ```
+
+1. Update the call to `CatalogService.GetCatalogItems` to use the value of the `Page` parameter if it's set (use `GetValueOrDefault` to help with this). Note that the API accepts the page as a zero-based index, but as this page is viewed by humans, we'll want to offset that by `+1` so that the first page is page 1, the second is page 2, and so on:
+
+    ```csharp
+    protected override async Task OnInitializedAsync()
+    {
+        catalogResult = await CatalogService.GetCatalogItems(Page.GetValueOrDefault(1) - 1, PageSize, null, null);
+    }
+    ```
+
+1. To help with rendering a set of hyperlinks for navigating to other pages, add a method called `GetVisiblePageIndexes` that generates a list of page numbers based on the `CatalogResult` returned from the call to the Catalog API:
+
+    ```csharp
+    static IEnumerable<int> GetVisiblePageIndexes(CatalogResult result)
+    => Enumerable.Range(1, (int)Math.Ceiling(1.0 * result.Count / PageSize));
+    ```
+
+1. Add markup to render the page links by looping over the page indexes returned from the `GetVisiblePageIndexes` method and render a hyperlink using the built-in [`NavLink` component](https://learn.microsoft.com/aspnet/core/blazor/fundamentals/routing#navlink-component) . The CSS defined in `Catalog.razor.css` already includes a styles targeting classes `page-links` and `active-page` so use those to style the links:
+
+    ```razor
+    <div class="page-links">
+        @foreach (var pageIndex in GetVisiblePageIndexes(catalogResult))
+        {
+            <NavLink ActiveClass="active-page" Match="@NavLinkMatch.All" href="@Nav.GetUriWithQueryParameter("page", pageIndex == 1 ? null : pageIndex)">@pageIndex</NavLink>
+        }
+    </div>
+    ```
+
+1. Reload the home page and navigate through the pages of the catalog using the links rendered under the items. Note that the application must be fully restarted for this to work as the `SupplyParameterFromQuery` attribute is not recognized after a hot reload:
+
+    ![Paging experience on the catalog](./img/eshop-web-catalog-paging.png)
+
