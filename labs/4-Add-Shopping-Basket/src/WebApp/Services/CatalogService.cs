@@ -50,24 +50,24 @@ public class CatalogService(HttpClient httpClient)
 
     private static string GetAllCatalogItemsUri(string baseUri, int pageIndex, int pageSize, int? brand, int? type)
     {
-        string filterQs;
+        string filterPath;
 
         if (type.HasValue)
         {
             var brandQs = brand.HasValue ? brand.Value.ToString() : string.Empty;
-            filterQs = $"/type/{type.Value}/brand/{brandQs}";
+            filterPath = $"/type/{type.Value}/brand/{brandQs}";
 
         }
         else if (brand.HasValue)
         {
             var brandQs = brand.HasValue ? brand.Value.ToString() : string.Empty;
-            filterQs = $"/type/all/brand/{brandQs}";
+            filterPath = $"/type/all/brand/{brandQs}";
         }
         else
         {
-            filterQs = string.Empty;
+            filterPath = string.Empty;
         }
 
-        return $"{baseUri}items{filterQs}?pageIndex={pageIndex}&pageSize={pageSize}";
+        return $"{baseUri}items{filterPath}?pageIndex={pageIndex}&pageSize={pageSize}";
     }
 }
