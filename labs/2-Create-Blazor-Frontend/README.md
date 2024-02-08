@@ -99,7 +99,7 @@ To communicate with the Catalog API from the web app, we'll create a service cla
     {
         var uri = GetAllCatalogItemsUri(remoteServiceBaseUrl, pageIndex, pageSize, brand, type);
         var result = await httpClient.GetFromJsonAsync<CatalogResult>(uri);
-        return result!;
+        return result ?? new(0, 0, 0, []);
     }
     ```
 
@@ -272,4 +272,63 @@ The Catalog API supports returning a subset of matching catalog items to allow f
 1. Reload the home page and navigate through the pages of the catalog using the links rendered under the items. Note that the application must be fully restarted for this to work as the `SupplyParameterFromQuery` attribute is not recognized after a hot reload:
 
     ![Paging experience on the catalog](./img/eshop-web-catalog-paging.png)
+
+## Add filtering ability to the catalog
+
+The final piece of catalog functionality to add is the ability to filter the items by type and/or brand. The Catalog API already has endpoints to facilitate this so we just need to update `CatalogService` to call them and consume that from `Catalog.razor` with some appropriate UI.
+
+1. In the `CatalogService.cs` file, add two new methods to allow retrieving catalog item types and brands from the Catalog API:
+
+    ```csharp
+    public async Task<IEnumerable<CatalogBrand>> GetBrands()
+    {
+        var uri = $"{remoteServiceBaseUrl}catalogBrands";
+        var result = await httpClient.GetFromJsonAsync<CatalogBrand[]>(uri);
+        return result ?? [];
+    }
+
+    public async Task<IEnumerable<CatalogItemType>> GetTypes()
+    {
+        var uri = $"{remoteServiceBaseUrl}catalogTypes";
+        var result = await httpClient.GetFromJsonAsync<CatalogItemType[]>(uri);
+        return result ?? [];
+    }
+    ```
+1. In `Catalog.razor`, declare two new component parameters to capture the brand ID and item type ID from the querystring:
+
+    ```csharp
+    [SupplyParameterFromQuery(Name = "brand")]
+    public int? BrandId { get; set; }
+
+    [SupplyParameterFromQuery(Name = "type")]
+    public int? ItemTypeId { get; set; }
+    ```
+
+1. Update the `OnInitializedAsync` method to pass in the values from the `BrandId` and `ItemTypeId` parameters, replacing the `null` values being passed before:
+
+    ```csharp
+    protected override async Task OnInitializedAsync()
+    {
+        catalogResult = await CatalogService.GetCatalogItems(
+            Page.GetValueOrDefault(1) - 1,
+            PageSize,
+            BrandId,
+            ItemTypeId);
+    }
+    ```
+
+1. In the markup, add an instance of the `CatalogSearch` component (already defined in this project) immediately after the opening `<div class="catalog">` tag, passing through the values of the `BrandId` and `ItemTypeId` parameters:
+
+    ```razor
+    <div class="catalog">
+        <CatalogSearch BrandId="@BrandId" ItemTypeId="@ItemTypeId" />
+    ```
+
+1. Locate and open the `CatalogSearch.razor` file. Update this file so that it populates the `catalogBrands` and `catalogItemTypes` fields by calling the methods you just added to the `CatalogService` class. Reminder, you'll need to use the `@inject` directive to get an instance of the `CatalogService` before you can update the `OnInitializedAsync` method.
+
+    For an extra challenge, try calling the methods in parallel before awaiting their results (the `Task.WhenAll` method might be helpful here).
+1. Reload the home page and see now that the filter UI is displayed on the left-hand side. Click on the various filter options to verify that the catalog UI functions correctly. Notice how the URL changes as you click through the various filter options and paging links.
+
+    ![Filtering experience on the catalog](./img/eshop-web-catalog-filtering.png)
+
 

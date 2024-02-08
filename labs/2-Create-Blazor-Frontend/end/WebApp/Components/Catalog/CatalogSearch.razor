@@ -1,4 +1,5 @@
-﻿@inject NavigationManager Nav
+﻿@inject CatalogService CatalogService
+@inject NavigationManager Nav
 
 @if (catalogBrands is not null && catalogItemTypes is not null)
 {
@@ -53,10 +54,13 @@
 
     protected override async Task OnInitializedAsync()
     {
-        catalogBrands = [];
-        catalogItemTypes = [];
+        var brandsTask = CatalogService.GetBrands();
+        var itemTypesTask = CatalogService.GetTypes();
 
-        await Task.CompletedTask;
+        await Task.WhenAll(brandsTask, itemTypesTask);
+
+        catalogBrands = brandsTask.Result;
+        catalogItemTypes = itemTypesTask.Result;
     }
 
     private string BrandUri(int? brandId) => Nav.GetUriWithQueryParameters(new Dictionary<string, object?>()

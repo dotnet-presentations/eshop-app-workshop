@@ -10,6 +10,8 @@
 <SectionContent SectionName="page-header-subtitle">Start the season with the latest in clothing and equipment.</SectionContent>
 
 <div class="catalog">
+    <CatalogSearch BrandId="@BrandId" ItemTypeId="@ItemTypeId" />
+
     @if (catalogResult is null)
     {
         <p>Loading...</p>
@@ -42,9 +44,19 @@
     [SupplyParameterFromQuery]
     public int? Page { get; set; }
 
+    [SupplyParameterFromQuery(Name = "brand")]
+    public int? BrandId { get; set; }
+
+    [SupplyParameterFromQuery(Name = "type")]
+    public int? ItemTypeId { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
-        catalogResult = await CatalogService.GetCatalogItems(Page.GetValueOrDefault(1) - 1, PageSize, null, null);
+        catalogResult = await CatalogService.GetCatalogItems(
+            Page.GetValueOrDefault(1) - 1,
+            PageSize,
+            BrandId,
+            ItemTypeId);
     }
 
     static IEnumerable<int> GetVisiblePageIndexes(CatalogResult result)

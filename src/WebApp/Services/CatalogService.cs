@@ -11,7 +11,7 @@ public class CatalogService(HttpClient httpClient)
     {
         var uri = GetAllCatalogItemsUri(remoteServiceBaseUrl, pageIndex, pageSize, brand, type);
         var result = await httpClient.GetFromJsonAsync<CatalogResult>(uri);
-        return result!;
+        return result ?? new(0, 0, 0, []);
     }
 
     public Task<CatalogItem?> GetCatalogItem(int id)
@@ -24,28 +24,21 @@ public class CatalogService(HttpClient httpClient)
     {
         var uri = $"{remoteServiceBaseUrl}items/by?ids={string.Join("&ids=", ids)}";
         var result = await httpClient.GetFromJsonAsync<List<CatalogItem>>(uri);
-        return result!;
-    }
-
-    public Task<CatalogResult> GetCatalogItemsWithSemanticRelevance(int page, int take, string text)
-    {
-        var url = $"{remoteServiceBaseUrl}items/withsemanticrelevance/{HttpUtility.UrlEncode(text)}?pageIndex={page}&pageSize={take}";
-        var result = httpClient.GetFromJsonAsync<CatalogResult>(url);
-        return result!;
+        return result ?? [];
     }
 
     public async Task<IEnumerable<CatalogBrand>> GetBrands()
     {
         var uri = $"{remoteServiceBaseUrl}catalogBrands";
         var result = await httpClient.GetFromJsonAsync<CatalogBrand[]>(uri);
-        return result!;
+        return result ?? [];
     }
 
     public async Task<IEnumerable<CatalogItemType>> GetTypes()
     {
         var uri = $"{remoteServiceBaseUrl}catalogTypes";
         var result = await httpClient.GetFromJsonAsync<CatalogItemType[]>(uri);
-        return result!;
+        return result ?? [];
     }
 
     private static string GetAllCatalogItemsUri(string baseUri, int pageIndex, int pageSize, int? brand, int? type)

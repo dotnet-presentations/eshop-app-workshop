@@ -10,7 +10,21 @@ public class CatalogService(HttpClient httpClient)
     {
         var uri = GetAllCatalogItemsUri(remoteServiceBaseUrl, pageIndex, pageSize, brand, type);
         var result = await httpClient.GetFromJsonAsync<CatalogResult>(uri);
-        return result!;
+        return result ?? new(0, 0, 0, []);
+    }
+
+    public async Task<IEnumerable<CatalogBrand>> GetBrands()
+    {
+        var uri = $"{remoteServiceBaseUrl}catalogBrands";
+        var result = await httpClient.GetFromJsonAsync<CatalogBrand[]>(uri);
+        return result ?? [];
+    }
+
+    public async Task<IEnumerable<CatalogItemType>> GetTypes()
+    {
+        var uri = $"{remoteServiceBaseUrl}catalogTypes";
+        var result = await httpClient.GetFromJsonAsync<CatalogItemType[]>(uri);
+        return result ?? [];
     }
 
     private static string GetAllCatalogItemsUri(string baseUri, int pageIndex, int pageSize, int? brand, int? type)
