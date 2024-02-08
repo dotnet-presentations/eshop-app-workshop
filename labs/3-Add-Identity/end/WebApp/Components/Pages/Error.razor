@@ -1,0 +1,27 @@
+﻿@page "/Error"
+@using System.Diagnostics
+
+<PageTitle>Error | Northern Mountains</PageTitle>
+
+<SectionContent SectionName="page-header-title">Shopping bag</SectionContent>
+<SectionContent SectionName="page-header-subtitle">An error occurred while processing your request.</SectionContent>
+
+<div class="error">
+    @if (ShowRequestId)
+    {
+        <p>
+            <strong>Request ID:</strong> <code>@RequestId</code>
+        </p>
+    }
+</div>
+
+@code {
+    [CascadingParameter]
+    public required HttpContext HttpContext { get; set; }
+
+    private string? RequestId { get; set; }
+    private bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+
+    protected override void OnInitialized() =>
+        RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
+}

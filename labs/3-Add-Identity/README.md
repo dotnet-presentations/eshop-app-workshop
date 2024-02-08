@@ -12,3 +12,6 @@ There are many options available for implementing an IdP, including:
 
 [Keycloak](https://www.keycloak.org/) is available as a configurable container image that makes it very easy to get started with and is supported by a rich community ecosystem. We'll use it to create an IdP for our distributed application.
 
+## Compose a Keycloak instance into the AppHost project via a custom resource type
+
+.NET Aspire includes built-in support for a number of different container-based resources, but is also easy to extend with custom resources that encapsulate useful behavior. 
