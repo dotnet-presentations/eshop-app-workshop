@@ -28,4 +28,6 @@ app.MapDefaultEndpoints();
 
 app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 
+app.MapForwarder("/product-images/{id}", "http://catalog-api", "/api/v1/catalog/items/{id}/pic");
+
 app.Run();

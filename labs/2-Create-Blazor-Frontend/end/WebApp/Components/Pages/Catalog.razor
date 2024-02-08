@@ -1,15 +1,33 @@
 ﻿@page "/"
 
 @inject NavigationManager Nav
+@inject CatalogService CatalogService
 
 <PageTitle>Northern Mountains</PageTitle>
 <SectionContent SectionName="page-header-title">Ready for a new adventure?</SectionContent>
 <SectionContent SectionName="page-header-subtitle">Start the season with the latest in clothing and equipment.</SectionContent>
 
 <div class="catalog">
-    
+    @if (catalogResult is not null)
+    {
+        <div>
+            <div class="catalog-items">
+                @foreach (var item in catalogResult.Data)
+                {
+                    <CatalogListItem Item="@item" />
+                }
+            </div>
+        </div>
+    }
 </div>
 
 @code {
-    
+    const int PageSize = 9;
+
+    CatalogResult? catalogResult;
+
+    protected override async Task OnInitializedAsync()
+    {
+        catalogResult = await CatalogService.GetCatalogItems(0, PageSize, null, null);
+    }
 }

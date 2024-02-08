@@ -103,7 +103,7 @@ To communicate with the Catalog API from the web app, we'll create a service cla
     }
     ```
 
-1. Register the `CatalogService` with the application's DI container and configure its base address to point at the `catalog-api` resource by adding a line to the `Extensions/HostingExtensions.cs` file:
+1. Register the `CatalogService` with the application's DI container and configure its base address to point at the `catalog-api` resource by adding a line to the `Extensions/HostingExtensions.cs` file. Be sure that the host name set in the URI  `BaseAddress`:
 
     ```csharp
     // HTTP and gRPC client registrations
@@ -117,4 +117,72 @@ To communicate with the Catalog API from the web app, we'll create a service cla
 Now that we have a service we can use to easily retrieve the catalog items from the Catalog API, let's update the site's home page to use the service and display some catalog items.
 
 1. In the `WebApp` project, open the `Components/Pages/Catalog.razor` file. Note that this page is configured to be the home page (served from the `/` path) via the `@page "/"` directive at the top of the file.
-1. In order to get an instance of the `CatalogService` class you 
+1. In order to get an instance of the `CatalogService` class in the `Catalog.razor` file from the application's DI container, add a line using the [`@inject` directive](https://learn.microsoft.com/aspnet/core/blazor/fundamentals/dependency-injection#request-a-service-in-a-component) near the top of the file (make sure it's after the `@page` directive). Note that the format of this is a bit like a property or field in C#, where the first part is the type name and the second part the member name (in this case the property name is the same as the type name but you could use any valid property name):
+
+    ```razor
+    @inject CatalogService CatalogService
+    ```
+
+1. Locate the `@code` block at the bottom of the `Catalog.razor` file. This is where the page's fields, parameters, and methods can be defined. Define a constant value for the page size of `9` (while the API supports different page sizes, the UI we're going to build assumes a fixed page size):
+
+    ```csharp
+    const int PageSize = 9;
+    ```
+
+1. Razor components (including pages) execute [according to a pre-defined lifecycle](https://learn.microsoft.com/aspnet/core/blazor/components/lifecycle), represented by methods you can override to perform the desired logic needed to implement the component's behavior. Add code to use the injected `CatalogService` instance to load catalog items and store them in a field when the component is initializing. Just pass fixed values for the parameters other than `pageSize` for now:
+
+    ```csharp
+    CatalogResult? catalogResult;
+
+    protected override async Task OnInitializedAsync()
+    {
+        catalogResult = await CatalogService.GetCatalogItems(0, PageSize, null, null);
+    }
+    ```
+
+1. Back in the markup section of the file, add some HTML and use Razor expressions to display the items in the `catalogResult` field. Note that you'll need to check the value is not `null` first to avoid a compiler error. Use the existing `CatalogListItem` component defined in the project to handle rendering each item:
+
+    ```razor
+    @if (catalogResult is not null)
+    {
+        <div>
+            <div class="catalog-items">
+                @foreach (var item in catalogResult.Data)
+                {
+                    <CatalogListItem Item="@item" />
+                }
+            </div>
+        </div>
+    }
+    ```
+
+1. Run the AppHost project and navigate to the eShop front page. You should see catalog items now but their images aren't rendering correctly:
+
+    ![Catalog page with no item images](./img/eshop-web-catalog-no-images.png)
+
+1. Open the browser developer tools (<kbd>F12</kbd>) and navigate to the **Network** pane then refresh the page. From the failed requests log we can see the images are trying to be loaded from paths like `/product-images/99`, where `99` is the product ID but the site doesn't have these files or any endpoint configured to serve them. Like the product details, the product images are served by the Catalog API.
+1. [YARP](https://microsoft.github.io/reverse-proxy/) is a package for ASP.NET Core applications that provides highly customizable reverse proxying capabilities. We'll use YARP to proxy the product image requests to the frontend site on to the Catalog API. Add a reference to the `Microsoft.Extensions.ServiceDiscovery.Yarp` package, version `8.0.0-preview.3.24081.13`. You can use the [`dotnet` CLI](https://learn.microsoft.com/dotnet/core/tools/dotnet-add-package), or Visual Studio NuGet Package Manager, or edit the `WebApp.csproj` directly:
+
+    ```xml
+    <PackageReference Include="Microsoft.Extensions.ServiceDiscovery.Yarp" Version="8.0.0-preview.3.24081.13" />
+    ```
+
+1. To setup the proxying behavior, first add a line to the `AddApplicationServices` method in the `HostingExtensions.cs` file, to add the require services to the application's DI container:
+
+    ```csharp
+    builder.Services.AddHttpForwarderWithServiceDiscovery();
+    ```
+
+1. To setup the proxying endpoint, add a line in `Program.cs`, just before the call to `app.Run()` at the end of the file, to map a forwarder endpoint from the incoming path to the Catalog API. The first argument is the pattern for the incoming request path, the second argument is the address of the server to forward the request to, and the last argument is the target path on the forwarded server (i.e. the Catalog API):
+
+    ```csharp
+    app.MapForwarder("/product-images/{id}", "http://catalog-api", "/api/v1/catalog/items/{id}/pic");
+    ```
+
+1. Run the AppHost project again and navigate to the store's front page. This time the product images are loaded correctly:
+
+    ![Catalog page with item images displayed](./img/eshop-web-catalog-with-imagespng.png)
+
+1. Navigate to the **Traces** page of the dashboard and locate a trace row for one of the product image requests, then click on the **View** link in the **Details** column to open the trace details page. Notice the information that is displayed in the waterfall diagram of the various spans that make up the traced operation, including the request from the browser to the `webapp` resource, the forwarded request from `webapp` to `catalog-api` (both the outgoing and incoming spans), and finally the database call by `catalog-api` to the `CatalogDB` PostgreSQL resource. Click on any individual span to see all the details included in the trace. See if you can find the actual SQL query that was executed against the database as part of serving the image:
+
+    ![The dashboard showing the trace details for a product image request](./img/dashboard-product-image-request-trace.png)

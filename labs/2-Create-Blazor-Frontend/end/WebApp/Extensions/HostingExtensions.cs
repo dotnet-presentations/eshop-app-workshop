@@ -6,7 +6,7 @@ public static class HostingExtensions
 {
     public static void AddApplicationServices(this IHostApplicationBuilder builder)
     {
-
+        builder.Services.AddHttpForwarderWithServiceDiscovery();
 
         // Application services
         builder.Services.AddSingleton<IProductImageUrlProvider, ProductImageUrlProvider>();
