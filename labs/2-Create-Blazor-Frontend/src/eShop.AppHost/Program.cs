@@ -21,6 +21,7 @@ var catalogApi = builder.AddProject<Catalog_API>("catalog-api")
 // Apps
 
 
+
 // Inject assigned URLs for Catalog API
 catalogApi.WithEnvironment("CatalogOptions__PicBaseAddress", () => catalogApi.GetEndpoint("http").UriString);
 
