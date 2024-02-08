@@ -54,14 +54,14 @@ public class CatalogService(HttpClient httpClient)
 
         if (type.HasValue)
         {
-            var brandQs = brand.HasValue ? brand.Value.ToString() : string.Empty;
-            filterPath = $"/type/{type.Value}/brand/{brandQs}";
+            var brandPath = brand.HasValue ? brand.Value.ToString() : string.Empty;
+            filterPath = $"/type/{type.Value}/brand/{brandPath}";
 
         }
         else if (brand.HasValue)
         {
-            var brandQs = brand.HasValue ? brand.Value.ToString() : string.Empty;
-            filterPath = $"/type/all/brand/{brandQs}";
+            var brandPath = brand.HasValue ? brand.Value.ToString() : string.Empty;
+            filterPath = $"/type/all/brand/{brandPath}";
         }
         else
         {
