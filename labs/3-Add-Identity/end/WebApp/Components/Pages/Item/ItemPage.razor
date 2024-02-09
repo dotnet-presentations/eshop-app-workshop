@@ -1,0 +1,54 @@
+﻿@page "/item/{itemId:int}"
+
+@using System.Net
+
+@inject CatalogService CatalogService
+@inject IProductImageUrlProvider ProductImages
+
+@if (item is not null)
+{
+    <PageTitle>@item.Name | Northern Mountains</PageTitle>
+    <SectionContent SectionName="page-header-title">@item.Name</SectionContent>
+    <SectionContent SectionName="page-header-subtitle">@item.CatalogBrand?.Brand</SectionContent>
+
+    <div class="item-details">
+        <img alt="@item.Name" src="@ProductImages.GetProductImageUrl(item)" />
+        <div class="description">
+            <p>@item.Description</p>
+            <p>
+                Brand: <strong>@item.CatalogBrand?.Brand</strong>
+            </p>
+        </div>
+    </div>
+}
+else if (notFound)
+{
+    <SectionContent SectionName="page-header-title">Not found</SectionContent>
+    <div class="item-details">
+        <p>Sorry, we couldn't find any such product.</p>
+    </div>
+}
+
+@code {
+    private CatalogItem? item;
+    private bool notFound;
+
+    [Parameter]
+    public int ItemId { get; set; }
+
+    [CascadingParameter]
+    public required HttpContext HttpContext { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            item = await CatalogService.GetCatalogItem(ItemId);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            HttpContext.Response.StatusCode = 404;
+            notFound = true;
+        }
+    }
+}
