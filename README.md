@@ -2,20 +2,6 @@
 
 ![CI](https://github.com/dotnet-presentations/eshop-app-workshop/actions/workflows/ci.yml/badge.svg)
 
-## WORK IN PROGRESS
-
-This repo is a work in progress and not ready for consumption as a workshop as yet. Stay tuned.
-
-## Setup
-
-[Download](https://www.microsoft.com/net/download) and install the .NET SDK.
-
-If you're on Windows, we recommend using [Visual Studio 2022 Preview](https://visualstudio.com/preview).
-
-> Note: When installing Visual Studio you only need to install the `ASP.NET and web development` workload.
-
-If you're in an instructor-led workshop session and have issues downloading the installers we may have USB sticks with offline installers for you to use.
-
 ## What you'll be building
 
 In this workshop, you'll learn by building out features of the [eShop Reference Application](https://github.com/dotnet/eshop). We'll start from File/New and build up to some API back-end applications, a web front-end application, and a [.NET Aspire](https://learn.microsoft.com/dotnet/aspire/get-started/aspire-overview) [AppHost project](https://learn.microsoft.com/dotnet/aspire/fundamentals/app-host-overview#app-host-project) to coordinate them all together.
@@ -25,6 +11,51 @@ In this workshop, you'll learn by building out features of the [eShop Reference 
 ### Application Architecture
 
 TODO
+
+## Setup
+
+### Using Windows and Visual Studio
+
+If you're on Windows and using Visual Studio, you must use [Visual Studio 2022 Preview](https://visualstudio.com/preview) (version 17.9.0 Preview 5.0 or later). The preview version of Visual Studio 2022 is safe to install side-by-side with the release version. We recommend using Visual Studio 2022 Preview if you're on Windows as it includes support for working with .NET Aspire projects.
+
+> Note: When installing Visual Studio you only need to install the `ASP.NET and web development` workload.
+
+If you're in an instructor-led workshop session and have issues downloading the installers we may have USB sticks with offline installers for you to use.
+
+### Using macOS, Linux, or Windows but not using Visual Studio
+
+If you're using macOs or Linux, or on Windows but don't want to use Visual Studio, you must [download](https://www.microsoft.com/net/download) and install the .NET SDK (version 8.0.101 or newer). You can use the editor or IDE of your choice but note that some operations might be more difficult due to lack of support for .NET Aspire at this time.
+
+### Updating and installing the .NET SDK workload for Aspire
+
+After installing Visual Studio Preview or the required .NET SDK, you will need to update and install the .NET SDK workload for Aspire. This workshop is using an as yet unreleased preview of .NET Aspire (preview.3) which requires [special steps to install](https://github.com/dotnet/aspire/blob/dc8fa33195ef1f66b920206766b9224c4c3f19bd/docs/using-latest-daily.md#optional-using-scripts-to-install-the-latest-net-aspire-build-from-release-branches). For your convenience, scripts are provided in this repository to make this process easy:
+
+1. Clone [this repo](https://github.com/dotnet-presentations/eshop-app-workshop) to your machine.
+1. In your terminal, navigate to the repo root and run the command `dotnet --version` to verify you are using version 8.0.101 or later of the .NET SDK:
+
+    ```shell
+    dotnet --version
+    ```
+
+1. Run the `build.cmd` or `build.sh` script in the root of this repo, as appropriate for your operating system and terminal:
+
+    ```shell
+    build.cmd
+    ```
+
+    ```shell
+    build.sh
+    ```
+
+1. This script will download and install the latest build of the preview.3 version of the Aspire workload, followed by building all solutions in this repo.
+1. If your machine is successfully configured, you should see a message indicating the build succeeded:
+
+    ```shell
+    Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+    ```
+1. For troubleshooting steps regarding installing and updating the Aspire workload, see the [documentation here](https://github.com/dotnet/aspire/blob/dc8fa33195ef1f66b920206766b9224c4c3f19bd/docs/using-latest-daily.md#troubleshooting).
 
 ## Labs
 
