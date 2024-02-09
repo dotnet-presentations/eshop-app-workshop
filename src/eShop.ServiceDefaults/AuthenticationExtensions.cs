@@ -48,7 +48,7 @@ public static class AuthenticationExtensions
     {
         // Sync over async :(
         var idpBaseUrl = resolver.ResolveEndPointUrlAsync(serviceName).AsTask().GetAwaiter().GetResult()
-            ?? throw new InvalidOperationException($"Could not resolve IDP address using service name '{serviceName}'.");
+            ?? throw new InvalidOperationException($"Could not resolve IdP address using service name '{serviceName}'.");
         var identityUri = GetIdpRealmUri(new Uri(idpBaseUrl), configuration);
 
         return identityUri;
