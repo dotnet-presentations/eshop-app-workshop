@@ -1,9 +1,14 @@
-﻿namespace eShop.WebApp.Services;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authentication;
+
+namespace eShop.WebApp.Services;
 
 public class LogOutService
 {
     public async Task LogOutAsync(HttpContext httpContext)
     {
-        await Task.CompletedTask;
+        await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        await httpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme);
     }
 }
