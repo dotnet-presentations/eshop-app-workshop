@@ -45,7 +45,7 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.EventCounters" Version="1.5.1-alpha.1" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.GrpcNetClient" Version="1.6.0-beta.3" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.7.0" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.5.1" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.7.0" />
     <!-- Grpc -->
     <PackageVersion Include="Grpc.AspNetCore" Version="$(GrpcVersion)" />
     <PackageVersion Include="Grpc.AspNetCore.Server.ClientFactory" Version="$(GrpcVersion)" />
