@@ -20,8 +20,4 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Protobuf Include="..\Basket.API\Proto\basket.proto" GrpcServices="Client" />
-  </ItemGroup>
-
 </Project>

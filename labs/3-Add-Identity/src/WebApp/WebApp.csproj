@@ -19,8 +19,4 @@
     <PackageReference Include="Microsoft.Extensions.ServiceDiscovery.Yarp" Version="8.0.0-preview.3.24105.21" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Protobuf Include="..\Basket.API\Proto\basket.proto" GrpcServices="Client" />
-  </ItemGroup>
-
 </Project>
