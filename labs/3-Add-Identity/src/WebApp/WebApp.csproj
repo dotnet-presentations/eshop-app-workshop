@@ -6,9 +6,6 @@
     <Nullable>enable</Nullable>
     <RootNamespace>eShop.WebApp</RootNamespace>
     <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
-
-    <!-- Disable RZ10021, which is failing due to a Razor bug, according to Mackinnon. -->
-    <NoWarn>$(NoWarn);RZ10021</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

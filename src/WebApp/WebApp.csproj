@@ -5,9 +5,6 @@
     <UserSecretsId>2d86f364-a439-47c5-9468-3b85a7d9a18e</UserSecretsId>
     <Nullable>enable</Nullable>
     <RootNamespace>eShop.WebApp</RootNamespace>
-
-    <!-- Disable RZ10021, which is failing due to a Razor bug, according to Mackinnon. -->
-    <NoWarn>$(NoWarn);RZ10021</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
