@@ -19,7 +19,6 @@
 @code {
     IDisposable? basketStateSubscription;
     private IReadOnlyCollection<BasketItem>? basketItems;
-    private bool? basketUnavailable;
 
     [CascadingParameter]
     public required HttpContext HttpContext { get; set; }
@@ -43,17 +42,6 @@
 
     private async Task UpdateBasketItemsAsync()
     {
-        try
-        {
-            basketItems = await Basket.GetBasketItemsAsync();
-        }
-        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
-        {
-            await LogOutService.LogOutAsync(HttpContext);
-        }
-        catch
-        {
-            basketUnavailable = true;
-        }
+        basketItems = await Basket.GetBasketItemsAsync();
     }
 }

@@ -20,7 +20,9 @@ public static class HostingExtensions
         builder.Services.AddHttpForwarderWithServiceDiscovery();
 
         // Application services
+        builder.Services.AddScoped<BasketState>();
         builder.Services.AddScoped<LogOutService>();
+        builder.Services.AddSingleton<BasketService>();
         builder.Services.AddSingleton<IProductImageUrlProvider, ProductImageUrlProvider>();
 
         // HTTP and gRPC client registrations
