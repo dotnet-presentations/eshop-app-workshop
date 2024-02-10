@@ -1,11 +1,10 @@
-using Projects;
-
 var builder = DistributedApplication.CreateBuilder(args);
 
 // Databases
 
 var postgres = builder.AddPostgres("postgres").WithPgAdmin();
 var catalogDb = postgres.AddDatabase("CatalogDB");
+var basketStore = builder.AddRedis("BasketStore").WithRedisCommander();
 
 // Identity Providers
 
@@ -14,18 +13,23 @@ var idp = builder.AddKeycloakContainer("idp", tag: "23.0")
 
 // DB Manager Apps
 
-builder.AddProject<Catalog_Data_Manager>("catalog-db-mgr")
+builder.AddProject<Projects.Catalog_Data_Manager>("catalog-db-mgr")
     .WithReference(catalogDb);
 
 // API Apps
 
-var catalogApi = builder.AddProject<Catalog_API>("catalog-api")
+var catalogApi = builder.AddProject<Projects.Catalog_API>("catalog-api")
     .WithReference(catalogDb);
+
+var basketApi = builder.AddProject<Projects.Basket_API>("basket-api")
+        .WithReference(basketStore)
+        .WithReference(idp);
 
 // Apps
 
-var webApp = builder.AddProject<WebApp>("webapp")
+var webApp = builder.AddProject<Projects.WebApp>("webapp")
     .WithReference(catalogApi)
+    .WithReference(basketApi)
     .WithReference(idp)
     // Force HTTPS profile for web app (required for OIDC operations)
     .WithLaunchProfile("https");

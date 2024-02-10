@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Basket.API\Basket.API.csproj" />
     <ProjectReference Include="..\Catalog.API\Catalog.API.csproj" />
     <ProjectReference Include="..\Catalog.Data.Manager\Catalog.Data.Manager.csproj" />
     <ProjectReference Include="..\WebApp\WebApp.csproj" />
