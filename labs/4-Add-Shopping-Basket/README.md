@@ -423,4 +423,4 @@ In previous labs, we have created a web site that shoppers can use to browser a 
 - Add BasketService gRPC client
 - The BasketState service has to pre-exist in the lab, probably the UI elements too, as it's far too much code to write in a lab. So instead they'll just be wiring it up to the gRPC client.
 - Update the BasketService class to use the gRPC client to communicate with the Basket API
-- What UI work should the lab cover? Any? There's a good discussion to have here about Razor Component lifetime and dealing with multiple renders per request, not showing stale data, etc.
+- What UI work should the lab cover? Any? There's a good discussion to have here about Razor Component lifetime and dealing with multiple renders per request, not showing stale data, etc. Perhaps just have them add the "Add to basket" button on the item page to cover Blazor form handling scenarios.
