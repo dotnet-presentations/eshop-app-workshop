@@ -159,4 +159,191 @@ In previous labs, we have created a web site that shoppers can use to browser a 
 
 1. Delete the `Services/GreeterSrevice.cs` file that was included with the template, including the `Services` directory.
 
-1. 
+1. Create a file `RedisBasketStore.cs` in a `Storage` directory and define a class in it named `RedisBasketStore` with a constructor that accepts a single parameter of type `IConnectionMultiplexer`:
+
+    ```csharp
+    namespace eShop.Basket.API.Storage;
+
+    public class RedisBasketStore(IConnectionMultiplexer redis)
+    {
+
+    }
+    ```
+
+    The `RedisBasketStore` class will be responsible for storing and retrieving shopping baskets from the Redis database.
+
+1. Add a field of type `IDatabase` and initialize it by calling `redis.GetDatabase()`:
+
+    ```csharp
+    private readonly IDatabase _database = redis.GetDatabase();
+    ```
+
+1. Our shopping baskets will be stored in Redis with a key like `/basket/123` where `123` is the user's ID. Define a field of type `RedisKey` named `BasketKeyPrefix` to store the prefix of the key, and a method named `GetBaksetKey` that accepts a `string` parameter `userId` and returns a `RedisKey`:
+
+    ```csharp
+    private static readonly RedisKey BasketKeyPrefix = "/basket/";
+
+    private static RedisKey GetBasketKey(string userId) => BasketKeyPrefix.Append(userId);
+    ```
+
+1. Before we can add our methods to get and update the basket, we need to define the types that will be used to represent the shopping basket in Redis. Instances of these types will be serialized and deserialized to and from JSON.
+
+    Add a new file `BasketItem.cs` in a `Models` directory and define a class in it named `BasketItem` with properties for the product ID, product name, unit price, and quantity:
+
+    ```csharp
+    namespace eShop.Basket.API.Models;
+
+    public class BasketItem
+    {
+        public int ProductId { get; set; }
+
+        public string? ProductName { get; set; }
+
+        public decimal UnitPrice { get; set; }
+
+        public int Quantity { get; set; }
+    }
+    ```
+
+    Add another file `CustomerBasket.cs` in the `Models` directory and define a class in it named `CustomerBasket` with properties for the buyer ID and items in the basket:
+
+    ```csharp
+    namespace eShop.Basket.API.Models;
+
+    public class CustomerBasket(string customerId)
+    {
+        public string BuyerId { get; } = customerId;
+
+        public List<BasketItem> Items { get; } = [];
+    }
+    ```
+
+1. In `RedisBasketStore.cs`, add an async method named `GetBasketAsync` that accepts a parameter for the buyer ID and returns the `CustomerBasket`from Redis if it exists:
+
+    ```csharp
+    public async Task<CustomerBasket?> GetBasketAsync(string customerId)
+    {
+        var key = GetBasketKey(customerId);
+
+        using var data = await _database.StringGetLeaseAsync(key);
+
+        return data is { Length: > 0 }
+            ? JsonSerializer.Deserialize<CustomerBasket>(data.Span)
+            : null;
+    }
+    ```
+
+    Now add a method to update the basket:
+
+    ```csharp
+    public async Task<CustomerBasket?> UpdateBasketAsync(CustomerBasket basket)
+    {
+        var json = JsonSerializer.SerializeToUtf8Bytes(basket);
+        var key = GetBasketKey(basket.BuyerId);
+
+        var created = await _database.StringSetAsync(key, json);
+
+        return created
+            ? await GetBasketAsync(basket.BuyerId)
+            : null;
+    }
+    ```
+
+1. In `HostingExtensions.cs`, add a call to `AddSingleton` to register the `RedisBasketStore` class in the application's DI container:
+
+    ```csharp
+    builder.Services.AddSingleton<RedisBasketStore>();
+    ```
+
+    The `RedisBasketStore` class is now ready to be used by our gRPC `BasketService` class. 
+
+1. Back in the `BasketService.cs` file, update the constructor to accept a `RedisBasketStore` parameter. This will be populated from the application's DI container when the service is created:
+
+    ```csharp
+    public class BasketService(RedisBasketStore basketStore) : Basket.BasketBase
+    {
+        
+    }
+    ```
+
+1. Add methods to convert between our model types (those serialized to JSON by `BasketService` to store in Redis) and our gRPC message types:
+
+    ```csharp
+    private static CustomerBasketResponse MapToCustomerBasketResponse(CustomerBasket customerBasket)
+    {
+        var response = new CustomerBasketResponse();
+
+        foreach (var item in customerBasket.Items)
+        {
+            response.Items.Add(new BasketItem
+            {
+                ProductId = item.ProductId,
+                Quantity = item.Quantity,
+            });
+        }
+
+        return response;
+    }
+
+    private static CustomerBasket MapToCustomerBasket(string userId, UpdateBasketRequest customerBasketRequest)
+    {
+        var response = new CustomerBasket(userId);
+
+        foreach (var item in customerBasketRequest.Items)
+        {
+            response.Items.Add(new()
+            {
+                ProductId = item.ProductId,
+                Quantity = item.Quantity,
+            });
+        }
+
+        return response;
+    }
+    ```
+
+1. Add an async method named `GetBasket` that overrides the method of the same name in the base class. The method should accept `GetBasketRequest` and `ServerCallContext` parameters, and return a `CustomerBasketResponse`:
+
+    ```csharp
+    public override async Task<CustomerBasketResponse> GetBasket(GetBasketRequest request, ServerCallContext context)
+    {
+        
+
+        return new();
+    }
+    ```
+
+    This method needs to extract the user ID from the passed `ServerCallContext` and use it to call the `GetBasketAsync` method of the `RedisBasketStore` class. Let's add an extensions class to help with extracting the user ID from the `ServerCallContext`.
+
+1. Create a new file `GrpcExtensions.cs` in the `Extensions` directory and add an extension method that extracts the user ID from the `ServerCallContext`:
+
+    ```csharp
+    using System.Security.Claims;
+
+    namespace Grpc.Core;
+
+    internal static class GrpcExtensions
+    {
+        public static string? GetUserIdentity(this ServerCallContext context) => context.GetHttpContext().User.GetUserId();
+    }
+    ```
+ 
+ 1. Back in `BasketService.cs`, update the `GetBasket` method to use the `GetUserIdentity` extension method to extract the user ID and call the `GetBasketAsync` method of the `RedisBasketStore` class:
+
+    ```csharp
+    public override async Task<CustomerBasketResponse> GetBasket(GetBasketRequest request, ServerCallContext context)
+    {
+        var userId = context.GetUserIdentity();
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            return new();
+        }
+
+        var data = await basketStore.GetBasketAsync(userId);
+
+        return data is not null
+            ? MapToCustomerBasketResponse(data)
+            : new();
+    }
+    ```

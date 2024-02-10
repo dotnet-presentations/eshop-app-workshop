@@ -86,7 +86,7 @@ public class BasketService(IBasketStore basketStore, ILogger<BasketService> logg
 
         foreach (var item in customerBasket.Items)
         {
-            response.Items.Add(new BasketItem()
+            response.Items.Add(new BasketItem
             {
                 ProductId = item.ProductId,
                 Quantity = item.Quantity,
