@@ -6,6 +6,8 @@ public static class HostingExtensions
 {
     public static IHostApplicationBuilder AddApplicationServices(this IHostApplicationBuilder builder)
     {
+        builder.AddDefaultAuthentication();
+
         builder.AddRedis("BasketStore");
 
         builder.Services.AddSingleton<RedisBasketStore>();

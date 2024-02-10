@@ -2,6 +2,8 @@
 
 In previous labs, we have created a web site that shoppers can use to browser a through pages of products, optionally with filtering by brand or type, and added the ability for users to create an account and sign in. In this lab, we will add the capability to add products to a shopping basket. The shopping basket will be stored in Redis, and exposed via a new gRPC service that the web site will communicate with.
 
+## Add a gRPC service project
+
 1. Add a new project called `Basket.API` to the solution using the **ASP.NET Core gRPC Service** template. Ensure that the following template options are configured:
 
     - Framework: **.NET 8.0 (Long Term Support)**
@@ -49,6 +51,8 @@ In previous labs, we have created a web site that shoppers can use to browser a 
 
 1. Run the AppHost project and verify that the containers for Redis and Redis Commander are created and running by using the dashboard. Also verify that the `Basket.API` project is running and that it's environment variables contain the configuration values to communicate with the IdP and Redis.
 
+## Configure the Basket API to communicate with Redis
+
 1. Following the pattern we've used in our other projects, create a new file `HostingExtensions.cs` in an `Extensions` directory in the `Basket.API` project and add a class to it called `HostingExtensions`. Add a method to the class called `AddApplicationServices`:
 
     ```csharp
@@ -94,6 +98,8 @@ In previous labs, we have created a web site that shoppers can use to browser a 
     ```
 
     Now, to use the Redis client in the application, we simply need to accept a constructor parameter of type [`IConnectionMultiplexer`](https://stackexchange.github.io/StackExchange.Redis/Basics)
+
+## Define the gRPC service
 
 1. gRPC services are defined using [Protocol Buffers (protobuf)](https://protobuf.dev/) files. Add a new file called `basket.proto` to the `Protos` directory in the `Basket.API` project. Add the following content to the file:
 
@@ -158,6 +164,8 @@ In previous labs, we have created a web site that shoppers can use to browser a 
     ``` 
 
 1. Delete the `Services/GreeterSrevice.cs` file that was included with the template, including the `Services` directory.
+
+## Implement Redis storage logic
 
 1. Create a file `RedisBasketStore.cs` in a `Storage` directory and define a class in it named `RedisBasketStore` with a constructor that accepts a single parameter of type `IConnectionMultiplexer`:
 
@@ -257,6 +265,8 @@ In previous labs, we have created a web site that shoppers can use to browser a 
 
     The `RedisBasketStore` class is now ready to be used by our gRPC `BasketService` class. 
 
+## Implement the gRPC service to get the basket
+
 1. Back in the `BasketService.cs` file, update the constructor to accept a `RedisBasketStore` parameter. This will be populated from the application's DI container when the service is created:
 
     ```csharp
@@ -328,7 +338,7 @@ In previous labs, we have created a web site that shoppers can use to browser a 
     }
     ```
  
- 1. Back in `BasketService.cs`, update the `GetBasket` method to use the `GetUserIdentity` extension method to extract the user ID and call the `GetBasketAsync` method of the `RedisBasketStore` class:
+ 1. Back in `BasketService.cs`, update the `GetBasket` method to use the `GetUserIdentity` extension method to extract the user ID and call the `GetBasketAsync` method of the `RedisBasketStore` class, before returning the result as a `CustomerBasketResponse`. If the user ID is not found, the method should throw an `RpcException` with a status of `Unauthenticated`:
 
     ```csharp
     public override async Task<CustomerBasketResponse> GetBasket(GetBasketRequest request, ServerCallContext context)
@@ -337,7 +347,7 @@ In previous labs, we have created a web site that shoppers can use to browser a 
 
         if (string.IsNullOrEmpty(userId))
         {
-            return new();
+            ThrowNotAuthenticated();
         }
 
         var data = await basketStore.GetBasketAsync(userId);
@@ -346,4 +356,71 @@ In previous labs, we have created a web site that shoppers can use to browser a 
             ? MapToCustomerBasketResponse(data)
             : new();
     }
+
+    [DoesNotReturn]
+    private static void ThrowNotAuthenticated()
+        => throw new RpcException(new Status(StatusCode.Unauthenticated, "The caller is not authenticated."));
     ```
+
+## Configure the Basket API to use JWT Bearer authentication
+
+1. We've added code that requires that the calling client be authenticated, but haven't yet configured the application to support authentication.
+
+    In the `HostinExtensions.cs` file, add a call to the `AddDefaultAuthentication` method (already defined in the `eShop.ServiceDefaults` project) to setup the application to use JWT Bearer authentication for tokens issued by the `idp` resource:
+
+    ```csharp
+    public static IHostApplicationBuilder AddApplicationServices(this IHostApplicationBuilder builder)
+    {
+        builder.AddDefaultAuthentication(); // <-- Add this line
+
+        builder.AddRedis("BasketStore");
+
+        builder.Services.AddSingleton<RedisBasketStore>();
+
+        return builder;
+    }
+    ```
+
+1. Navigate to the definition of the `AddDefaultAuthentication` method and take a moment to read through the code. This code looks similar in places to the authentication configuration code in the `WebApp` project added in lab 3, but is slightly simpler as it doesn't need to configure the application to instigate login flows via OpenID Connect. It just needs to validate tokens issued by the IdP.
+
+## Implement the gRPC service to update the basket
+
+1. Back in `BasketService.cs`, add an async method named `UpdateBasket` that overrides the method of the same name in the base class. The method should accept `UpdateBasketRequest` and `ServerCallContext` parameters, and return a `CustomerBasketResponse`. If the user ID is not found, the method should throw an `RpcException` with a status of `Unauthenticated`. If the basket does not exist, the method should throw an `RpcException` with a status of `NotFound`:
+
+    ```csharp
+    public override async Task<CustomerBasketResponse> UpdateBasket(UpdateBasketRequest request, ServerCallContext context)
+    {
+        var userId = context.GetUserIdentity();
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            ThrowNotAuthenticated();
+        }
+
+        var customerBasket = MapToCustomerBasket(userId, request);
+        var response = await basketStore.UpdateBasketAsync(customerBasket);
+
+        if (response is null)
+        {
+            ThrowBasketDoesNotExist(userId);
+        }
+
+        return MapToCustomerBasketResponse(response);
+    }
+
+    [DoesNotReturn]
+    rivate static void ThrowBasketDoesNotExist(string userId)
+        => throw new RpcException(new Status(StatusCode.NotFound, $"Basket with buyer ID {userId} does not exist"));
+    ```
+
+1. Run the `AppHost` project and verify that the `Basket.API` project is running without any startup errors by using the dashboard to view its logs.
+
+    At this point our Basket API is ready to be used by the web site. In the next section, we'll update the web site to use the new gRPC service so that shoppers can manage items in their basket.
+
+## TODO
+- Wire up web site to Basket API in AppHost
+- Add proto file to web site and set it to generate client code
+- Add BasketService gRPC client
+- The BasketState service has to pre-exist in the lab, probably the UI elements too, as it's far too much code to write in a lab. So instead they'll just be wiring it up to the gRPC client.
+- Update the BasketService class to use the gRPC client to communicate with the Basket API
+- What UI work should the lab cover? Any? There's a good discussion to have here about Razor Component lifetime and dealing with multiple renders per request, not showing stale data, etc.

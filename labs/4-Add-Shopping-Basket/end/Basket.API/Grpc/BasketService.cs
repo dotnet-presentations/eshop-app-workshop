@@ -1,4 +1,5 @@
-﻿using eShop.Basket.API.Models;
+﻿using System.Diagnostics.CodeAnalysis;
+using eShop.Basket.API.Models;
 using eShop.Basket.API.Storage;
 using Grpc.Core;
 using Microsoft.Extensions.Logging;
@@ -13,7 +14,7 @@ public class BasketService(RedisBasketStore basketStore) : Basket.BasketBase
 
         if (string.IsNullOrEmpty(userId))
         {
-            return new();
+            ThrowNotAuthenticated();
         }
 
         var data = await basketStore.GetBasketAsync(userId);
@@ -22,6 +23,34 @@ public class BasketService(RedisBasketStore basketStore) : Basket.BasketBase
             ? MapToCustomerBasketResponse(data)
             : new();
     }
+
+    public override async Task<CustomerBasketResponse> UpdateBasket(UpdateBasketRequest request, ServerCallContext context)
+    {
+        var userId = context.GetUserIdentity();
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            ThrowNotAuthenticated();
+        }
+
+        var customerBasket = MapToCustomerBasket(userId, request);
+        var response = await basketStore.UpdateBasketAsync(customerBasket);
+
+        if (response is null)
+        {
+            ThrowBasketDoesNotExist(userId);
+        }
+
+        return MapToCustomerBasketResponse(response);
+    }
+
+    [DoesNotReturn]
+    private static void ThrowNotAuthenticated()
+        => throw new RpcException(new Status(StatusCode.Unauthenticated, "The caller is not authenticated."));
+
+    [DoesNotReturn]
+    private static void ThrowBasketDoesNotExist(string userId)
+        => throw new RpcException(new Status(StatusCode.NotFound, $"Basket with buyer ID {userId} does not exist"));
 
     private static CustomerBasketResponse MapToCustomerBasketResponse(CustomerBasket customerBasket)
     {
