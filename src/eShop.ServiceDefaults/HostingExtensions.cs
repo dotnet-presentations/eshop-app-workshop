@@ -95,6 +95,7 @@ public static partial class HostingExtensions
 
     public static WebApplication UseDefaultExceptionHandler(this WebApplication app, string? errorHandlingPath = null)
     {
+        // The developer exception page is used automatically in development
         if (!app.Environment.IsDevelopment())
         {
             if (errorHandlingPath is not null)
@@ -103,6 +104,8 @@ public static partial class HostingExtensions
             }
             else if (app.Services.GetService<IProblemDetailsService>() is not null)
             {
+                // Default overload of UseExceptionHandler() requires ProblemDetails to be registered which is typically
+                // only done in API apps so gate on that.
                 app.UseExceptionHandler();
             }
         }
