@@ -417,6 +417,21 @@ In previous labs, we have created a web site that shoppers can use to browser a 
 
     At this point our Basket API is ready to be used by the web site. In the next section, we'll update the web site to use the new gRPC service so that shoppers can manage items in their basket.
 
+## Review the web site UI changes to support the shopping basket
+
+The starting point for this lab already includes updates to the web site to provide UI for the shopping basket. The UI includes a shopping basket icon in the header that displays the number of items in the basket, and a shopping basket page that displays the items in the basket and allows the user to update the quantity of items in the basket. The item page has also been updated to display a button that allows the user to add the item to the basket, or sign in if they are not already signed in.
+
+1. Open the `BasketState.cs` file in the `WebApp` project and add take a moment to read through the code. This class is used to manage the current state of the shopping bag during a web request. Blazor components run their logic individually as the component tree is rendered, so the state of the shopping basket needs to be managed in a way that is shared between components during a single request.
+1. Open the `CartPage.razor` file and take a moment to read through the code. This component displays the items in the shopping basket and allows the user to update the quantity of items in the basket. The component uses the `BasketState` class to manage the state of the shopping basket during the request.
+
+    Pay special note to the logic in the    `CurrentOrPendingQuantity` method that ensures the quantity rendered in the UI matches what the user has requested if they have requested a change, or the current quantity if they have not. This is required due to the way Blazor components are rendered and re-rendered during a request when using [Streaming Rendering](https://learn.microsoft.com/aspnet/core/blazor/components/rendering?view=aspnetcore-8.0#streaming-rendering).
+
+1. Open the `ItemPage.razor` file and take a moment to read through the code. This component has been updated with a form that the user can use to add the item to their cart, or sign in if required. If the item is already in their basket, it displays the quantity.
+
+## Update the web site to use the Basket API
+
+
+
 ## TODO
 - Wire up web site to Basket API in AppHost
 - Add proto file to web site and set it to generate client code
