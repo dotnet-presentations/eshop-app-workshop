@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace eShop.Basket.API.Model;
+namespace eShop.Basket.API.Models;
 
 public class BasketItem : IValidatableObject
 {
