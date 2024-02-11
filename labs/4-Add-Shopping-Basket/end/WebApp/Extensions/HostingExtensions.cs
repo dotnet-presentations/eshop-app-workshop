@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using eShop.WebApp.Services;
+using eShop.Basket.API.Grpc;
 
 namespace Microsoft.Extensions.Hosting;
 
@@ -26,6 +27,9 @@ public static class HostingExtensions
         builder.Services.AddSingleton<IProductImageUrlProvider, ProductImageUrlProvider>();
 
         // HTTP and gRPC client registrations
+        builder.Services.AddGrpcClient<Basket.BasketClient>(o => o.Address = new("http://basket-api"))
+            .AddAuthToken();
+
         builder.Services.AddHttpClient<CatalogService>(o => o.BaseAddress = new("http://catalog-api"));
 
         builder.Services.AddHttpClient(OpenIdConnectBackchannel, o => o.BaseAddress = new("http://idp"));

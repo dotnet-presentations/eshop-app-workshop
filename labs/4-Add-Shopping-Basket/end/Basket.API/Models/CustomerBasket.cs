@@ -1,8 +1,8 @@
 ﻿namespace eShop.Basket.API.Models;
 
-public class CustomerBasket(string customerId)
+public class CustomerBasket
 {
-    public string BuyerId { get; } = customerId;
+    public required string BuyerId { get; set; }
 
-    public List<BasketItem> Items { get; } = [];
+    public List<BasketItem> Items { get; set; } = [];
 }

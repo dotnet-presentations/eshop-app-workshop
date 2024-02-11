@@ -2,7 +2,6 @@
 using eShop.Basket.API.Models;
 using eShop.Basket.API.Storage;
 using Grpc.Core;
-using Microsoft.Extensions.Logging;
 
 namespace eShop.Basket.API.Grpc;
 
@@ -70,7 +69,7 @@ public class BasketService(RedisBasketStore basketStore) : Basket.BasketBase
 
     private static CustomerBasket MapToCustomerBasket(string userId, UpdateBasketRequest customerBasketRequest)
     {
-        var response = new CustomerBasket(userId);
+        var response = new CustomerBasket { BuyerId = userId };
 
         foreach (var item in customerBasketRequest.Items)
         {

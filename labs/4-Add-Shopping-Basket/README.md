@@ -218,11 +218,11 @@ In previous labs, we have created a web site that shoppers can use to browser a 
     ```csharp
     namespace eShop.Basket.API.Models;
 
-    public class CustomerBasket(string customerId)
+    public class CustomerBasket
     {
-        public string BuyerId { get; } = customerId;
+        public required string BuyerId { get; set; } = customerId;
 
-        public List<BasketItem> Items { get; } = [];
+        public List<BasketItem> Items { get; set; } = [];
     }
     ```
 
@@ -366,7 +366,7 @@ In previous labs, we have created a web site that shoppers can use to browser a 
 
 1. We've added code that requires that the calling client be authenticated, but haven't yet configured the application to support authentication.
 
-    In the `HostinExtensions.cs` file, add a call to the `AddDefaultAuthentication` method (already defined in the `eShop.ServiceDefaults` project) to setup the application to use JWT Bearer authentication for tokens issued by the `idp` resource:
+    In the `HostingExtensions.cs` file, add a call to the `AddDefaultAuthentication` method (already defined in the `eShop.ServiceDefaults` project) to setup the application to use JWT Bearer authentication for tokens issued by the `idp` resource:
 
     ```csharp
     public static IHostApplicationBuilder AddApplicationServices(this IHostApplicationBuilder builder)
@@ -382,6 +382,19 @@ In previous labs, we have created a web site that shoppers can use to browser a 
     ```
 
 1. Navigate to the definition of the `AddDefaultAuthentication` method and take a moment to read through the code. This code looks similar in places to the authentication configuration code in the `WebApp` project added in lab 3, but is slightly simpler as it doesn't need to configure the application to instigate login flows via OpenID Connect. It just needs to validate tokens issued by the IdP.
+
+    Note that the `ConfigureDefaaultJwtBearer` method expects the application configuration to have a section named **Identity** from which it retrieves a required value named **Audience**. This code will throw a runtime extepsion if it doesn't exist, so let's add that now.
+
+1. Open the `appsettings.json` file and add a new section named **Identity** with a property named **Audience** set to a value of `"basket"`:
+
+    ```jsonc
+    {
+        // Add the following section to the existing file
+        "Identity": {
+            "Audience": "basket"
+        }
+    }
+    ```
 
 ## Implement the gRPC service to update the basket
 
@@ -428,14 +441,128 @@ The starting point for this lab already includes updates to the web site to prov
 
 1. Open the `ItemPage.razor` file and take a moment to read through the code. This component has been updated with a form that the user can use to add the item to their cart, or sign in if required. If the item is already in their basket, it displays the quantity.
 
+1. Run the AppHost project and navigate to the web site homepage. Verify that the shopping basket icon is in the header and that after signing-in in it links to the cart page, and on the item pages an **Add to shopping bag** button is shown:
+
+    ![eShop web site item page showing the 'Add to shopping bag' button](./img/eshop-webapp-item-page-add-to-cart.png)
+
+    Next we'll make the changes required to make the web site shopping bag UI elements actually work.
+
 ## Update the web site to use the Basket API
 
+1. In the `WebApp` project, add a reference to the following NuGet packages:
+    - `Grpc.AspNetCore.Server.ClientFactory`
+    - `Grpc.Tools`
 
+    ```xml
+    <PackageReference Include="Grpc.AspNetCore.Server.ClientFactory" Version="2.59.0" />
+    <PackageReference Include="Grpc.Tools" PrivateAssets="All" Version="2.60.0" />
+    ```
 
-## TODO
-- Wire up web site to Basket API in AppHost
-- Add proto file to web site and set it to generate client code
-- Add BasketService gRPC client
-- The BasketState service has to pre-exist in the lab, probably the UI elements too, as it's far too much code to write in a lab. So instead they'll just be wiring it up to the gRPC client.
-- Update the BasketService class to use the gRPC client to communicate with the Basket API
-- What UI work should the lab cover? Any? There's a good discussion to have here about Razor Component lifetime and dealing with multiple renders per request, not showing stale data, etc. Perhaps just have them add the "Add to basket" button on the item page to cover Blazor form handling scenarios.
+1. In the `WebApp.csproj` project file, add the `basket.proto` file from the `Basket.API` project as a `Protobuf` item in the project and set the `GrpcServices` metadata to `"Client"` to indicate that it should be used to generate client-side code for the gRPC service:
+
+    ```xml
+    <ItemGroup>
+        <Protobuf Include="..\Basket.API\Protos\basket.proto" GrpcServices="Client" />
+    </ItemGroup>
+    ```
+
+    Similar to the `Basket.API` project, the project system will automatically generate code behind the scenes to represent the messages and service defined in the `basket.proto` file. We'll use these generated types in our client service implementation.
+
+1. Open the `BasketService.cs` file and add some `using` statements to import the namespace and create some type aliases for the generated gRPC client types. This will make it easier to refer to them in the rest of the code:
+
+    ```csharp
+    using eShop.Basket.API.Grpc;
+    using GrpcBasketItem = eShop.Basket.API.Grpc.BasketItem;
+    using GrpcBasketClient = eShop.Basket.API.Grpc.Basket.BasketClient;
+    ```
+
+1. Update the `BasketService` constructor to accept a parameter of type `GrpcBasketClient`:
+
+    ```csharp
+    public class BasketService(GrpcBasketClient basketClient)
+    {
+        
+    }
+    ```
+
+1. Add a private method to convert the `CustomerBasketResponse` message returned by the `Basket.API` service, to a list of the `BasketQuantity` model used by the web site:
+
+    ```csharp
+    private static List<BasketQuantity> MapToBasket(CustomerBasketResponse response)
+    {
+        var result = new List<BasketQuantity>();
+
+        foreach (var item in response.Items)
+        {
+            result.Add(new BasketQuantity(item.ProductId, item.Quantity));
+        }
+
+        return result;
+    }
+    ```
+
+    The `BasketQuantity` type should already be defined at the bottom of the `BasketService.cs` file.
+
+1. Update the `GetBasketAsync` method so that it actually calls the `Basket.API` service to get the customer basket items:
+
+    ```csharp
+    public async Task<IReadOnlyCollection<BasketQuantity>> GetBasketAsync()
+    {
+        var result = await basketClient.GetBasketAsync(new());
+        return MapToBasket(result);
+    }
+    ```
+
+1. Update the `UpdateBasketAsync` method so that it actually calls the `Basket.API` service to update the customer basket:
+
+    ```csharp
+    public async Task UpdateBasketAsync(IReadOnlyCollection<BasketQuantity> basket)
+    {
+        var updatePayload = new UpdateBasketRequest();
+
+        foreach (var item in basket)
+        {
+            var updateItem = new GrpcBasketItem
+            {
+                ProductId = item.ProductId,
+                Quantity = item.Quantity,
+            };
+            updatePayload.Items.Add(updateItem);
+        }
+
+        await basketClient.UpdateBasketAsync(updatePayload);
+    }
+    ```
+
+1. In the `HostingExtensions.cs` file, add a line to register the `Basket.BasketClient` gRPC client in the application's DI container, and configure its `Address` property to point to the `basket-api` resource in the AppHost. Make sure you include a call to `.AddAuthToken()` to add the current user's access token to outgoing requests:
+
+    ```csharp
+    // HTTP and gRPC client registrations
+    builder.Services.AddGrpcClient<Basket.BasketClient>(o => o.Address = new("http://basket-api"))
+        .AddAuthToken();
+
+    builder.Services.AddHttpClient<CatalogService>(o => o.BaseAddress = new("http://catalog-api"));
+
+    builder.Services.AddHttpClient(OpenIdConnectBackchannel, o => o.BaseAddress = new("http://idp"));
+    ```
+
+    The code for `AddAuthToken` is already defined in the `eShop.ServiceDefaults` project. Take a moment to read through the code to understand how it works.
+
+1. Run the AppHost project and load the web site home page. Ten seconds after the home page is initially displayed, you might see an error displayed with the message:
+
+    ```
+    Grpc.Core.RpcException: Status(StatusCode="Unauthenticated", Detail="The caller is not authenticated.")
+    ```
+
+    Use the dashboard page to observe more details about the error. The error is being thrown because the web site thinks the user is authenticated thanks to the authentication session cookie it manages (discussed in lab 3) and is trying to call the `Basket.API` service to get the customer basket items, but the access token inside the cookie is no longer valid due to our IdP state being discarded after every run, including the cryptographic keys that were used to sign the token.
+
+    ![Trace with error spans on the dashboard](./img/dashboard-web-basket-api-authn-error-trace.png)
+
+    To workaround this for now, use the browser developer tools to clear the cookies for the web site and then refresh the page. This will cause the user to be signed out so that you can sign in again and get a new access token. In a later lab we'll update the web site to handle this situation more gracefully.
+
+1. At this point, you should be able to sign in to the web site, add items to the shopping basket, and view the shopping basket page. The shopping basket icon in the header should display the number of items in the basket, and the shopping basket page should display the items in the basket and allow the user to adjust the quantity of items:
+
+    ![eShop web site header showing shopping basket item count](./img/eshop-webapp-header-basket-count.png)
+
+    ![eShop web site shopping basket page](./img/eshop-webapp-cart-page.png)
+
