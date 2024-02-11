@@ -15,6 +15,24 @@ A database has already been defined to store the product catalog for eShop, alon
 
 In order to successfully run the the `Catalog.Data.Manager` application and see the database be created, a PostgreSQL database server is required. The project is pre-configured to connect to a local server using *trust* authentication in its `appsettings.Development.json` file. Docker is a simple way to run instances of databases for development.
 
+We're going to run 2 docker containers, the PostgreSQL container and [pgAdmin](https://www.pgadmin.org/). This will make it easy to inspect the database using a visual tool:
+
+### Docker CLI
+
+postgres
+
+```
+docker run --name postgres-dev -e POSTGRES_HOST_AUTH_METHOD=trust -p 5432:5432 -d postgres
+```
+
+pgAdmin
+
+```
+docker run --name pgadmin-dev -e PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False -e PGADMIN_CONFIG_SERVER_MODE=False -e PGADMIN_DEFAULT_EMAIL=admin@domain.com -e PGADMIN_DEFAULT_PASSWORD=admin -p 0:80 -d dpage/pgadmin4
+```
+
+### Docker Desktop
+
 1. Using Docker, create a container to host the PostgreSQL server with the following details:
     - Name: `postgres-dev` 
     - Image: `postgres:latest`
@@ -23,7 +41,7 @@ In order to successfully run the the `Catalog.Data.Manager` application and see 
       - `POSTGRES_HOST_AUTH_METHOD` : `trust`
 
     ![Creating a container for PostgreSQL in Docker Desktop](./img/docker-postgres-dev.png)
-1. Create another container to host an instance of [pgAdmin](https://www.pgadmin.org/). This will make it easy to inspect the database using a visual tool:
+1. Create another container to host an instance of [pgAdmin](https://www.pgadmin.org/):
     - Name: `pgadmin-dev` 
     - Image: `dpage/pgadmin4:latest`
     - Ports: `0` (random)
@@ -43,7 +61,21 @@ In order to successfully run the the `Catalog.Data.Manager` application and see 
     ![Logs and health-check endpoint of the Catalog.Data.Manager project showing the database initialization status](./img/catalog.data.manager-logs-and-health.png)
 
 1. Stop the application and try launching it again and seeing the output of the `/health` endpoint return `Degraded` while the database initialization is still in progress.
-1. Open the pgAdmin UI in another browser tab (find the host port assigned to the container's endpoint on port 80 in the Docker UI) and add the local PostgreSQL server instance by right-clicking on the **Servers** node in the tree-view and selecting **Register > Server** (use `localhost` in the **Connection** tab).
+1. Find the port assigned to the pgAdmin container.
+
+**Docker CLI**
+
+```
+docker ps
+```
+
+![Image of the docker CLI showing the port for pgAdmin](./img/find-docker-endpoint.png)
+
+**Docker Desktop**
+
+![Image of docker desktop UI showing the port for pgAdmin](./img/find-docker-endpoint-ui.png)
+
+1. Open the pgAdmin UI in another browser tab and add the local PostgreSQL server instance by right-clicking on the **Servers** node in the tree-view and selecting **Register > Server** (use `host.docker.internal` in the **Connection** tab).
 1. Expand the tree-view nodes under the server node you registered to see the that the tables representing the Entity Framework Core model have been created.
 
     ![pgAdmin UI showing the created tables](./img/pgadmin-postgres-dev.png)
