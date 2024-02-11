@@ -6,7 +6,6 @@
     <UserSecretsId>7161b768-033d-41c7-bc5d-37528275e1f3</UserSecretsId>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
   </PropertyGroup>
 
   <ItemGroup>

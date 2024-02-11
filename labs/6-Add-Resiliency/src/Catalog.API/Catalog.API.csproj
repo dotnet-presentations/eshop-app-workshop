@@ -5,7 +5,6 @@
     <RootNamespace>eShop.Catalog.API</RootNamespace>
     <UserSecretsId>d1b521ec-3411-4d39-98c6-8509466ed471</UserSecretsId>
     <Nullable>enable</Nullable>
-    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
   </PropertyGroup>
 
   <ItemGroup>

@@ -7,7 +7,6 @@
     <IsAspireHost>true</IsAspireHost>
     <IsPackable>false</IsPackable>
     <UserSecretsId>b99dbce4-17d4-41d2-858a-2b0529d60bb8</UserSecretsId>
-    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
   </PropertyGroup>
 
   <ItemGroup>
