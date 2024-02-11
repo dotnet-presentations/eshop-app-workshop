@@ -84,11 +84,14 @@ docker ps
 
 Containers are extremely useful for hosting service dependencies, but rather than creating and connecting to them manually, we can use the features of .NET Aspire to drive this from C#.
 
+### Visual Studio
+
 1. In Visual Studio, right-mouse click on the `Catalog.Data.Manager` project and select **Add > .NET Aspire Orchestrator Support...** and click OK in the displayed dialog:
 
     ![VS Add Aspire Orchestration dialog](./img/vs-add-aspire-orchestrator.png)
 
 1. Two new projects were added to the solution: `eShop.AppHost` and `eShop.ServiceDefaults`. The AppHost project should also be set as the launch project for the solution.
+
 1. Open the `Program.cs` file in the AppHost project and change the name assigned to the `Projects.Catalog_Data_Manager` project to `"catalog-db-mgr"`:
 
     ```csharp
@@ -98,6 +101,36 @@ Containers are extremely useful for hosting service dependencies, but rather tha
     
     builder.Build().Run();
     ```
+
+### dotnet CLI
+
+1. Run the following commands in the `src` folder to create the `eShop.AppHost` and `eShop.ServiceDefaults` projects.
+
+    ```
+    dotnet new aspire-apphost -n eShop.AppHost
+    dotnet new aspire-servicedefaults -n eShop.ServiceDefaults
+    dotnet sln add eShop.AppHost
+    dotnet sln add eShop.ServiceDefaults
+    ```
+
+1. Now add a reference to the `eShop.AppHost`:
+
+    ```
+    cd eShop.AppHost
+    dotnet add reference ..\Catalog.Data.Manager
+    ```
+
+1. Open the `Program.cs` file in the AppHost project and add the following code:
+
+    ```csharp
+    var builder = DistributedApplication.CreateBuilder(args);
+    
+    builder.AddProject<Projects.Catalog_Data_Manager>("catalog-db-mgr");
+    
+    builder.Build().Run();
+    ```
+
+### Configuring PostgreSQL and pgAdmin
 
 1. Use the methods on the `builder` variable to create a PostgreSQL instance called `postgres` with pgAdmin enabled, and a database called `CatalogDB`. Ensure that the `catalog-db-mgr` project resource is configured with a reference to the `catalogDb`:
 
