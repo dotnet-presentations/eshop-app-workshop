@@ -60,7 +60,7 @@ Now that we've verified the Ordering database is working, let's add an HTTP API 
     builder.AddNpgsqlDbContext<OrderingDbContext>("OrderingDB");
     ```
 
-1. Create a new file called `OrderingApi.cs` and define a static class inside of it called `OrderingApi` in the `Microsoft.AspNetCore.Builder` namespace:
+1. Create a new file called `OrdersApi.cs` and define a static class inside of it called `OrderingApi` in the `Microsoft.AspNetCore.Builder` namespace:
 
     ```csharp
     namespace Microsoft.AspNetCore.Builder;
@@ -115,7 +115,7 @@ Now that we've verified the Ordering database is working, let's add an HTTP API 
 
     This class will be used to represent a summary of an order in the API responses.
 
-1. Back in the `OrderingApi.cs` file, in the `MapOrdersApi` method, add a call to `app.MapGet` to define an endpoint that responds to GET requests to the `/` path, and is handled by an async lambda that accepts two parameters: a `ClaimsPrincipal` type that will be auto-populated with the current user, and the `OrderingDbContext` instance that will come from the DI container:
+1. Back in the `OrdersApi.cs` file, in the `MapOrdersApi` method, add a call to `app.MapGet` to define an endpoint that responds to GET requests to the `/` path, and is handled by an async lambda that accepts two parameters: a `ClaimsPrincipal` type that will be auto-populated with the current user, and the `OrderingDbContext` instance that will come from the DI container:
 
     ```csharp
     app.MapGet("/", async (ClaimsPrincipal user, OrderingDbContext dbContext) =>
@@ -193,7 +193,220 @@ Now that we've verified the Ordering database is working, let's add an HTTP API 
 
 ## Add an API endpoint to create an order
 
-1. 
+1. In the `Ordering.API` project, add a new file called `BasketItem.cs` in the `Models` directory. In this file, define a class called `BasketItem` with properties to represent an item in a shopping basket that will be added to an order. Annotate all the properties with the `[Required]` attribute from the `System.ComponentModel.DataAnnotations` namespace, and use the `[Range]` attribute to specify a range of valid values for the numerical properties:
+
+    ```csharp
+    using System.ComponentModel.DataAnnotations;
+
+    namespace eShop.Ordering.API.Models;
+
+    public class BasketItem
+    {
+        [Required]
+        public int ProductId { get; init; }
+
+        [Required]
+        public required string ProductName { get; init; }
+
+        [Required, Range(0, double.MaxValue)]
+        public decimal UnitPrice { get; init; }
+
+        [Required]
+        [Range(0, 10000)]
+        public int Quantity { get; init; }
+    }
+    ```
+
+1. Add another new file called `CreateOrderRequest.cs` in the `Models` directory. In this file, define a class called `CreateOrderRequest` with properties to represent the details of the order. Annotate all the properties with the `[Required]` attribute from the `System.ComponentModel.DataAnnotations` namespace:
+
+    ```csharp
+    using System.ComponentModel.DataAnnotations;
+
+    namespace eShop.Ordering.API.Models;
+
+    public class CreateOrderRequest
+    {
+        [Required]
+        public required string UserName { get; set; }
+
+        [Required]
+        public required string City { get; set; }
+
+        [Required]
+        public required string Street { get; set; }
+
+        [Required]
+        public required string State { get; set; }
+
+        [Required]
+        public required string Country { get; set; }
+
+        [Required]
+        public required string ZipCode { get; set; }
+
+        [Required]
+        public required string CardNumber { get; set; }
+
+        [Required]
+        public required string CardHolderName { get; set; }
+
+        [Required]
+        public DateTime CardExpiration { get; set; }
+
+        [Required]
+        public required string CardSecurityNumber { get; set; }
+
+        [Required]
+        public int CardTypeId { get; set; }
+
+        [Required]
+        public required IReadOnlyCollection<BasketItem> Items { get; set; }
+    }
+    ```
+1. Back in the `OrdersApi.cs` file, in the `MapOrdersApi` method, add a call to `app.MapGet` to define an endpoint that responds to POST requests to the `/` path, and is handled by an async lambda that accepts three parameters: a `CreateOrderRequest` that will be deserialized from JSON in the POST request body, a `ClaimsPrincipal` type that will be auto-populated with the current user, and the `OrderingDbContext` instance that will come from the DI container:
+
+    ```csharp
+    app.MapPost("/", async (CreateOrderRequest request, ClaimsPrincipal user, OrderingDbContext dbContext) =>
+    {
+        
+    });
+    ```
+
+1. We'll build up the body of this lambda over a few steps as the process of creating an order from a basket is a bit more complex than just querying the database for orders. First, add code to the lambda body to extract the user ID from the `ClaimsPrincipal`. If the user ID is null, throw an exception with a relevant message:
+
+    ```csharp
+    app.MapPost("/", async (CreateOrderRequest request, ClaimsPrincipal user, OrderingDbContext dbContext) =>
+    {
+        var userId = user.GetUserId()
+            ?? throw new InvalidOperationException("User identity could not be found. This endpoint requires authorization.");
+
+        // ... more code to come
+    });
+    ```
+
+1. Next, add code to validate that the `CardTypeId` property of the `request` parameter is a valid card type ID. If it's not, return a validation problem response with an appropriate message:
+
+    ```csharp
+    if (!Enumeration.IsValid<CardType>(request.CardTypeId))
+    {
+        var errors = new Dictionary<string, string[]>
+        {
+            { nameof(CreateOrderRequest.CardTypeId), [$"Card type ID '{request.CardTypeId}' is invalid."] }
+        };
+        return Results.ValidationProblem(errors);
+    }
+    ```
+
+1. Next, we'll query the database to find the buyer that corresponds to the current user, and retrieve the requested payment method at the same time if the buyer has used it previously:
+
+    ```csharp
+    var requestPaymentMethod = new PaymentMethod
+    {
+        CardTypeId = request.CardTypeId,
+        CardHolderName = request.CardHolderName,
+        CardNumber = request.CardNumber,
+        Expiration = request.CardExpiration,
+        SecurityNumber = request.CardSecurityNumber,
+    };
+
+    var buyer = await dbContext.Buyers
+        .Where(b => b.IdentityGuid == userId)
+        // Include the payment method to check if it already exists
+        .Include(b => b.PaymentMethods
+            .Where(pm => pm.CardTypeId == requestPaymentMethod.CardTypeId
+                        && pm.CardNumber == requestPaymentMethod.CardNumber
+                        && pm.Expiration == requestPaymentMethod.Expiration))
+        .SingleOrDefaultAsync();
+    ```
+
+1. Now check if the buyer was found, and if not, create a new buyer for this user and add it to the database:
+
+    ```csharp
+    if (buyer is null)
+    {
+        buyer = new Buyer
+        {
+            IdentityGuid = userId,
+            Name = request.UserName
+        };
+        dbContext.Buyers.Add(buyer);
+    }
+    ```
+
+1. Next, check if the payment method was found, and if not, add it to the buyer's payment methods:
+
+    ```csharp
+    var paymentMethod = buyer.PaymentMethods.SingleOrDefault();
+
+    if (paymentMethod is null)
+    {
+        paymentMethod = new PaymentMethod
+        {
+            CardTypeId = request.CardTypeId,
+            CardNumber = request.CardNumber,
+            CardHolderName = request.CardHolderName,
+            Expiration = request.CardExpiration,
+            SecurityNumber = request.CardSecurityNumber
+        };
+        buyer.PaymentMethods.Add(paymentMethod);
+    }
+    ```
+
+1. Now that the buyer and payment method are dealth with, we can actually create the order:
+
+    ```csharp
+    var order = new Order
+    {
+        Buyer = buyer,
+        Address = new Address(request.Street, request.City, request.State, request.Country, request.ZipCode),
+        OrderItems = request.Items.Select(i => new OrderItem
+        {
+            ProductId = i.ProductId,
+            ProductName = i.ProductName,
+            UnitPrice = i.UnitPrice,
+            Units = i.Quantity,
+            Discount = 0
+        }).ToList(),
+        PaymentMethod = paymentMethod
+    };
+
+    dbContext.Orders.Add(order);
+    ```
+
+1. Finally, save the changes to the database and return an OK response to indicate that the operation completed successfully:
+
+    ```csharp
+    await dbContext.SaveChangesAsync();
+
+    return TypedResults.Ok();
+    ```
+
+## Add parameter validation to the API
+
+We decorated some of the properties of the types that will be deserialized from the requests to the API with the `[Required]` and `[Range]` attributes, but ASP.NET Core Minimal APIs currently doesn't support validation out of the box. We can add this functionality by referencing a NuGet package that provides an endpoint filter to handle validating endpoint parameters:
+
+1. Add a reference to the `MinimalApis.Extensions` NuGet package, version `0.11.0` to the `Ordering.API` project.
+1. Update the `MapPost` call in `OrdersApi.cs` so that it calls `WithParameterValidation` on the returned `RouteHandlerBuilder` instance to enable parameter validation for the endpoint.
+
+    You can optionally set the `requireParameterAttribute` parameter to `true` to ensure that the `[Validate]` attribute is required on the endpoint parameters to enable validation. This makes parameter validation more explicit so that other parameters are not uncessarily validated, potenially improving performance. If you opt to set this parameter to `true`, you'll need to ensure add the `[Validate]` attribute to the `CreateOrderRequest` parameter too:
+
+    ```csharp
+    app.MapPost("/", async ([Validate] CreateOrderRequest request, ClaimsPrincipal user, OrderingDbContext dbContext) =>
+        {
+            // ... existing code
+        })
+        .WithParameterValidation(requireParameterAttribute: true); // <-- Add this line
+    ```
+
+1. Run the AppHost project and verify that the `Ordering.API` project is running and that the `/api/v1/orders` endpoint is visible in the Swagger UI. Experiment with authorizing and making requests to the endpoint to ensure that it's working as expected, including the parameter validation. Once you've created an order via a POST to the `/api/v1/orders` endpoint, you should see the order returned when making a GET request to the same endpoint.
+
+    Here's an example of successfully creating an order using the Swagger UI:
+
+    ![Swagger UI after successfully creating an order](./img/ordering-api-swagger-create-order-test.png)
+
+    Here's an example of the type of response you'll receive if you try to create an order with invalid parameters:
+
+    ![Swagger UI when validation errors are returned due to invalid fields when creating an order](./img/ordering-api-swagger-create-order-validation-error.png)
 
 ## Add the Checkout feature to the web site
 
