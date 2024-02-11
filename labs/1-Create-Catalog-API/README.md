@@ -15,7 +15,7 @@ A database has already been defined to store the product catalog for eShop, alon
 
 In order to successfully run the the `Catalog.Data.Manager` application and see the database be created, a PostgreSQL database server is required. The project is pre-configured to connect to a local server using *trust* authentication in its `appsettings.Development.json` file. Docker is a simple way to run instances of databases for development.
 
-We're going to run 2 docker containers, the PostgreSQL container and [pgAdmin](https://www.pgadmin.org/). This will make it easy to inspect the database using a visual tool:
+We're going to run 2 docker container:, the PostgreSQL container, and [pgAdmin](https://www.pgadmin.org/). This will make it easy to inspect the database using a visual tool:
 
 ### Docker CLI
 
