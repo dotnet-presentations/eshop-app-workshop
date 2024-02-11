@@ -6,9 +6,6 @@
     <Nullable>enable</Nullable>
     <RootNamespace>eShop.WebApp</RootNamespace>
     <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
-
-    <!-- Disable RZ10021, which is failing due to a Razor bug, according to Mackinnon. -->
-    <NoWarn>$(NoWarn);RZ10021</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,10 +15,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.ServiceDiscovery.Yarp" Version="8.0.0-preview.3.24105.21" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Protobuf Include="..\Basket.API\Proto\basket.proto" GrpcServices="Client" />
   </ItemGroup>
 
 </Project>

@@ -8,14 +8,13 @@ namespace eShop.Basket.API.Grpc;
 
 public class BasketService(IBasketStore basketStore, ILogger<BasketService> logger) : Basket.BasketBase
 {
-    [AllowAnonymous]
     public override async Task<CustomerBasketResponse> GetBasket(GetBasketRequest request, ServerCallContext context)
     {
         var userId = context.GetUserIdentity();
 
         if (string.IsNullOrEmpty(userId))
         {
-            return new();
+            ThrowNotAuthenticated();
         }
 
         if (logger.IsEnabled(LogLevel.Debug))
@@ -86,7 +85,7 @@ public class BasketService(IBasketStore basketStore, ILogger<BasketService> logg
 
         foreach (var item in customerBasket.Items)
         {
-            response.Items.Add(new BasketItem()
+            response.Items.Add(new BasketItem
             {
                 ProductId = item.ProductId,
                 Quantity = item.Quantity,

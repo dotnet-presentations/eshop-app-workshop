@@ -133,14 +133,6 @@ public static class CatalogApi
         return TypedResults.PhysicalFile(path, contentType, lastModified: lastModified);
     }
 
-    public static async Task<Results<BadRequest<string>, RedirectToRouteHttpResult, Ok<PaginatedItems<CatalogItem>>>> GetItemsBySemanticRelevance(
-        [AsParameters] PaginationRequest paginationRequest,
-        [AsParameters] CatalogServices services,
-        string text)
-    {
-        return await GetItemsByName(paginationRequest, services, text);
-    }
-
     public static async Task<Ok<PaginatedItems<CatalogItem>>> GetItemsByBrandAndTypeId(
         [AsParameters] PaginationRequest paginationRequest,
         [AsParameters] CatalogServices services,

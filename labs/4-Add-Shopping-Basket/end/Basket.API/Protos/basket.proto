@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option csharp_namespace = "eShop.Basket.API.Grpc";
+
+package BasketApi;
+
+service Basket {
+    rpc GetBasket(GetBasketRequest) returns (CustomerBasketResponse) {}
+    rpc UpdateBasket(UpdateBasketRequest) returns (CustomerBasketResponse) {}
+}
+
+message GetBasketRequest {
+}
+
+message UpdateBasketRequest {
+    repeated BasketItem items = 1;
+}
+
+message BasketItem {
+    int32 product_id = 1;
+    int32 quantity = 2;
+}
+
+message CustomerBasketResponse {
+    repeated BasketItem items = 1;
+}
