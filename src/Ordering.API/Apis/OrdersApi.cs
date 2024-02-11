@@ -11,10 +11,10 @@ public static class OrdersApi
 {
     public static RouteGroupBuilder MapOrdersApi(this RouteGroupBuilder app)
     {
+        app.MapGet("/", GetOrdersByUserAsync);
+
         app.MapPost("/", CreateOrderAsync)
             .WithParameterValidation(requireParameterAttribute: true);
-
-        app.MapGet("/", GetOrdersByUserAsync);
 
         return app;
     }

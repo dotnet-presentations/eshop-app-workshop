@@ -1,6 +1,6 @@
 ﻿using eShop.Ordering.Data;
 
-namespace eShop.Ordering.API.Model;
+namespace eShop.Ordering.API.Models;
 
 public class OrderSummary
 {
