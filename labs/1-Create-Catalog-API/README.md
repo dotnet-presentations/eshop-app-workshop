@@ -144,6 +144,7 @@ Now that we've setup the solution to use Aspire for composing our distributed ap
 
     ![VS Web API project template options](./img/vs-web-api-template-options.png)
 
+1. In the newly created project, update the package reference to `Swashbuckle.AspNetCore` to version `6.5.0`
 1. Open the `Program.cs` file of the `eShop.AppHost` project, and update it so the API project you just added is named `"catalog-api"` and has a reference to the `CatalogDB`:
 
     ```csharp
@@ -194,6 +195,7 @@ Now that we've setup the solution to use Aspire for composing our distributed ap
     ```
 
     This method will define the endpoint routes for the Catalog API.
+
 1. In the method, add a call to `app.MapGet` to define an endpoint that responds to GET requests to the `/items` path, and is handled by an async lambda that accepts two parameters: a `PaginationRequest` type that will represent the shape of the request, and the `CatalogDbContext` instance that will come from the DI container:
 
     ```csharp

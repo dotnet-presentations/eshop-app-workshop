@@ -31,6 +31,10 @@ var basketApi = builder.AddProject<Basket_API>("basket-api")
     .WithReference(basketStore)
     .WithReference(idp);
 
+var orderingApi = builder.AddProject<Ordering_API>("ordering-api")
+    .WithReference(orderDb)
+    .WithReference(idp);
+
 // Apps
 
 var webApp = builder.AddProject<WebApp>("webapp")
@@ -43,7 +47,7 @@ var webApp = builder.AddProject<WebApp>("webapp")
 // Inject the project URLs for Keycloak realm configuration
 idp.WithEnvironment("WEBAPP_HTTP", () => webApp.GetEndpoint("http").UriString);
 idp.WithEnvironment("WEBAPP_HTTPS", () => webApp.GetEndpoint("https").UriString);
-idp.WithEnvironment("ORDERINGAPI_HTTP", () => "http://placeholder-for-ordering-api");
+idp.WithEnvironment("ORDERINGAPI_HTTP", () => orderingApi.GetEndpoint("http").UriString);
 
 // Inject assigned URLs for Catalog API
 catalogApi.WithEnvironment("CatalogOptions__PicBaseAddress", () => catalogApi.GetEndpoint("http").UriString);
