@@ -43,6 +43,7 @@ var webApp = builder.AddProject<WebApp>("webapp")
 // Inject the project URLs for Keycloak realm configuration
 idp.WithEnvironment("WEBAPP_HTTP", () => webApp.GetEndpoint("http").UriString);
 idp.WithEnvironment("WEBAPP_HTTPS", () => webApp.GetEndpoint("https").UriString);
+idp.WithEnvironment("ORDERINGAPI_HTTP", () => "http://placeholder-for-ordering-api");
 
 // Inject assigned URLs for Catalog API
 catalogApi.WithEnvironment("CatalogOptions__PicBaseAddress", () => catalogApi.GetEndpoint("http").UriString);

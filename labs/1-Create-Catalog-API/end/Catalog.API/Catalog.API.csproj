@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <InvariantGlobalization>true</InvariantGlobalization>
-    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+    
   </PropertyGroup>
 
   <ItemGroup>

@@ -12,11 +12,6 @@ public class BasketService(GrpcBasketClient basketClient)
         return MapToBasket(result);
     }
 
-    public async Task DeleteBasketAsync()
-    {
-        await basketClient.DeleteBasketAsync(new DeleteBasketRequest());
-    }
-
     public async Task UpdateBasketAsync(IReadOnlyCollection<BasketQuantity> basket)
     {
         var updatePayload = new UpdateBasketRequest();
@@ -32,6 +27,11 @@ public class BasketService(GrpcBasketClient basketClient)
         }
 
         await basketClient.UpdateBasketAsync(updatePayload);
+    }
+
+    public async Task DeleteBasketAsync()
+    {
+        await basketClient.DeleteBasketAsync(new DeleteBasketRequest());
     }
 
     private static List<BasketQuantity> MapToBasket(CustomerBasketResponse response)

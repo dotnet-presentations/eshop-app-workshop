@@ -5,7 +5,7 @@
     <RootNamespace>eShop.Catalog.Data.Manager</RootNamespace>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+    
   </PropertyGroup>
 
   <ItemGroup>

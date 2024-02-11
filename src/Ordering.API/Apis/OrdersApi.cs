@@ -36,7 +36,7 @@ public static class OrdersApi
         {
             var errors = new Dictionary<string, string[]>
             {
-                [nameof(CreateOrderRequest.CardTypeId)] = [$"Card type ID '{request.CardTypeId}' is invalid."]
+                { nameof(CreateOrderRequest.CardTypeId), [$"Card type ID '{request.CardTypeId}' is invalid."] }
             };
             return TypedResults.ValidationProblem(errors);
         }
