@@ -8,10 +8,6 @@ In this workshop, you'll learn by building out features of the [eShop Reference 
 
 ![eShop Home](./assets/eshop-home-screenshot.png)
 
-### Application Architecture
-
-TODO
-
 ## Setup
 
 ### Using Windows and Visual Studio
