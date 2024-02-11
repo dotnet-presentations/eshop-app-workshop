@@ -190,3 +190,10 @@ Now that we've verified the Ordering database is working, let's add an HTTP API 
 1. Click the **Close** button to close the **Available authorizations** dialog and then click the **Try it out** button for the `/api/v1/orders` endpoint. You should see a response with an empty array of orders, indicating that the endpoint is working and returning the expected response.
 
     ![Swagger UI showing the endpoint and 'Authorize' button](./img/ordering-api-swagger-try-it-out-response.png)
+
+## Add an API endpoint to create an order
+
+1. 
+
+## Add the Checkout feature to the web site
+
