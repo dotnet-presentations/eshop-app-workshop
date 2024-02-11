@@ -33,5 +33,6 @@ public class BasketCheckoutInfo
     public int CardTypeId { get; set; }
 
     public string? Buyer { get; set; }
+    
     public Guid RequestId { get; set; }
 }

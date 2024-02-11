@@ -1,36 +1,26 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Microsoft.AspNetCore.Authorization;
-using Grpc.Core;
+using eShop.Basket.API.Models;
 using eShop.Basket.API.Storage;
-using eShop.Basket.API.Model;
+using Grpc.Core;
 
 namespace eShop.Basket.API.Grpc;
 
-public class BasketService(IBasketStore basketStore, ILogger<BasketService> logger) : Basket.BasketBase
+public class BasketService(RedisBasketStore basketStore) : Basket.BasketBase
 {
-    [AllowAnonymous]
     public override async Task<CustomerBasketResponse> GetBasket(GetBasketRequest request, ServerCallContext context)
     {
         var userId = context.GetUserIdentity();
 
         if (string.IsNullOrEmpty(userId))
         {
-            return new();
-        }
-
-        if (logger.IsEnabled(LogLevel.Debug))
-        {
-            logger.LogDebug($"Begin {nameof(GetBasket)} call from method {{Method}} for basket id {{Id}}", context.Method, userId);
+            ThrowNotAuthenticated();
         }
 
         var data = await basketStore.GetBasketAsync(userId);
 
-        if (data is not null)
-        {
-            return MapToCustomerBasketResponse(data);
-        }
-
-        return new();
+        return data is not null
+            ? MapToCustomerBasketResponse(data)
+            : new();
     }
 
     public override async Task<CustomerBasketResponse> UpdateBasket(UpdateBasketRequest request, ServerCallContext context)
@@ -40,11 +30,6 @@ public class BasketService(IBasketStore basketStore, ILogger<BasketService> logg
         if (string.IsNullOrEmpty(userId))
         {
             ThrowNotAuthenticated();
-        }
-
-        if (logger.IsEnabled(LogLevel.Debug))
-        {
-            logger.LogDebug($"Begin {nameof(UpdateBasket)} call from method {{Method}} for basket id {{Id}}", context.Method, userId);
         }
 
         var customerBasket = MapToCustomerBasket(userId, request);
@@ -78,7 +63,7 @@ public class BasketService(IBasketStore basketStore, ILogger<BasketService> logg
 
     [DoesNotReturn]
     private static void ThrowBasketDoesNotExist(string userId)
-        => throw new RpcException(new Status(StatusCode.NotFound, $"Basket with buyer id {userId} does not exist"));
+        => throw new RpcException(new Status(StatusCode.NotFound, $"Basket with buyer ID {userId} does not exist"));
 
     private static CustomerBasketResponse MapToCustomerBasketResponse(CustomerBasket customerBasket)
     {
@@ -86,7 +71,7 @@ public class BasketService(IBasketStore basketStore, ILogger<BasketService> logg
 
         foreach (var item in customerBasket.Items)
         {
-            response.Items.Add(new BasketItem()
+            response.Items.Add(new BasketItem
             {
                 ProductId = item.ProductId,
                 Quantity = item.Quantity,
@@ -98,10 +83,7 @@ public class BasketService(IBasketStore basketStore, ILogger<BasketService> logg
 
     private static CustomerBasket MapToCustomerBasket(string userId, UpdateBasketRequest customerBasketRequest)
     {
-        var response = new CustomerBasket
-        {
-            BuyerId = userId
-        };
+        var response = new CustomerBasket { BuyerId = userId };
 
         foreach (var item in customerBasketRequest.Items)
         {
