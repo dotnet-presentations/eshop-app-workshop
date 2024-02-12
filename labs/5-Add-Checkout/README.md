@@ -408,5 +408,6 @@ We decorated some of the properties of the types that will be deserialized from 
 
     ![Swagger UI when validation errors are returned due to invalid fields when creating an order](./img/ordering-api-swagger-create-order-validation-error.png)
 
-## Add the Checkout feature to the web site
+## Challenge: Add the Checkout feature to the web site
 
+If you want an extra challenge, try updating the web site to call the Ordering API. You can use the complete `eShop` solution in the root of this repo to help guide you.
