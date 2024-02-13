@@ -160,7 +160,7 @@ In previous labs, we have created a web site that shoppers can use to browser a 
 1. In the `Program.cs` file, update the line that maps the `GreeterService` gRPC service so that it maps the `BasketService` instead:
 
     ```csharp
-    builder.MapGrpcService<BasketService>();
+    app.MapGrpcService<BasketService>();
     ``` 
 
 1. Delete the `Services/GreeterSrevice.cs` file that was included with the template, including the `Services` directory.
