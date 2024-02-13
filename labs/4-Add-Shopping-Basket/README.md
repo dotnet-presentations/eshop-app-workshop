@@ -382,7 +382,7 @@ In previous labs, we have created a web site that shoppers can use to browser a 
 
 1. Navigate to the definition of the `AddDefaultAuthentication` method and take a moment to read through the code. This code looks similar in places to the authentication configuration code in the `WebApp` project added in lab 3, but is slightly simpler as it doesn't need to configure the application to instigate login flows via OpenID Connect. It just needs to validate tokens issued by the IdP.
 
-    Note that the `ConfigureDefaaultJwtBearer` method expects the application configuration to have a section named **Identity** from which it retrieves a required value named **Audience**. This code will throw a runtime extepsion if it doesn't exist, so let's add that now.
+    Note that the `ConfigureDefaultJwtBearer` method expects the application configuration to have a section named **Identity** from which it retrieves a required value named **Audience**. This code will throw a runtime extepsion if it doesn't exist, so let's add that now.
 
 1. Open the `appsettings.json` file and add a new section named **Identity** with a property named **Audience** set to a value of `"basket"`:
 
