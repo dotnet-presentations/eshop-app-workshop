@@ -421,7 +421,7 @@ In previous labs, we have created a web site that shoppers can use to browser a 
     }
 
     [DoesNotReturn]
-    rivate static void ThrowBasketDoesNotExist(string userId)
+    private static void ThrowBasketDoesNotExist(string userId)
         => throw new RpcException(new Status(StatusCode.NotFound, $"Basket with buyer ID {userId} does not exist"));
     ```
 
