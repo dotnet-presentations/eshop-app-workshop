@@ -216,7 +216,7 @@ In previous labs, we have created a web site that shoppers can use to browser a 
 
     public class CustomerBasket
     {
-        public required string BuyerId { get; set; } = customerId;
+        public required string BuyerId { get; set; };
 
         public List<BasketItem> Items { get; set; } = [];
     }
