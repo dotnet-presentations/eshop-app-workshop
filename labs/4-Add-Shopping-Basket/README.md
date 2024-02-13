@@ -293,7 +293,10 @@ In previous labs, we have created a web site that shoppers can use to browser a 
 
     private static CustomerBasket MapToCustomerBasket(string userId, UpdateBasketRequest customerBasketRequest)
     {
-        var response = new CustomerBasket(userId);
+        var response = new CustomerBasket
+        {
+            BuyerId = userId
+        };
 
         foreach (var item in customerBasketRequest.Items)
         {
