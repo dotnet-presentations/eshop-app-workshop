@@ -52,6 +52,12 @@
     gap: 0.5rem;
 }
 
+.cart-items .cart-item .catalog-item-quantity form button:hover {
+    cursor: pointer;
+    background: #000;
+    color: #FFF;
+}
+
 .cart-items .cart-item .catalog-item-quantity input {
     max-width: 3rem;
     padding: 1rem 0.75rem;
