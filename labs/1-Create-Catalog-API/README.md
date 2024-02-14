@@ -232,7 +232,7 @@ Now that we've setup the solution to use Aspire for composing our distributed ap
 1. In the method, add a call to `app.MapGet` to define an endpoint that responds to GET requests to the `/items` path, and is handled by an async lambda that accepts two parameters: a `PaginationRequest` type that will represent the shape of the request, and the `CatalogDbContext` instance that will come from the DI container:
 
     ```csharp
-    app.MapGet("/items", async ([AsParameters] PaginationRequest request, CatalogDbContext db) =>
+    app.MapGet("/items", async ([AsParameters] PaginationRequest paginationRequest, CatalogDbContext db) =>
     {
 
     });
