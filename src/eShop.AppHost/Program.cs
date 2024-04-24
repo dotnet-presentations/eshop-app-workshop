@@ -42,7 +42,7 @@ var webApp = builder.AddProject<WebApp>("webapp", launchProfileName: "https")
     .WithReference(basketApi)
     .WithReference(catalogApi)
     .WithReference(orderingApi)
-    .WithReference(idp);
+    .WithReference(idp, env: "Identity__ClientSecret");
 
 // Inject the project URLs for Keycloak realm configuration
 var webAppHttp = webApp.GetEndpoint("http");
