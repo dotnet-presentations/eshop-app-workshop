@@ -1,14 +1,18 @@
 using System.Net;
 using Microsoft.Extensions.DependencyInjection;
+using Xunit.Abstractions;
 
 namespace IntegrationTests;
 
-public class WebAppTests
+public class WebAppTests(ITestOutputHelper outputHelper)
 {
     [Fact]
     public async Task GetWebAppUrlsReturnsOkStatusCode()
     {
         var appHost = await DistributedApplicationTestingBuilder.CreateAsync<Projects.eShop_AppHost>();
+        appHost.WithRandomParameterValues();
+        appHost.WithRandomVolumeNames();
+        appHost.WriteOutputTo(new XUnitTextWriter(outputHelper));
         appHost.Services.ConfigureHttpClientDefaults(client =>
         {
             client.AddStandardResilienceHandler(options =>
@@ -23,7 +27,7 @@ public class WebAppTests
         });
 
         await using var app = await appHost.BuildAsync();
-        await app.StartAsync();
+        await app.StartAsync(waitForResourcesToStart: true);
 
         var httpClient = app.CreateHttpClient("webapp");
 
