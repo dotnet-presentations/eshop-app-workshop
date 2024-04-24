@@ -13,11 +13,13 @@ public class WebAppTests(ITestOutputHelper outputHelper)
         appHost.WithRandomParameterValues();
         appHost.WithRandomVolumeNames();
         appHost.WriteOutputTo(new XUnitTextWriter(outputHelper));
-        appHost.Services.ConfigureHttpClientDefaults(client =>
+        appHost.Services.ConfigureHttpClientDefaults(clientBuilder =>
         {
-            client.AddStandardResilienceHandler(options =>
+            var timeout = TimeSpan.FromSeconds(360);
+            clientBuilder.ConfigureHttpClient(httpClient => httpClient.Timeout = timeout);
+            clientBuilder.AddStandardResilienceHandler(options =>
             {
-                options.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(360);
+                options.TotalRequestTimeout.Timeout = timeout;
                 options.AttemptTimeout.Timeout = TimeSpan.FromSeconds(120);
                 options.Retry.BackoffType = Polly.DelayBackoffType.Constant;
                 options.Retry.Delay = TimeSpan.FromSeconds(5);
