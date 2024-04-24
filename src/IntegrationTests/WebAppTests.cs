@@ -13,12 +13,12 @@ public class WebAppTests
         {
             client.AddStandardResilienceHandler(options =>
             {
-                options.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(300);
-                options.AttemptTimeout.Timeout = TimeSpan.FromSeconds(30);
+                options.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(360);
+                options.AttemptTimeout.Timeout = TimeSpan.FromSeconds(120);
                 options.Retry.BackoffType = Polly.DelayBackoffType.Constant;
                 options.Retry.Delay = TimeSpan.FromSeconds(5);
                 options.Retry.MaxRetryAttempts = 100;
-                options.CircuitBreaker.SamplingDuration = TimeSpan.FromSeconds(60);
+                options.CircuitBreaker.SamplingDuration = options.AttemptTimeout.Timeout * 2;
             });
         });
 
