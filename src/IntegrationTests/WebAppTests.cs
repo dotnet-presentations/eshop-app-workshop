@@ -15,11 +15,10 @@ public class WebAppTests(ITestOutputHelper outputHelper)
         appHost.WriteOutputTo(new XUnitTextWriter(outputHelper));
         appHost.Services.ConfigureHttpClientDefaults(clientBuilder =>
         {
-            var timeout = TimeSpan.FromSeconds(360);
-            clientBuilder.ConfigureHttpClient(httpClient => httpClient.Timeout = timeout);
+            clientBuilder.ConfigureHttpClient(httpClient => httpClient.Timeout = Timeout.InfiniteTimeSpan);
             clientBuilder.AddStandardResilienceHandler(options =>
             {
-                options.TotalRequestTimeout.Timeout = timeout;
+                options.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(360);
                 options.AttemptTimeout.Timeout = TimeSpan.FromSeconds(120);
                 options.Retry.BackoffType = Polly.DelayBackoffType.Constant;
                 options.Retry.Delay = TimeSpan.FromSeconds(5);
