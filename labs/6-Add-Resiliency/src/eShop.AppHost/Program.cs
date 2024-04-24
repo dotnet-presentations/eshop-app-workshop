@@ -45,8 +45,12 @@ var webApp = builder.AddProject<WebApp>("webapp", launchProfileName: "https")
     .WithReference(idp);
 
 // Inject the project URLs for Keycloak realm configuration
-idp.WithEnvironment("WEBAPP_HTTP", webApp.GetEndpoint("http"));
-idp.WithEnvironment("WEBAPP_HTTPS", webApp.GetEndpoint("https"));
+var webAppHttp = webApp.GetEndpoint("http");
+var webAppHttps = webApp.GetEndpoint("https");
+idp.WithEnvironment("WEBAPP_HTTP_CONTAINERHOST", webAppHttp);
+idp.WithEnvironment("WEBAPP_HTTPS_CONTAINERHOST", webAppHttps);
+idp.WithEnvironment("WEBAPP_HTTP", () => $"{webAppHttp.Scheme}://{webAppHttp.Host}:{webAppHttp.Port}");
+idp.WithEnvironment("WEBAPP_HTTPS", () => $"{webAppHttps.Scheme}://{webAppHttps.Host}:{webAppHttps.Port}");
 idp.WithEnvironment("ORDERINGAPI_HTTP", orderingApi.GetEndpoint("http"));
 
 // Inject assigned URLs for Catalog API
