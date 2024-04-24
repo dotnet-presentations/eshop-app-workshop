@@ -41,7 +41,7 @@ Now that we've verified the Ordering database is working, let's add an HTTP API 
 1. Towards the bottom of the `Program.cs` file, udpate the line that adds the `"ORDERINGAPI_HTTP"` envionment variable to the `idp` resource so that it now passes in the `http` endpoint from the `orderingApi` resource. This will ensure the IdP is configured correctly to support authentication requests from the `Ordering.API` project:
 
     ```csharp
-    idp.WithEnvironment("ORDERINGAPI_HTTP", () => orderingApi.GetEndpoint("http").UriString);
+    idp.WithEnvironment("ORDERINGAPI_HTTP", orderingApi.GetEndpoint("http"));
     ```
 
 1. Add a project reference from the `Ordering.API` project to the `Ordering.Data` project so that it can use Entity Framework Core to access the database.

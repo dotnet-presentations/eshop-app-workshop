@@ -40,7 +40,7 @@ public static class AuthenticationExtensions
         return identityUri;
     }
 
-    public static Uri ResolveIdpAuthorityUri(this ServiceEndPointResolverRegistry resolver, IConfiguration configuration, string serviceName = "http://idp")
+    public static Uri ResolveIdpAuthorityUri(this ServiceEndpointResolver resolver, IConfiguration configuration, string serviceName = "http://idp")
     {
         // Sync over async :(
         var idpBaseUrl = resolver.ResolveEndPointUrlAsync(serviceName).AsTask().GetAwaiter().GetResult()

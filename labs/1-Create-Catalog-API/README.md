@@ -132,6 +132,16 @@ Containers are extremely useful for hosting service dependencies, but rather tha
 
 ### Configuring PostgreSQL and pgAdmin
 
+1. Install the `Aspire.Hosting.PostgreSQL` package in the `eShop.AppHost` project:
+
+    ```shell
+    dotnet add package Aspire.Hosting.Redis
+    ```
+
+    ```xml
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="8.0.0-preview.6.24214.1" />
+    ```
+
 1. Use the methods on the `builder` variable to create a PostgreSQL instance called `postgres` with pgAdmin enabled, and a database called `CatalogDB`. Ensure that the `catalog-db-mgr` project resource is configured with a reference to the `catalogDb`:
 
     ```csharp

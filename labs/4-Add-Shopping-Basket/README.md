@@ -20,6 +20,16 @@ In previous labs, we have created a web site that shoppers can use to browser a 
     <RootNamespace>eShop.Basket.API</RootNamespace>
     ```
 
+1. Install the `Aspire.Hosting.Redis` package in the `eShop.AppHost` project:
+
+    ```shell
+    dotnet add package Aspire.Hosting.Redis
+    ```
+
+    ```xml
+    <PackageReference Include="Aspire.Hosting.Redis" Version="8.0.0-preview.6.24214.1" />
+    ```
+
 1. Open the `Program.cs` file in the `eShop.AppHost` project and add a line to create a new Redis resource named `"BasketStore"` and configure it to host a [Redis Commander](https://joeferner.github.io/redis-commander/) instance too (this will make it easier to inspect the Redis database during development). Capture the resource in a `basketStore` variable:
 
     ```csharp
@@ -41,12 +51,11 @@ In previous labs, we have created a web site that shoppers can use to browser a 
 1. Update the `webapp` resource to reference the `basket-api` resource so the web site can communicate with the Basket API:
 
     ```csharp
-    var webApp = builder.AddProject<Projects.WebApp>("webapp")
+    // Force HTTPS profile for web app (required for OIDC operations)
+    var webApp = builder.AddProject<Projects.WebApp>("webapp", launchProfileName: "https")
         .WithReference(catalogApi)
         .WithReference(basketApi) // <--- Add this line
-        .WithReference(idp)
-        // Force HTTPS profile for web app (required for OIDC operations)
-        .WithLaunchProfile("https");
+        .WithReference(idp);
     ```
 
 1. Run the AppHost project and verify that the containers for Redis and Redis Commander are created and running by using the dashboard. Also verify that the `Basket.API` project is running and that it's environment variables contain the configuration values to communicate with the IdP and Redis.
@@ -83,7 +92,7 @@ In previous labs, we have created a web site that shoppers can use to browser a 
     Add the `Aspire.StackExchange.Redis` component NuGet package to the `Basket.API` project. You can use the **Add > .NET Aspire Compoenent...** project menu item in Visual Studio, the `dotnet add package` command at the command line, or by editing the `Basket.API.csproj` file directly:
 
     ```xml
-    <PackageReference Include="Aspire.StackExchange.Redis" Version="8.0.0-preview.3.24105.21" />
+    <PackageReference Include="Aspire.StackExchange.Redis" Version="8.0.0-preview.6.24214.1" />
     ```
 
 1. In the `AddApplicationServices` method in `HostingExtensions.cs`, add a call to `AddRedis` to configure the Redis client in the application's DI container. Pass the name `"BasketStore"` to the method to indicate that the client should be configured to connect to the Redis resource with that name in the AppHost:
@@ -91,7 +100,7 @@ In previous labs, we have created a web site that shoppers can use to browser a 
     ```csharp
     public static IHostApplicationBuilder AddApplicationServices(this IHostApplicationBuilder builder)
     {
-        builder.AddRedis("BasketStore");
+        builder.AddRedisClient("BasketStore");
 
         return builder;
     }
@@ -372,7 +381,7 @@ In previous labs, we have created a web site that shoppers can use to browser a 
     {
         builder.AddDefaultAuthentication(); // <-- Add this line
 
-        builder.AddRedis("BasketStore");
+        builder.AddRedisClient("BasketStore");
 
         builder.Services.AddSingleton<RedisBasketStore>();
 

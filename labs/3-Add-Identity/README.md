@@ -41,8 +41,8 @@ You can read more about [selecting an identity management solution for ASP.NET C
 
     ```csharp
     // Inject the project URLs for Keycloak realm configuration
-    idp.WithEnvironment("WEBAPP_HTTP", () => webApp.GetEndpoint("http").UriString);
-    idp.WithEnvironment("WEBAPP_HTTPS", () => webApp.GetEndpoint("https").UriString);
+    idp.WithEnvironment("WEBAPP_HTTP", webApp.GetEndpoint("http"));
+    idp.WithEnvironment("WEBAPP_HTTPS", webApp.GetEndpoint("https"));
     ```
 
 1. Run the AppHost project again and verify that the container starts successfully. This can be confirmed by finding the following lines in the container's logs:
@@ -75,11 +75,10 @@ You can read more about [selecting an identity management solution for ASP.NET C
 1. Now that we've confirmed that our Keycloak instance is successfully configured, update the `Program.cs` file of the AppHost project so that the `webapp` resource references the `idp` Keycloak resource, using the `WithReference` method. This will ensure that the `webapp` resource will have configuration values injected via its environment variables so that it can resovle calls to `http://idp` with the actual address assigned when the project is launched. Additionally, use the `WithLaunchProfile` method to ensure the `webapp` resource is always launched using the `"https"` launch profile (defined in its `Properties/launchSettings.json` file) as OIDC-based authentication flows typically require HTTPS to be used:
 
     ```csharp
-    var webApp = builder.AddProject<WebApp>("webapp")
+    // Force HTTPS profile for web app (required for OIDC operations)
+    var webApp = builder.AddProject<WebApp>("webapp", launchProfileName: "https")
         .WithReference(catalogApi)
         .WithReference(idp)
-        // Force HTTPS profile for web app (required for OIDC operations)
-        .WithLaunchProfile("https");
     ```
 
 1. Launch the AppHost project again and use the dashboard to verify that the address of the `idp` resource was injected into the `webapp` resource via environment variables:

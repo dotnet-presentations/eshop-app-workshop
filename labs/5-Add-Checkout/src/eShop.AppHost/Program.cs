@@ -33,19 +33,18 @@ var basketApi = builder.AddProject<Basket_API>("basket-api")
 
 // Apps
 
-var webApp = builder.AddProject<WebApp>("webapp")
+// Force HTTPS profile for web app (required for OIDC operations)
+var webApp = builder.AddProject<WebApp>("webapp", launchProfileName: "https")
     .WithReference(basketApi)
     .WithReference(catalogApi)
-    .WithReference(idp)
-    // Force HTTPS profile for web app (required for OIDC operations)
-    .WithLaunchProfile("https");
+    .WithReference(idp);
 
 // Inject the project URLs for Keycloak realm configuration
-idp.WithEnvironment("WEBAPP_HTTP", () => webApp.GetEndpoint("http").UriString);
-idp.WithEnvironment("WEBAPP_HTTPS", () => webApp.GetEndpoint("https").UriString);
+idp.WithEnvironment("WEBAPP_HTTP", webApp.GetEndpoint("http"));
+idp.WithEnvironment("WEBAPP_HTTPS", webApp.GetEndpoint("https"));
 idp.WithEnvironment("ORDERINGAPI_HTTP", () => "http://placeholder-for-ordering-api");
 
 // Inject assigned URLs for Catalog API
-catalogApi.WithEnvironment("CatalogOptions__PicBaseAddress", () => catalogApi.GetEndpoint("http").UriString);
+catalogApi.WithEnvironment("CatalogOptions__PicBaseAddress", catalogApi.GetEndpoint("http"));
 
 builder.Build().Run();
