@@ -32,9 +32,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Catalog.Data", "src\Catalog
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Catalog.Data.Manager", "src\Catalog.Data.Manager\Catalog.Data.Manager.csproj", "{E1AAD2C8-97A7-404E-9DF7-89A719101631}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ordering.Data", "src\Ordering.Data\Ordering.Data.csproj", "{D68FAD25-C09D-434C-A7AE-8F78DB2D923D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ordering.Data", "src\Ordering.Data\Ordering.Data.csproj", "{D68FAD25-C09D-434C-A7AE-8F78DB2D923D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ordering.Data.Manager", "src\Ordering.Data.Manager\Ordering.Data.Manager.csproj", "{4FCA8863-B3C7-47D6-B031-37A0384B40AA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests", "src\IntegrationTests\IntegrationTests.csproj", "{78A319E7-76E6-4813-9C36-CB90B406A91D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -82,6 +84,10 @@ Global
 		{4FCA8863-B3C7-47D6-B031-37A0384B40AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4FCA8863-B3C7-47D6-B031-37A0384B40AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4FCA8863-B3C7-47D6-B031-37A0384B40AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78A319E7-76E6-4813-9C36-CB90B406A91D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78A319E7-76E6-4813-9C36-CB90B406A91D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78A319E7-76E6-4813-9C36-CB90B406A91D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78A319E7-76E6-4813-9C36-CB90B406A91D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

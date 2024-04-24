@@ -38,3 +38,22 @@ jobs:
 
     - name: Build
       run: ${{ matrix.os == 'ubuntu-latest' && './build.sh' || '.\build.cmd' }}
+    
+    - name: Test
+      id: test
+      # Can't run Docker on Windows agents yet
+      if: matrix.os == 'ubuntu-latest'
+      # Note that the space after the last double dash (--) is intentional
+      run: >
+        dotnet test ./eShop.sln
+        --logger console --logger trx --logger html --logger GitHubActions
+        --results-directory ./TestResults --blame
+        -- 
+        RunConfiguration.CollectSourceInformation=true
+    
+    - name: Publish Test Results
+      if: (success() || steps.test.conclusion == 'failure') && matrix.os == 'ubuntu-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: TestResults_${{ matrix.os }}_${{ matrix.sdk }}
+        path: ./TestResults
