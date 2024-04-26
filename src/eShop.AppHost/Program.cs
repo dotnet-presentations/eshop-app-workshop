@@ -4,10 +4,10 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 // Databases
 
-var basketStore = builder.AddRedis("BasketStore");
-    //.WithRedisCommander();
-var postgres = builder.AddPostgres("postgres");
-    //.WithPgAdmin();
+var basketStore = builder.AddRedis("BasketStore")
+    .WithRedisCommander();
+var postgres = builder.AddPostgres("postgres")
+    .WithPgAdmin();
 var catalogDb = postgres.AddDatabase("CatalogDB");
 var orderDb = postgres.AddDatabase("OrderingDB");
 
