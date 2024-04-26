@@ -9,16 +9,17 @@ public class WebAppTests(ITestOutputHelper outputHelper)
     [Fact]
     public async Task GetWebAppUrlsReturnsOkStatusCode()
     {
-        var appHost = await DistributedApplicationTestingBuilder.CreateAsync<Projects.eShop_AppHost>();
-        appHost.WithRandomParameterValues();
-        appHost.WithRandomVolumeNames();
-        appHost.WriteOutputTo(new XUnitTextWriter(outputHelper));
-        appHost.Services.ConfigureHttpClientDefaults(clientBuilder =>
+        var appHostBuilder = await DistributedApplicationTestingBuilder.CreateAsync<Projects.eShop_AppHost>();
+        appHostBuilder.WriteOutputTo(outputHelper);
+        appHostBuilder.WithRandomParameterValues();
+        appHostBuilder.WithRandomVolumeNames();
+
+        appHostBuilder.Services.ConfigureHttpClientDefaults(clientBuilder =>
         {
             clientBuilder.ConfigureHttpClient(httpClient => httpClient.Timeout = Timeout.InfiniteTimeSpan);
             clientBuilder.AddStandardResilienceHandler(options =>
             {
-                options.TotalRequestTimeout.Timeout = TimeSpan.FromMinutes(15);
+                options.TotalRequestTimeout.Timeout = TimeSpan.FromMinutes(10);
                 options.AttemptTimeout.Timeout = TimeSpan.FromMinutes(2);
                 options.Retry.BackoffType = Polly.DelayBackoffType.Constant;
                 options.Retry.Delay = TimeSpan.FromSeconds(10);
@@ -27,7 +28,7 @@ public class WebAppTests(ITestOutputHelper outputHelper)
             });
         });
 
-        await using var app = await appHost.BuildAsync();
+        await using var app = await appHostBuilder.BuildAsync();
         await app.StartAsync(waitForResourcesToStart: true);
 
         var httpClient = app.CreateHttpClient("webapp");

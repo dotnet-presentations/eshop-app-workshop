@@ -39,8 +39,7 @@ public static partial class DistributedApplicationExtensions
         // Add a resource log store to capture logs from resources
         builder.Services.AddSingleton<ResourceLogStore>();
 
-        // Configure the builder's logger to redirect it to xunit's output & store for assertion later
-        builder.Services.AddLogging(logging => logging.ClearProviders());
+        // Configure the builder's logger to redirect it output & store for assertion later
         builder.Services.AddKeyedSingleton(OutputWriterKey, outputWriter);
         builder.Services.AddSingleton<LoggerLogStore>();
         builder.Services.AddSingleton<ILoggerProvider, StoredLogsLoggerProvider>();
