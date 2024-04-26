@@ -61,5 +61,5 @@ jobs:
       if: (success() || steps.test.conclusion == 'failure') && matrix.os == 'ubuntu-latest'
       uses: actions/upload-artifact@v4
       with:
-        name: TestResults_${{ matrix.os }}_${{ matrix.sdk }}
+        name: TestResults_${{ matrix.os }}
         path: ./TestResults
