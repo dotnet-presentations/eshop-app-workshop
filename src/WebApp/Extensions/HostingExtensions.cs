@@ -27,7 +27,7 @@ public static class HostingExtensions
         builder.Services.AddSingleton<IProductImageUrlProvider, ProductImageUrlProvider>();
 
         // HTTP and gRPC client registrations
-        builder.Services.AddGrpcClient<Basket.BasketClient>(o => o.Address = new("https+http://basket-api"))
+        builder.Services.AddGrpcClient<Basket.BasketClient>(o => o.Address = new("https://basket-api"))
             .AddAuthToken();
 
         builder.Services.AddHttpClient<CatalogService>(o => o.BaseAddress = new("https+http://catalog-api"))
