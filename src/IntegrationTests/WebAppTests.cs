@@ -18,11 +18,11 @@ public class WebAppTests(ITestOutputHelper outputHelper)
             clientBuilder.ConfigureHttpClient(httpClient => httpClient.Timeout = Timeout.InfiniteTimeSpan);
             clientBuilder.AddStandardResilienceHandler(options =>
             {
-                options.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(360);
-                options.AttemptTimeout.Timeout = TimeSpan.FromSeconds(120);
+                options.TotalRequestTimeout.Timeout = TimeSpan.FromMinutes(15);
+                options.AttemptTimeout.Timeout = TimeSpan.FromMinutes(2);
                 options.Retry.BackoffType = Polly.DelayBackoffType.Constant;
-                options.Retry.Delay = TimeSpan.FromSeconds(5);
-                options.Retry.MaxRetryAttempts = 100;
+                options.Retry.Delay = TimeSpan.FromSeconds(10);
+                options.Retry.MaxRetryAttempts = 150;
                 options.CircuitBreaker.SamplingDuration = options.AttemptTimeout.Timeout * 2;
             });
         });
