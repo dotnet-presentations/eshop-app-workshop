@@ -2,13 +2,13 @@
 
 public static class ServiceDiscoveryExtensions
 {
-    public static async ValueTask<string?> ResolveEndPointUrlAsync(this ServiceEndPointResolverRegistry resolver, string serviceName, CancellationToken cancellationToken = default)
+    public static async ValueTask<string?> ResolveEndPointUrlAsync(this ServiceEndpointResolver resolver, string serviceName, CancellationToken cancellationToken = default)
     {
         var scheme = ExtractScheme(serviceName);
-        var endpoints = await resolver.GetEndPointsAsync(serviceName, cancellationToken);
-        if (endpoints.Count > 0)
+        var endpoints = await resolver.GetEndpointsAsync(serviceName, cancellationToken);
+        if (endpoints.Endpoints.Count > 0)
         {
-            var address = endpoints[0].GetEndPointString();
+            var address = endpoints.Endpoints[0].ToString();
             return $"{scheme}://{address}";
         }
         return null;

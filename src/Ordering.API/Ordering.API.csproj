@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="MinimalApis.Extensions" Version="0.11.0" />
-    <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0-preview.3.24105.21" />
+    <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0-preview.6.24214.1" />
   </ItemGroup>
 
 </Project>

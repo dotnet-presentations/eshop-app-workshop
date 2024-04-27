@@ -74,7 +74,7 @@ public static class OpenApiExtensions
         services.AddSwaggerGen();
 
         services.AddOptions<SwaggerGenOptions>()
-            .Configure<IHttpClientFactory, ServiceEndPointResolverRegistry>((options, httpClientFactory, serviceEndPointResolver) =>
+            .Configure<IHttpClientFactory, ServiceEndpointResolver>((options, httpClientFactory, ServiceEndpointResolver) =>
             {
                 /// {
                 ///   "OpenApi": {
@@ -113,7 +113,7 @@ public static class OpenApiExtensions
                 //    }
                 // }
 
-                var identityUri = serviceEndPointResolver.ResolveIdpAuthorityUri(configuration);
+                var identityUri = ServiceEndpointResolver.ResolveIdpAuthorityUri(configuration);
 
                 var scopes = identitySection.GetSection("Scopes").GetChildren().ToDictionary(p => p.Key, p => p.Value);
 

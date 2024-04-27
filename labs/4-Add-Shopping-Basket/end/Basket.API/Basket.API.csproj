@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.StackExchange.Redis" Version="8.0.0-preview.3.24105.21" />
+    <PackageReference Include="Aspire.StackExchange.Redis" Version="8.0.0-preview.6.24214.1" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.57.0" />
   </ItemGroup>
 
