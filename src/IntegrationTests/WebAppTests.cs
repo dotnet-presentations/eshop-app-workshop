@@ -1,4 +1,5 @@
 using System.Net;
+using IntegrationTests.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit.Abstractions;
 

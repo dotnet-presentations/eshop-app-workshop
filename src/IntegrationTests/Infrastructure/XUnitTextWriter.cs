@@ -4,7 +4,7 @@
 using System.Text;
 using Xunit.Abstractions;
 
-namespace IntegrationTests;
+namespace IntegrationTests.Infrastructure;
 
 /// <summary>
 /// A <see cref="TextWriter"/> that writes to an <see cref="ITestOutputHelper"/>.
