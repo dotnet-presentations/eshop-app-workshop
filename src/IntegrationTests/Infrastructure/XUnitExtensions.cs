@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
-namespace IntegrationTests;
+namespace IntegrationTests.Infrastructure;
 
 internal static partial class DistributedApplicationTestFactory
 {

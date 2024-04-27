@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace IntegrationTests;
+namespace IntegrationTests.Infrastructure;
 
 /// <summary>
 /// Stores logs from <see cref="ILogger"/> instances created from <see cref="StoredLogsLoggerProvider"/>.
