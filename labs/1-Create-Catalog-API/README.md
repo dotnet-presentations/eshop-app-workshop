@@ -6,7 +6,7 @@ A database has already been defined to store the product catalog for eShop, alon
 
 ## Getting familiar with the Catalog Database & Entity Framework Core Model
 
-1. Open the [`eShop.sln`](./src/eShop.sln) in Visual Studio or VS Code.
+1. Open the [`eShop.lab1.sln`](./src/eShop.lab1.sln) in Visual Studio or VS Code.
 1. An Entity Framework Core model is already defined for this database in the `Catalog.Data` project. Open the `CatalogDbContext.cs` file in this project and look at the code to see that the the various tables are defined via properties and [classes implementing `IEntityTypeConfiguration<TEntity>`](https://learn.microsoft.com/ef/core/modeling/#grouping-configuration).
 1. The `Catalog.Data` project only defines the `DbContext` and entity types. The [EF Core migrations](https://learn.microsoft.com/ef/core/managing-schemas/migrations/) are defined and managed in the `Catalog.Data.Manager` project. This is a web project that includes some custom code to facilitate creating and seeding the database when the application starts.
 1. Open the `Program.cs` file in the `Catalog.Data.Manager` project and take a few minutes to read the code, navigating to the definition/implementation of the `AddMigration<TContext>` method to get a sense of what it's doing to coordinate the creation of the database, application of migrations, and execution of the custom `IDbSeeder<TContext>` class. Also note the [custom health check](https://learn.microsoft.com/aspnet/core/host-and-deploy/health-checks#create-health-checks) that indicates the status of the database initialization.

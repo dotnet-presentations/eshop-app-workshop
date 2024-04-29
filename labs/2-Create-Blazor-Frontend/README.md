@@ -6,7 +6,7 @@ Now that we have an API to provide catalog items, we can start the process of bu
 
 The provided starting point for this lab is based on the work you completed in the previous lab, however the Catalog API has been extended with more endpoints and the code refactored for better organization.
 
-1. Open the `eShop.sln` in Visual Studio or VS Code.
+1. Open the `eShop.lab2.sln` in Visual Studio or VS Code.
 1. Note there are some changes to the `Catalog.API` project:
     - The `Apis` directory contains the `CatalogApi.cs` file now, rather than it being in the project root
     - There is an `Extension` directory containing a `HostingExtensions.cs` file, in which an extension method is defined called `AddApplicationServices`. This method is called from the `Program.cs` file to setup the application's services. If any other extension methods are required, they can be placed in classes defined in this directory.
