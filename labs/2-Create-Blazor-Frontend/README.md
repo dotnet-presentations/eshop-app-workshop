@@ -6,7 +6,7 @@ Now that we have an API to provide catalog items, we can start the process of bu
 
 The provided starting point for this lab is based on the work you completed in the previous lab, however the Catalog API has been extended with more endpoints and the code refactored for better organization.
 
-1. Open the `eShop.sln` in Visual Studio or VS Code.
+1. Open the `eShop.lab2.sln` in Visual Studio or VS Code.
 1. Note there are some changes to the `Catalog.API` project:
     - The `Apis` directory contains the `CatalogApi.cs` file now, rather than it being in the project root
     - There is an `Extension` directory containing a `HostingExtensions.cs` file, in which an extension method is defined called `AddApplicationServices`. This method is called from the `Program.cs` file to setup the application's services. If any other extension methods are required, they can be placed in classes defined in this directory.
@@ -37,7 +37,7 @@ The provided starting point for this lab includes a Blazor web project for the f
 
 To communicate with the Catalog API from the web app, we'll create a service class that uses an `HttpClient` instance managed by the [`IHttpClientFactory` features](https://learn.microsoft.com/dotnet/core/extensions/httpclient-factory).
 
-1. In the `WebApp` project, create a `Services` directory and inside it create a new file `CatalogService.cs`
+1. In the `WebApp` project, open the `Services` directory and inside it create a new file `CatalogService.cs`
 1. Declare a class in this file called `CatalogService` with a primary constructor that accepts a single `HttpClient httpClient` parameter, and a field to store the common base path of the Catalog API endpoints `"api/v1/catalog"`:
 
     ```csharp
@@ -140,20 +140,22 @@ Now that we have a service we can use to easily retrieve the catalog items from 
     }
     ```
 
-1. Back in the markup section of the file, add some HTML and use Razor expressions to display the items in the `catalogResult` field. Note that you'll need to check the value is not `null` first to avoid a compiler error. Use the existing `CatalogListItem` component defined in the project to handle rendering each item:
+1. Back in the markup section of the file, add some HTML and use Razor expressions to display the items in the `catalogResult` field. Note that you'll need to check the value is not `null` first to avoid a compiler error. Use the existing `CatalogListItem` component defined in the project to handle rendering each item inside the `<div class="catalog>` element:
 
     ```razor
-    @if (catalogResult is not null)
-    {
-        <div>
-            <div class="catalog-items">
-                @foreach (var item in catalogResult.Data)
-                {
-                    <CatalogListItem Item="@item" />
-                }
+    <div class="catalog">
+        @if (catalogResult is not null)
+        {
+            <div>
+                <div class="catalog-items">
+                    @foreach (var item in catalogResult.Data)
+                    {
+                        <CatalogListItem Item="@item" />
+                    }
+                </div>
             </div>
-        </div>
-    }
+        }
+    </div>
     ```
 
 1. Run the AppHost project and navigate to the eShop front page. You should see catalog items now but their images aren't rendering correctly:
@@ -258,13 +260,31 @@ The Catalog API supports returning a subset of matching catalog items to allow f
     => Enumerable.Range(1, (int)Math.Ceiling(1.0 * result.Count / PageSize));
     ```
 
-1. Add markup to render the page links by looping over the page indexes returned from the `GetVisiblePageIndexes` method and render a hyperlink using the built-in [`NavLink` component](https://learn.microsoft.com/aspnet/core/blazor/fundamentals/routing#navlink-component) . The CSS defined in `Catalog.razor.css` already includes a styles targeting classes `page-links` and `active-page` so use those to style the links:
+1. Add markup to render the page links by looping over the page indexes returned from the `GetVisiblePageIndexes` method and render a hyperlink using the built-in [`NavLink` component](https://learn.microsoft.com/aspnet/core/blazor/fundamentals/routing#navlink-component). The CSS defined in `Catalog.razor.css` already includes a styles targeting classes `page-links` and `active-page` so use those to style the links. Add this markup just after the closing `</div>` tag of the `catalog-items` div:
 
     ```razor
-    <div class="page-links">
-        @foreach (var pageIndex in GetVisiblePageIndexes(catalogResult))
+    <div class="catalog">
+        @if (catalogResult is null)
         {
-            <NavLink ActiveClass="active-page" Match="@NavLinkMatch.All" href="@Nav.GetUriWithQueryParameter("page", pageIndex == 1 ? null : pageIndex)">@pageIndex</NavLink>
+            <p>Loading...</p>
+        }
+        else
+        {
+            <div>
+                <div class="catalog-items">
+                    @foreach (var item in catalogResult.Data)
+                    {
+                        <CatalogListItem Item="@item" />
+                    }
+                </div>
+    
+                <div class="page-links">
+                    @foreach (var pageIndex in GetVisiblePageIndexes(catalogResult))
+                    {
+                        <NavLink ActiveClass="active-page" Match="@NavLinkMatch.All" href="@Nav.GetUriWithQueryParameter("page", pageIndex == 1 ? null : pageIndex)">@pageIndex</NavLink>
+                    }
+                </div>
+            </div>
         }
     </div>
     ```
@@ -294,6 +314,7 @@ The final piece of catalog functionality to add is the ability to filter the ite
         return result ?? [];
     }
     ```
+
 1. In `Catalog.razor`, declare two new component parameters to capture the brand ID and item type ID from the querystring:
 
     ```csharp
@@ -324,13 +345,12 @@ The final piece of catalog functionality to add is the ability to filter the ite
         <CatalogSearch BrandId="@BrandId" ItemTypeId="@ItemTypeId" />
     ```
 
-1. Locate and open the `CatalogSearch.razor` file. Update this file so that it populates the `catalogBrands` and `catalogItemTypes` fields by calling the methods you just added to the `CatalogService` class. Reminder, you'll need to use the `@inject` directive to get an instance of the `CatalogService` before you can update the `OnInitializedAsync` method.
+1. Locate and open the `/Components/Catalog/CatalogSearch.razor` file. Update this file so that it populates the `catalogBrands` and `catalogItemTypes` fields by calling the methods you just added to the `CatalogService` class. Reminder, you'll need to use the `@inject` directive to get an instance of the `CatalogService` before you can update the `OnInitializedAsync` method.
 
     For an extra challenge, try calling the methods in parallel before awaiting their results (the `Task.WhenAll` method might be helpful here).
 1. Reload the home page and see now that the filter UI is displayed on the left-hand side. Click on the various filter options to verify that the catalog UI functions correctly. Notice how the URL changes as you click through the various filter options and paging links.
 
     ![Filtering experience on the catalog](./img/eshop-web-catalog-filtering.png)
-
 
 ## Challenge: Update the item details page
 
@@ -343,4 +363,4 @@ Hints:
 - The Catalog API provides an endpoint at `/items/{id}` to retrieve an item's details via a `GET` request.
 - You can get image URLs for items from the `IProductImageUrlProvider` service which is already registered in the application's DI container (`@inject`...).
 - The `Item.razor.css` file already defines some styles targeting class names like `item-details` and `description` that should help with styling the content.
-- Think about what should happen if the item ID in the querystring doesn't have a matching catalog item. Displaying a "not found" message and changing the HTTP respsone status code to `404` might be things to consider.
+- Think about what should happen if the item ID in the querystring doesn't have a matching catalog item. Displaying a "not found" message and changing the HTTP response status code to `404` might be things to consider.

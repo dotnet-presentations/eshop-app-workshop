@@ -6,7 +6,7 @@ A database has already been defined to store the product catalog for eShop, alon
 
 ## Getting familiar with the Catalog Database & Entity Framework Core Model
 
-1. Open the [`eShop.sln`](./src/eShop.sln) in Visual Studio or VS Code.
+1. Open the [`eShop.lab1.sln`](./src/eShop.lab1.sln) in Visual Studio or VS Code.
 1. An Entity Framework Core model is already defined for this database in the `Catalog.Data` project. Open the `CatalogDbContext.cs` file in this project and look at the code to see that the the various tables are defined via properties and [classes implementing `IEntityTypeConfiguration<TEntity>`](https://learn.microsoft.com/ef/core/modeling/#grouping-configuration).
 1. The `Catalog.Data` project only defines the `DbContext` and entity types. The [EF Core migrations](https://learn.microsoft.com/ef/core/managing-schemas/migrations/) are defined and managed in the `Catalog.Data.Manager` project. This is a web project that includes some custom code to facilitate creating and seeding the database when the application starts.
 1. Open the `Program.cs` file in the `Catalog.Data.Manager` project and take a few minutes to read the code, navigating to the definition/implementation of the `AddMigration<TContext>` method to get a sense of what it's doing to coordinate the creation of the database, application of migrations, and execution of the custom `IDbSeeder<TContext>` class. Also note the [custom health check](https://learn.microsoft.com/aspnet/core/host-and-deploy/health-checks#create-health-checks) that indicates the status of the database initialization.
@@ -86,7 +86,7 @@ Containers are extremely useful for hosting service dependencies, but rather tha
 
 ### Visual Studio
 
-1. In Visual Studio, right-mouse click on the `Catalog.Data.Manager` project and select **Add > .NET Aspire Orchestrator Support...** and click OK in the displayed dialog:
+1. In Visual Studio, right-mouse click on the `Catalog.Data.Manager` project and select **Add > .NET Aspire Orchestrator Support...**. Change the *Project name prefix* to "eShop" and click OK in the displayed dialog:
 
     ![VS Add Aspire Orchestration dialog](./img/vs-add-aspire-orchestrator.png)
 
@@ -158,12 +158,12 @@ Containers are extremely useful for hosting service dependencies, but rather tha
     ```
 
 1. In the `Program.cs` file of the `Catalog.Data.Manager` project, remove the line that maps the health-checks endpoint. This is no longer required as it's done by default by the `app.MapDefaultEndpoints();` line that was added when Aspire orchestration was added.
-1. Launch the AppHost project and see that the Aspire dashboard is opened in the browser, with the variaous resources that make up our new distributed application listed, including the `Catalog.Data.Manager` project and the Docker containers.
-1. Use the dashboard to inspect the environment variables of the `catalog-db.mgr` resource and notice that it includes one that sets the connection string required to connect to the `CatalogDB` database:
+1. Launch the AppHost project and see that the Aspire dashboard is opened in the browser, with the various resources that make up our new distributed application listed, including the `Catalog.Data.Manager` project and the Docker containers.
+1. Use the dashboard to inspect the environment variables of the `catalog-db-mgr` resource and notice that it includes one that sets the connection string required to connect to the `CatalogDB` database:
 
     ![Environment variable containing the database connection string on the Aspire dashboard](./img/dashboard-catalogdb-connectionstring.png)
 
-    This environment variable will automatically override the value specified in the project's **appsettings.Development.json** file as configuration values provided from environmant variables have higher precedence than those from **appsettings.json** files by default.
+    This environment variable will automatically override the value specified in the project's **appsettings.Development.json** file as configuration values provided from environment variables have higher precedence than those from **appsettings.json** files by default.
 1. Locate the pgAdmin resource in the dashboard and click on the hyperlink displayed for it in the **Endpoints** column. Note that the PostgreSQL server defined via the AppHost project was automatically registered with pgAdmin in the **Aspire instances** node:
 
     ![pgAdmin UI auto-configured by the Aspire AppHost project](./img/pgadmin-aspire.png)
@@ -178,8 +178,9 @@ Now that we've setup the solution to use Aspire for composing our distributed ap
 
 1. Add a new project to the solution using the **ASP.NET Core Web API** project template and call it `Catalog.API`, and ensure the following options are configured:
     - Framework: **.NET 8.0 (Long Term Support)**
+    - Authentication Type: **None**
     - Configure for HTTPS: **disabled**
-    - Enable Docker: **disabled**
+    - Enable container support: **disabled**
     - Enable OpenAPI support: **enabled**
     - Do not use top-level statements: **disabled**
     - Use controllers: **disabled**
@@ -207,7 +208,7 @@ Now that we've setup the solution to use Aspire for composing our distributed ap
     ```
 
 1. Add a project reference from the `Catalog.API` project to the `Catalog.Data` project so that it can use Entity Framework Core to access the database.
-1. Open the `Program.cs` file of the `Catalog.API` project and delete the sample code that defines the weather forecasts API.
+1. Open the `Program.cs` file of the `Catalog.API` project and delete the sample code that defines the weather forecasts API. This is all the code beginning with `var summaries = new[]` until the end of the file, with the exception of the `app.Run()` line.
 1. Immediately after the line that calls `builder.AddServiceDefaults()`, add a line to configure the `CatalogDbContext` in the application's DI container using the [**Npgsql Entity Framework Core Provider**](https://www.npgsql.org/efcore/index.html) for PostgreSQL. Ensure that the name passed to the method matches the name defined for the database in the AppHost project's `Program.cs` file (`"CatalogDB"`). The `AddNpgsqlDbContext` method comes from the [`Aspire.Npgsql.EntityFrameworkCore.PostgreSQL` Aspire component](https://learn.microsoft.com/dotnet/aspire/database/postgresql-entity-framework-component):
 
     ```csharp
