@@ -37,12 +37,30 @@ You can read more about [selecting an identity management solution for ASP.NET C
     ![The dashboard showing the logs for the exited 'idp' resource](./img/dashboard-idp-logs-error.png)
 
     The logs should indicate that there was an error with the imported client `webapp`, specifically that the URLs/URIs configured are invalid. This is because the `eshop-realm.json` file that was imported contains processing tokens intended to inject values from environment variables which haven't been configured yet.
-1.  We can use Aspire APIs to extract the runtime-assigned URLs for our `webapp` resource and inject them into the `idp` resource as environment variables using the [`WithEnvironment` method](https://learn.microsoft.com/dotnet/api/aspire.hosting.resourcebuilderextensions.withenvironment?view=dotnet-aspire-8.0), so that the processing tokens in the imported `eshop-realm.json` file will be replaced with valid values. Add the following lines to the `Program.cs` file, after the call defining the `webapp` resource. You will need to modify the `webapp` resource code to capture the resource in a variable named `webApp`:
+1. We can use Aspire APIs to extract the runtime-assigned URLs for our `webapp` resource and inject them into the `idp` resource as environment variables using the [`WithEnvironment` method](https://learn.microsoft.com/dotnet/api/aspire.hosting.resourcebuilderextensions.withenvironment?view=dotnet-aspire-8.0), so that the processing tokens in the imported `eshop-realm.json` file will be replaced with valid values. Add the following lines to the `Program.cs` file, after the call defining the `webapp` resource. You will need to modify the `webapp` resource code to capture the resource in a variable named `webApp`:
 
     ```csharp
+    
+    var webApp = builder.AddProject<WebApp>("webapp")
+        .WithReference(catalogApi)
+        .WithReference(idp, env: "Identity__ClientSecret");
+
     // Inject the project URLs for Keycloak realm configuration
-    idp.WithEnvironment("WEBAPP_HTTP", webApp.GetEndpoint("http"));
-    idp.WithEnvironment("WEBAPP_HTTPS", webApp.GetEndpoint("https"));
+    var webAppHttp = webApp.GetEndpoint("http");
+    var webAppHttps = webApp.GetEndpoint("https");
+    idp.WithEnvironment("WEBAPP_HTTP_CONTAINERHOST", webAppHttp);
+    idp.WithEnvironment("WEBAPP_HTTP", () => $"{webAppHttp.Scheme}://{webAppHttp.Host}:{webAppHttp.Port}");
+    if (webAppHttps.Exists)
+    {
+        idp.WithEnvironment("WEBAPP_HTTPS_CONTAINERHOST", webAppHttps);
+        idp.WithEnvironment("WEBAPP_HTTPS", () => $"{webAppHttps.Scheme}://{webAppHttps.Host}:{webAppHttps.Port}");
+    }
+    else
+    {
+        // Still need to set these environment variables so the KeyCloak realm import doesn't fail
+        idp.WithEnvironment("WEBAPP_HTTPS_CONTAINERHOST", webAppHttp);
+        idp.WithEnvironment("WEBAPP_HTTPS", () => $"{webAppHttp.Scheme}://{webAppHttp.Host}:{webAppHttp.Port}");
+    }
     ```
 
 1. Run the AppHost project again and verify that the container starts successfully. This can be confirmed by finding the following lines in the container's logs:
@@ -66,19 +84,18 @@ You can read more about [selecting an identity management solution for ASP.NET C
 
 1. Once signed in, select the **eShop** realm from the drop-down in the top-left corner:
 
-    ![Selecting the 'eShop' realm in the Keycloak adminstration console](./img/keycloak-eshop-realm-select.png)
+    ![Selecting the 'eShop' realm in the Keycloak administration console](./img/keycloak-eshop-realm-select.png)
 
 1. Visit the **Clients** and **Users** pages of the administration console and see that the realm is already configured with a client app named **webapp** and a user named **test@example.com**. Note that the **Home URL** for the **webapp** client matches the endpoint URL of our `WebApp` project as that value was injected by the code we added to the `eShop.AppHost` project:
 
     ![Details of the 'webapp' client in the 'eShop' realm in Keycloak](./img/keycloak-eshop-realm-details.png)
 
-1. Now that we've confirmed that our Keycloak instance is successfully configured, update the `Program.cs` file of the AppHost project so that the `webapp` resource references the `idp` Keycloak resource, using the `WithReference` method. This will ensure that the `webapp` resource will have configuration values injected via its environment variables so that it can resovle calls to `http://idp` with the actual address assigned when the project is launched. Additionally, use the `WithLaunchProfile` method to ensure the `webapp` resource is always launched using the `"https"` launch profile (defined in its `Properties/launchSettings.json` file) as OIDC-based authentication flows typically require HTTPS to be used:
+1. Now that we've confirmed that our Keycloak instance is successfully configured, update the `Program.cs` file of the AppHost project so that the `webapp` resource references the `idp` Keycloak resource, using the `WithReference` method. This will ensure that the `webapp` resource will have configuration values injected via its environment variables so that it can resolve calls to `http://idp` with the actual address assigned when the project is launched:
 
     ```csharp
-    // Force HTTPS profile for web app (required for OIDC operations)
-    var webApp = builder.AddProject<WebApp>("webapp", launchProfileName: "https")
+    var webApp = builder.AddProject<WebApp>("webapp")
         .WithReference(catalogApi)
-        .WithReference(idp)
+        .WithReference(idp);
     ```
 
 1. Launch the AppHost project again and use the dashboard to verify that the address of the `idp` resource was injected into the `webapp` resource via environment variables:
@@ -89,24 +106,10 @@ You can read more about [selecting an identity management solution for ASP.NET C
 
 Now that our Keycloak instance is setup as an IdP, we can configure the web site to use it for identity and authentication purposes via OpenID Connect.
 
-1. Open the `WebApp` project and reference to the `Microsoft.AspNetCore.Authentication.OpenIdConnect` NuGet package, version `8.0.1`. You can use the `dotnet` CLI, Visual Studio NuGet Package Manager, or just edit the .csproj file manually:
+1. Open the `WebApp` project and add a reference to the `Microsoft.AspNetCore.Authentication.OpenIdConnect` NuGet package, version `8.0.1`. You can use the `dotnet` CLI, Visual Studio NuGet Package Manager, or just edit the .csproj file manually:
 
     ```xml
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.1" />
-    ```
-1. In the `eShop.ServiceDefaults` project, create a new file called `ClaimsPrincipalExtensions.cs` and add the following extension methods class. These methods will make it easy to retrieve the user ID and name when needed from any of our projects:
-
-    ```csharp
-    namespace System.Security.Claims;
-
-    public static class ClaimsPrincipalExtensions
-    {
-        public static string? GetUserId(this ClaimsPrincipal principal)
-            => principal.FindFirst("sub")?.Value;
-
-        public static string? GetUserName(this ClaimsPrincipal principal) =>
-            principal.FindFirst(x => x.Type == "name")?.Value;
-    }
     ```
 
 1. In the `WebApp` project, open the `HostingExtensions.cs` file and add a new field to define a name for the `HttpClient` instance the OIDC code will use:
@@ -121,7 +124,7 @@ Now that our Keycloak instance is setup as an IdP, we can configure the web site
     builder.Services.AddHttpClient(OpenIdConnectBackchannel, o => o.BaseAddress = new("http://idp"));
     ```
 
-1. In the same file, add the following methods that will configure authentication and authorization services in the application's DI container, and configure the OIDC authentication handler to use our IdP (remember to add any required `using` statements to import namespaces):
+1. In the same file, add the following methods that will configure authentication and authorization services in the application's DI container, and configure the OIDC authentication handler to use our IdP (remember to add any required `using` statements to import the `System.Security.Claims` namespace):
 
     ```csharp
     public static void AddAuthenticationServices(this IHostApplicationBuilder builder)
@@ -191,7 +194,7 @@ Now that our Keycloak instance is setup as an IdP, we can configure the web site
 1. Spend a few minutes reading through the added methods, including navigating to the definition of methods like `GetIdpAuthorityUri` which is defined in the `eShop.ServiceDefaults` project and shows how the OIDC authority URL is constructed from the `HttpClient.BaseAddress` and custom configuration values. Note that this address format is specific to our Keycloak instance and using other IdPs would require modified logic.
 
     Notice that there are actually two authentication schemes being configured:
-    
+
     - Cookies
     - OpenID Connect
 
@@ -203,7 +206,8 @@ Now that our Keycloak instance is setup as an IdP, we can configure the web site
     ```csharp
     builder.AddAuthenticationServices();
     ```
-1. Open the `LogOutService.cs` file. This file defines a class that will be used to sign a user out when requested or required. Update the `LogOutAsync` method to sign the user out of both configured authentication schemes (cookies and OIDC):
+
+1. Open the `Services/LogOutService.cs` file. This file defines a class that will be used to sign a user out when requested or required. Update the `LogOutAsync` method to sign the user out of both configured authentication schemes (cookies and OIDC):
 
     ```csharp
     public async Task LogOutAsync(HttpContext httpContext)
@@ -214,35 +218,16 @@ Now that our Keycloak instance is setup as an IdP, we can configure the web site
     ```
 
     At this point, all the code required to configure authentication in the app has been added. Now we'll enable UI elements to allow the user to sign in.
-1. The project already contains a Razor Component that defines a menu for users including sign in and sign out options. Locate and open the `UserMenu.razor` file and take a momment to read through it, noting the use of the `AuthorizeView` component to display different UI elements depending on whether the user is currently authorized or not.
-1. The project also already contains Razor Component pages for signing in and signing out. Open the `LogIn.razor` file and note that there is no UI markup defined here. That's because we're using an IdP and federated authentication so the sign in UI will be owned by the IdP which the application will redirect the user to when they need to sign in. The redirect is automatically instigated by the ASP.NET Core authentication system when this page is navigated to, due to this page being decorated with the `[Authorize]` attribute.
+1. The project already contains a Razor Component that defines a menu for users including sign in and sign out options. Locate and open the `Layout/UserMenu.razor` file and take a moment to read through it, noting the use of the `AuthorizeView` component to display different UI elements depending on whether the user is currently authorized or not.
+1. The project also already contains Razor Component pages for signing in and signing out. Open the `User/LogIn.razor` file and note that there is no UI markup defined here. That's because we're using an IdP and federated authentication so the sign in UI will be owned by the IdP which the application will redirect the user to when they need to sign in. The redirect is automatically instigated by the ASP.NET Core authentication system when this page is navigated to, due to this page being decorated with the `[Authorize]` attribute.
 
     There's a helper method defined on this page to construct a URL that can be used to navigate to the page to perform a sign in, with support for various scenarios including redirecting to the original page the user requested that required them to sign in (`ReturnUrl`), preserving the original querystring or not, and forcing the user to re-login for relevant scenarios (we'll explore some of those in a later lab).
-1. Open the `HeaderBar.razor` file and uncomment the line that adds the `UserMenu` component to the header navigation bar:
+1. Open the `Layout/HeaderBar.razor` file and uncomment the line that adds the `UserMenu` component to the header navigation bar:
 
     ```razor
     <UserMenu />
     ```
 
-1. Before we can run the site, we need to update its configuration with the client secret required to authenticate itself to the IdP. A client secret is like a password, used by an IdP client (in this case, our web site) to authenticate itself as a known client that can perform protected operations against the IdP, like signing a user in. Alternate authentication methods like certificates are also commonly used.
-
-    The client secret we need is in the `eshop-realm.json` file that is imported into our Keycloak instance every time it starts up. Open this file and search for the value `"clientAuthenticatorType" : "client-secret"`. The instance we need is defined on the object that represents the client app registration for the `webapp` client (it should be on or abouts line 649). Under this line you will see the secret value defined:
-
-    ```json
-    "clientAuthenticatorType" : "client-secret",
-    "secret" : "...",
-    ```
-
-    Copy the secret value to the clipboard for the next step.
-1. Set a user secret value for the `WebApp` project with the name `Identity:ClientSecret` and the secret value you copied from the realm JSON file. You can use the [`dotnet user-secrets` command-line tool](https://learn.microsoft.com/aspnet/core/security/app-secrets#set-a-secret) to do this, or right-mouse click on the project in Visual Studio and select **Manage User Secrets** to open the user secrets JSON file and add it directly, e.g.:
-
-    ```json
-    {
-        "Identity:ClientSecret": "..."
-    }
-    ```
-
-    > Note that all the `WebApp` projects in the various labs share the same [user secrets ID](https://learn.microsoft.com/aspnet/core/security/app-secrets#enable-secret-storage), so you should only need to set this value once.
 1. Launch the AppHost project and navigate to the home page of the web site. There should now be a user menu icon displayed in the top right-hand corner of the page:
 
     ![eShop web site user menu icon](./img/eshop-web-usermenu-icon.png)
@@ -266,4 +251,4 @@ Now that our Keycloak instance is setup as an IdP, we can configure the web site
 
     ![Browser developer tools in Edge showing the trace of network requests that occur when signing-in to the site](./img/browser-dev-tools-network-signin-flow.png)
 
-    You can read more about the authentication flow occuring here in the [Keycloak documentation](https://www.keycloak.org/docs/latest/securing_apps/#authorization-code).
+    You can read more about the authentication flow occurring here in the [Keycloak documentation](https://www.keycloak.org/docs/latest/securing_apps/#authorization-code).
