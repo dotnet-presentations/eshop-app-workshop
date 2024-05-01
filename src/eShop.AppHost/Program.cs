@@ -14,6 +14,7 @@ var orderDb = postgres.AddDatabase("OrderingDB");
 // Identity Providers
 
 var idp = builder.AddKeycloakContainer("idp", tag: "23.0")
+    .WithExternalHttpEndpoints()
     .ImportRealms("../Keycloak/data/import");
 
 // DB Manager Apps
@@ -40,27 +41,28 @@ var orderingApi = builder.AddProject<Ordering_API>("ordering-api")
 // Apps
 
 var webApp = builder.AddProject<WebApp>("webapp")
+    .WithExternalHttpEndpoints()
     .WithReference(basketApi)
     .WithReference(catalogApi)
     .WithReference(orderingApi)
     .WithReference(idp, env: "Identity__ClientSecret");
 
 // Inject the project URLs for Keycloak realm configuration
-var webAppHttp = webApp.GetEndpoint("http");
-var webAppHttps = webApp.GetEndpoint("https");
-idp.WithEnvironment("WEBAPP_HTTP_CONTAINERHOST", webAppHttp);
-idp.WithEnvironment("WEBAPP_HTTP", () => $"{webAppHttp.Scheme}://{webAppHttp.Host}:{webAppHttp.Port}");
-if (webAppHttps.Exists)
+idp.WithEnvironment(context =>
 {
-    idp.WithEnvironment("WEBAPP_HTTPS_CONTAINERHOST", webAppHttps);
-    idp.WithEnvironment("WEBAPP_HTTPS", () => $"{webAppHttps.Scheme}://{webAppHttps.Host}:{webAppHttps.Port}");
-}
-else
-{
+    var webAppHttp = webApp.GetEndpoint("http");
+    var webAppHttps = webApp.GetEndpoint("https");
+
+    var httpsEndpoint = webAppHttps.Exists ? webAppHttps : webAppHttp;
+
+    context.EnvironmentVariables["WEBAPP_HTTP_CONTAINERHOST"] = webAppHttp;
+    context.EnvironmentVariables["WEBAPP_HTTP"] = context.ExecutionContext.IsPublishMode ? webAppHttp : webAppHttp.Url;
+
     // Still need to set these environment variables so the KeyCloak realm import doesn't fail
-    idp.WithEnvironment("WEBAPP_HTTPS_CONTAINERHOST", webAppHttp);
-    idp.WithEnvironment("WEBAPP_HTTPS", () => $"{webAppHttp.Scheme}://{webAppHttp.Host}:{webAppHttp.Port}");
-}
+    context.EnvironmentVariables["WEBAPP_HTTPS_CONTAINERHOST"] = httpsEndpoint;
+    context.EnvironmentVariables["WEBAPP_HTTPS"] = context.ExecutionContext.IsPublishMode ? httpsEndpoint : httpsEndpoint.Url;
+});
+
 idp.WithEnvironment("ORDERINGAPI_HTTP", orderingApi.GetEndpoint("http"));
 
 // Inject assigned URLs for Catalog API
