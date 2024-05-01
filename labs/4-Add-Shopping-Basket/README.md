@@ -52,7 +52,7 @@ In previous labs, we have created a web site that shoppers can use to browser a 
 
     ```csharp
     // Force HTTPS profile for web app (required for OIDC operations)
-    var webApp = builder.AddProject<Projects.WebApp>("webapp", launchProfileName: "https")
+    var webApp = builder.AddProject<Projects.WebApp>("webapp")
         .WithReference(catalogApi)
         .WithReference(basketApi) // <--- Add this line
         .WithReference(idp);

@@ -28,7 +28,7 @@ var basketApi = builder.AddProject<Projects.Basket_API>("basket-api")
 // Apps
 
 // Force HTTPS profile for web app (required for OIDC operations)
-var webApp = builder.AddProject<Projects.WebApp>("webapp", launchProfileName: "https")
+var webApp = builder.AddProject<Projects.WebApp>("webapp")
     .WithReference(catalogApi)
     .WithReference(basketApi)
     .WithReference(idp);    

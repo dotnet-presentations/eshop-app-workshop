@@ -40,8 +40,8 @@ You can read more about [selecting an identity management solution for ASP.NET C
 1. We can use Aspire APIs to extract the runtime-assigned URLs for our `webapp` resource and inject them into the `idp` resource as environment variables using the [`WithEnvironment` method](https://learn.microsoft.com/dotnet/api/aspire.hosting.resourcebuilderextensions.withenvironment?view=dotnet-aspire-8.0), so that the processing tokens in the imported `eshop-realm.json` file will be replaced with valid values. Add the following lines to the `Program.cs` file, after the call defining the `webapp` resource. You will need to modify the `webapp` resource code to capture the resource in a variable named `webApp`:
 
     ```csharp
-    // Force HTTPS profile for web app (required for OIDC operations)
-    var webApp = builder.AddProject<WebApp>("webapp", launchProfileName: "https")
+    
+    var webApp = builder.AddProject<WebApp>("webapp")
         .WithReference(catalogApi)
         .WithReference(idp);
     
@@ -81,11 +81,10 @@ You can read more about [selecting an identity management solution for ASP.NET C
 
     ![Details of the 'webapp' client in the 'eShop' realm in Keycloak](./img/keycloak-eshop-realm-details.png)
 
-1. Now that we've confirmed that our Keycloak instance is successfully configured, update the `Program.cs` file of the AppHost project so that the `webapp` resource references the `idp` Keycloak resource, using the `WithReference` method. This will ensure that the `webapp` resource will have configuration values injected via its environment variables so that it can resolve calls to `http://idp` with the actual address assigned when the project is launched. Additionally, use the `WithLaunchProfile` method to ensure the `webapp` resource is always launched using the `"https"` launch profile (defined in its `Properties/launchSettings.json` file) as OIDC-based authentication flows typically require HTTPS to be used:
+1. Now that we've confirmed that our Keycloak instance is successfully configured, update the `Program.cs` file of the AppHost project so that the `webapp` resource references the `idp` Keycloak resource, using the `WithReference` method. This will ensure that the `webapp` resource will have configuration values injected via its environment variables so that it can resolve calls to `http://idp` with the actual address assigned when the project is launched:
 
     ```csharp
-    // Force HTTPS profile for web app (required for OIDC operations)
-    var webApp = builder.AddProject<WebApp>("webapp", launchProfileName: "https")
+    var webApp = builder.AddProject<WebApp>("webapp")
         .WithReference(catalogApi)
         .WithReference(idp);
     ```
