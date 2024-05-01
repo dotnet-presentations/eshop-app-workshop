@@ -228,25 +228,6 @@ Now that our Keycloak instance is setup as an IdP, we can configure the web site
     <UserMenu />
     ```
 
-1. Before we can run the site, we need to update its configuration with the client secret required to authenticate itself to the IdP. A client secret is like a password, used by an IdP client (in this case, our web site) to authenticate itself as a known client that can perform protected operations against the IdP, like signing a user in. Alternate authentication methods like certificates are also commonly used.
-
-    The client secret we need is in the `eshop-realm.json` file that is imported into our Keycloak instance every time it starts up. Open this file and search for the value `"clientAuthenticatorType" : "client-secret"`. The instance we need is defined on the object that represents the client app registration for the `webapp` client (it should be on or about line 707). Under this line you will see the secret value defined:
-
-    ```json
-    "clientAuthenticatorType" : "client-secret",
-    "secret" : "...",
-    ```
-
-    Copy the secret value to the clipboard for the next step.
-1. Set a user secret value for the `WebApp` project with the name `Identity:ClientSecret` and the secret value you copied from the realm JSON file. You can use the [`dotnet user-secrets` command-line tool](https://learn.microsoft.com/aspnet/core/security/app-secrets#set-a-secret) to do this, or right-mouse click on the project in Visual Studio and select **Manage User Secrets** to open the user secrets JSON file and add it directly, e.g.:
-
-    ```json
-    {
-        "Identity:ClientSecret": "..."
-    }
-    ```
-
-    > Note that all the `WebApp` projects in the various labs share the same [user secrets ID](https://learn.microsoft.com/aspnet/core/security/app-secrets#enable-secret-storage), so you should only need to set this value once.
 1. Launch the AppHost project and navigate to the home page of the web site. There should now be a user menu icon displayed in the top right-hand corner of the page:
 
     ![eShop web site user menu icon](./img/eshop-web-usermenu-icon.png)
