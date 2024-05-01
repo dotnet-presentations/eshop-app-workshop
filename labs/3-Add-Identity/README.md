@@ -43,15 +43,24 @@ You can read more about [selecting an identity management solution for ASP.NET C
     
     var webApp = builder.AddProject<WebApp>("webapp")
         .WithReference(catalogApi)
-        .WithReference(idp);
-    
+        .WithReference(idp, env: "Identity__ClientSecret");
+
     // Inject the project URLs for Keycloak realm configuration
     var webAppHttp = webApp.GetEndpoint("http");
     var webAppHttps = webApp.GetEndpoint("https");
     idp.WithEnvironment("WEBAPP_HTTP_CONTAINERHOST", webAppHttp);
-    idp.WithEnvironment("WEBAPP_HTTPS_CONTAINERHOST", webAppHttps);
     idp.WithEnvironment("WEBAPP_HTTP", () => $"{webAppHttp.Scheme}://{webAppHttp.Host}:{webAppHttp.Port}");
-    idp.WithEnvironment("WEBAPP_HTTPS", () => $"{webAppHttps.Scheme}://{webAppHttps.Host}:{webAppHttps.Port}");
+    if (webAppHttps.Exists)
+    {
+        idp.WithEnvironment("WEBAPP_HTTPS_CONTAINERHOST", webAppHttps);
+        idp.WithEnvironment("WEBAPP_HTTPS", () => $"{webAppHttps.Scheme}://{webAppHttps.Host}:{webAppHttps.Port}");
+    }
+    else
+    {
+        // Still need to set these environment variables so the KeyCloak realm import doesn't fail
+        idp.WithEnvironment("WEBAPP_HTTPS_CONTAINERHOST", webAppHttp);
+        idp.WithEnvironment("WEBAPP_HTTPS", () => $"{webAppHttp.Scheme}://{webAppHttp.Host}:{webAppHttp.Port}");
+    }
     ```
 
 1. Run the AppHost project again and verify that the container starts successfully. This can be confirmed by finding the following lines in the container's logs:
