@@ -4,23 +4,74 @@ In previous labs, we have created a web site that shoppers can use to browser a 
 
 ## Add a gRPC service project
 
+### Visual Studio
+
 1. Add a new project called `Basket.API` to the solution using the **ASP.NET Core gRPC Service** template. Ensure that the following template options are configured:
 
     - Framework: **.NET 8.0 (Long Term Support)**
-    - Enable Docker: **disabled**
+    - Enable container support: **disabled**
     - Do not use top-level statements: **disabled**
     - Enable native AOT publish: **disabled**
-    - Elinst in .NET Aspire orchestration: **enabled**
+    - Enlist in .NET Aspire orchestration: **enabled**
 
     ![VS gRPC Service project template options](./img/vs-grpc-template-options.png)
 
-1. Open the `Basket.Api.csproj` file add a line to change the default root namespace of the project to `eShop.Basket.API`:
+### dotnet CLI
+
+In the .NET CLI, we need to do a few steps manually to configure .NET Aspire orchestration.
+
+1. Run the following commands in the `src` folder to create the `Basket.API` gRPC project.
+
+    ```console
+    dotnet new grpc -n Basket.API
+    dotnet sln add Basket.API
+    ```
+
+1. Add a reference to the `eShop.AppHost` from the `Basket.API` project:
+
+    ```console
+    cd eShop.AppHost
+    dotnet add reference ..\Basket.API
+    ```
+
+1. Add a reference from the `Basket.API` project to the `eShop.ServiceDefaults` project:
+
+    ```console
+    cd ..\Basket.API
+    dotnet add reference ..\ServiceDefaults
+    ```
+
+1. Open the `Program.cs` file in the `AppHost` project and add the following code to create a new resource for the `Basket.API` project:
+
+    ```csharp
+    var basketApi = builder.AddProject<Projects.Basket_API>("basket-api");
+    ```
+
+1. Open the `Program.cs` file in the `Basket.API` and add a line at the top to add the service defaults:
+
+    ```csharp
+    builder.AddServiceDefaults();
+    ```
+
+### Additional project configuration
+
+1. Open the `Program.cs` file in the AppHost project and add the following code:
+
+    ```csharp
+    var builder = DistributedApplication.CreateBuilder(args);
+    
+    builder.AddProject<Projects.Catalog_Data_Manager>("catalog-db-mgr");
+    
+    builder.Build().Run();
+    ```
+
+1. Open the `Basket.Api.csproj` file and add a line to the `PropertyGroup` at the top change the default root namespace of the project to `eShop.Basket.API`:
 
     ```xml
     <RootNamespace>eShop.Basket.API</RootNamespace>
     ```
 
-1. Install the `Aspire.Hosting.Redis` package in the `eShop.AppHost` project:
+1. Install the `Aspire.Hosting.Redis` package in the `eShop.AppHost` project using either of the following:
 
     ```shell
     dotnet add package Aspire.Hosting.Redis
@@ -51,11 +102,11 @@ In previous labs, we have created a web site that shoppers can use to browser a 
 1. Update the `webapp` resource to reference the `basket-api` resource so the web site can communicate with the Basket API:
 
     ```csharp
-    // Force HTTPS profile for web app (required for OIDC operations)
+    
     var webApp = builder.AddProject<Projects.WebApp>("webapp")
         .WithReference(catalogApi)
         .WithReference(basketApi) // <--- Add this line
-        .WithReference(idp);
+        .WithReference(idp, env: "Identity__ClientSecret");
     ```
 
 1. Run the AppHost project and verify that the containers for Redis and Redis Commander are created and running by using the dashboard. Also verify that the `Basket.API` project is running and that it's environment variables contain the configuration values to communicate with the IdP and Redis.
