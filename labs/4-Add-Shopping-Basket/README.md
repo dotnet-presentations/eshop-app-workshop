@@ -4,23 +4,74 @@ In previous labs, we have created a web site that shoppers can use to browser a 
 
 ## Add a gRPC service project
 
+### Visual Studio
+
 1. Add a new project called `Basket.API` to the solution using the **ASP.NET Core gRPC Service** template. Ensure that the following template options are configured:
 
     - Framework: **.NET 8.0 (Long Term Support)**
-    - Enable Docker: **disabled**
+    - Enable container support: **disabled**
     - Do not use top-level statements: **disabled**
     - Enable native AOT publish: **disabled**
-    - Elinst in .NET Aspire orchestration: **enabled**
+    - Enlist in .NET Aspire orchestration: **enabled**
 
     ![VS gRPC Service project template options](./img/vs-grpc-template-options.png)
 
-1. Open the `Basket.Api.csproj` file add a line to change the default root namespace of the project to `eShop.Basket.API`:
+### dotnet CLI
+
+In the .NET CLI, we need to do a few steps manually to configure .NET Aspire orchestration.
+
+1. Run the following commands in the `src` folder to create the `Basket.API` gRPC project.
+
+    ```console
+    dotnet new grpc -n Basket.API
+    dotnet sln add Basket.API
+    ```
+
+1. Add a reference to the `eShop.AppHost` from the `Basket.API` project:
+
+    ```console
+    cd eShop.AppHost
+    dotnet add reference ..\Basket.API
+    ```
+
+1. Add a reference from the `Basket.API` project to the `eShop.ServiceDefaults` project:
+
+    ```console
+    cd ..\Basket.API
+    dotnet add reference ..\ServiceDefaults
+    ```
+
+1. Open the `Program.cs` file in the `AppHost` project and add the following code to create a new resource for the `Basket.API` project:
+
+    ```csharp
+    var basketApi = builder.AddProject<Projects.Basket_API>("basket-api");
+    ```
+
+1. Open the `Program.cs` file in the `Basket.API` and add a line at the top to add the service defaults:
+
+    ```csharp
+    builder.AddServiceDefaults();
+    ```
+
+### Additional project configuration
+
+1. Open the `Program.cs` file in the AppHost project and add the following code:
+
+    ```csharp
+    var builder = DistributedApplication.CreateBuilder(args);
+    
+    builder.AddProject<Projects.Catalog_Data_Manager>("catalog-db-mgr");
+    
+    builder.Build().Run();
+    ```
+
+1. Open the `Basket.Api.csproj` file and add a line to the `PropertyGroup` at the top change the default root namespace of the project to `eShop.Basket.API`:
 
     ```xml
     <RootNamespace>eShop.Basket.API</RootNamespace>
     ```
 
-1. Install the `Aspire.Hosting.Redis` package in the `eShop.AppHost` project:
+1. Install the `Aspire.Hosting.Redis` package in the `eShop.AppHost` project using either of the following:
 
     ```shell
     dotnet add package Aspire.Hosting.Redis
@@ -51,11 +102,11 @@ In previous labs, we have created a web site that shoppers can use to browser a 
 1. Update the `webapp` resource to reference the `basket-api` resource so the web site can communicate with the Basket API:
 
     ```csharp
-    // Force HTTPS profile for web app (required for OIDC operations)
+    
     var webApp = builder.AddProject<Projects.WebApp>("webapp")
         .WithReference(catalogApi)
         .WithReference(basketApi) // <--- Add this line
-        .WithReference(idp);
+        .WithReference(idp, env: "Identity__ClientSecret");
     ```
 
 1. Run the AppHost project and verify that the containers for Redis and Redis Commander are created and running by using the dashboard. Also verify that the `Basket.API` project is running and that it's environment variables contain the configuration values to communicate with the IdP and Redis.
@@ -155,7 +206,7 @@ In previous labs, we have created a web site that shoppers can use to browser a 
 
     The project system will automatically generate code behind the scenes to represent the messages and service defined in the `basket.proto` file. We'll use these generated types in our service implementation.
 
-1. Add a new file `BasketService.cs` in a `Grpc` directory and define a class in it named `BasketService` that derives from `Basket.BasketBase`:
+1. In the `Basket.API` project, create a `Grpc` directory and add a new file to it named `BasketService.cs`. Use the following code to define a class in it named `BasketService` that derives from `Basket.BasketBase`:
 
     ```csharp
     namespace eShop.Basket.API.Grpc;
@@ -170,13 +221,13 @@ In previous labs, we have created a web site that shoppers can use to browser a 
 
     ```csharp
     app.MapGrpcService<BasketService>();
-    ``` 
+    ```
 
 1. Delete the `Services/GreeterSrevice.cs` file that was included with the template, including the `Services` directory.
 
 ## Implement Redis storage logic
 
-1. Create a file `RedisBasketStore.cs` in a `Storage` directory and define a class in it named `RedisBasketStore` with a constructor that accepts a single parameter of type `IConnectionMultiplexer`:
+1. In the `Basket.API` project, create a file `RedisBasketStore.cs` in a `Storage` directory and define a class in it named `RedisBasketStore` with a constructor that accepts a single parameter of type `IConnectionMultiplexer`:
 
     ```csharp
     namespace eShop.Basket.API.Storage;
@@ -225,7 +276,7 @@ In previous labs, we have created a web site that shoppers can use to browser a 
 
     public class CustomerBasket
     {
-        public required string BuyerId { get; set; };
+        public required string BuyerId { get; set; }
 
         public List<BasketItem> Items { get; set; } = [];
     }
@@ -262,13 +313,13 @@ In previous labs, we have created a web site that shoppers can use to browser a 
     }
     ```
 
-1. In `HostingExtensions.cs`, add a call to `AddSingleton` to register the `RedisBasketStore` class in the application's DI container:
+1. In `HostingExtensions.cs`, add a call in the `AddApplicationServices` method to `AddSingleton` to register the `RedisBasketStore` class in the application's DI container:
 
     ```csharp
     builder.Services.AddSingleton<RedisBasketStore>();
     ```
 
-    The `RedisBasketStore` class is now ready to be used by our gRPC `BasketService` class. 
+    The `RedisBasketStore` class is now ready to be used by our gRPC `BasketService` class.
 
 ## Implement the gRPC service to get the basket
 
@@ -345,8 +396,8 @@ In previous labs, we have created a web site that shoppers can use to browser a 
         public static string? GetUserIdentity(this ServerCallContext context) => context.GetHttpContext().User.GetUserId();
     }
     ```
- 
- 1. Back in `BasketService.cs`, update the `GetBasket` method to use the `GetUserIdentity` extension method to extract the user ID and call the `GetBasketAsync` method of the `RedisBasketStore` class, before returning the result as a `CustomerBasketResponse`. If the user ID is not found, the method should throw an `RpcException` with a status of `Unauthenticated`:
+
+1. Back in `BasketService.cs`, update the `GetBasket` method to use the `GetUserIdentity` extension method to extract the user ID and call the `GetBasketAsync` method of the `RedisBasketStore` class, before returning the result as a `CustomerBasketResponse`. If the user ID is not found, the method should throw an `RpcException` with a status of `Unauthenticated`:
 
     ```csharp
     public override async Task<CustomerBasketResponse> GetBasket(GetBasketRequest request, ServerCallContext context)
@@ -476,7 +527,7 @@ The starting point for this lab already includes updates to the web site to prov
 
     Similar to the `Basket.API` project, the project system will automatically generate code behind the scenes to represent the messages and service defined in the `basket.proto` file. We'll use these generated types in our client service implementation.
 
-1. Open the `BasketService.cs` file and add some `using` statements to import the namespace and create some type aliases for the generated gRPC client types. This will make it easier to refer to them in the rest of the code:
+1. Open the `BasketService.cs` file in the `WebApp` project and add some `using` statements to import the namespace and create some type aliases for the generated gRPC client types. This will make it easier to refer to them in the rest of the code:
 
     ```csharp
     using eShop.Basket.API.Grpc;
@@ -542,7 +593,7 @@ The starting point for this lab already includes updates to the web site to prov
     }
     ```
 
-1. In the `HostingExtensions.cs` file, add a line to register the `Basket.BasketClient` gRPC client in the application's DI container, and configure its `Address` property to point to the `basket-api` resource in the AppHost. Make sure you include a call to `.AddAuthToken()` to add the current user's access token to outgoing requests:
+1. In the `HostingExtensions.cs` file, add a line to register the `Basket.BasketClient` gRPC client in the application's DI container, and configure its `Address` property to point to the `basket-api` resource in the AppHost (adding the necessary `using eShop.Basket.API.Grpc` statement). Make sure you include a call to `.AddAuthToken()` to add the current user's access token to outgoing requests:
 
     ```csharp
     // HTTP and gRPC client registrations
