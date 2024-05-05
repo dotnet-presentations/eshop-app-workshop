@@ -206,7 +206,7 @@ In the .NET CLI, we need to do a few steps manually to configure .NET Aspire orc
 
     The project system will automatically generate code behind the scenes to represent the messages and service defined in the `basket.proto` file. We'll use these generated types in our service implementation.
 
-1. Add a new file `BasketService.cs` in a `Grpc` directory and define a class in it named `BasketService` that derives from `Basket.BasketBase`:
+1. In the `Basket.API` project, create a `Grpc` directory and add a new file to it named `BasketService.cs`. Use the following code to define a class in it named `BasketService` that derives from `Basket.BasketBase`:
 
     ```csharp
     namespace eShop.Basket.API.Grpc;
@@ -221,13 +221,13 @@ In the .NET CLI, we need to do a few steps manually to configure .NET Aspire orc
 
     ```csharp
     app.MapGrpcService<BasketService>();
-    ``` 
+    ```
 
 1. Delete the `Services/GreeterSrevice.cs` file that was included with the template, including the `Services` directory.
 
 ## Implement Redis storage logic
 
-1. Create a file `RedisBasketStore.cs` in a `Storage` directory and define a class in it named `RedisBasketStore` with a constructor that accepts a single parameter of type `IConnectionMultiplexer`:
+1. In the `Basket.API` project, create a file `RedisBasketStore.cs` in a `Storage` directory and define a class in it named `RedisBasketStore` with a constructor that accepts a single parameter of type `IConnectionMultiplexer`:
 
     ```csharp
     namespace eShop.Basket.API.Storage;
@@ -276,7 +276,7 @@ In the .NET CLI, we need to do a few steps manually to configure .NET Aspire orc
 
     public class CustomerBasket
     {
-        public required string BuyerId { get; set; };
+        public required string BuyerId { get; set; }
 
         public List<BasketItem> Items { get; set; } = [];
     }
@@ -313,13 +313,13 @@ In the .NET CLI, we need to do a few steps manually to configure .NET Aspire orc
     }
     ```
 
-1. In `HostingExtensions.cs`, add a call to `AddSingleton` to register the `RedisBasketStore` class in the application's DI container:
+1. In `HostingExtensions.cs`, add a call in the `AddApplicationServices` method to `AddSingleton` to register the `RedisBasketStore` class in the application's DI container:
 
     ```csharp
     builder.Services.AddSingleton<RedisBasketStore>();
     ```
 
-    The `RedisBasketStore` class is now ready to be used by our gRPC `BasketService` class. 
+    The `RedisBasketStore` class is now ready to be used by our gRPC `BasketService` class.
 
 ## Implement the gRPC service to get the basket
 
@@ -396,8 +396,8 @@ In the .NET CLI, we need to do a few steps manually to configure .NET Aspire orc
         public static string? GetUserIdentity(this ServerCallContext context) => context.GetHttpContext().User.GetUserId();
     }
     ```
- 
- 1. Back in `BasketService.cs`, update the `GetBasket` method to use the `GetUserIdentity` extension method to extract the user ID and call the `GetBasketAsync` method of the `RedisBasketStore` class, before returning the result as a `CustomerBasketResponse`. If the user ID is not found, the method should throw an `RpcException` with a status of `Unauthenticated`:
+
+1. Back in `BasketService.cs`, update the `GetBasket` method to use the `GetUserIdentity` extension method to extract the user ID and call the `GetBasketAsync` method of the `RedisBasketStore` class, before returning the result as a `CustomerBasketResponse`. If the user ID is not found, the method should throw an `RpcException` with a status of `Unauthenticated`:
 
     ```csharp
     public override async Task<CustomerBasketResponse> GetBasket(GetBasketRequest request, ServerCallContext context)
@@ -527,7 +527,7 @@ The starting point for this lab already includes updates to the web site to prov
 
     Similar to the `Basket.API` project, the project system will automatically generate code behind the scenes to represent the messages and service defined in the `basket.proto` file. We'll use these generated types in our client service implementation.
 
-1. Open the `BasketService.cs` file and add some `using` statements to import the namespace and create some type aliases for the generated gRPC client types. This will make it easier to refer to them in the rest of the code:
+1. Open the `BasketService.cs` file in the `WebApp` project and add some `using` statements to import the namespace and create some type aliases for the generated gRPC client types. This will make it easier to refer to them in the rest of the code:
 
     ```csharp
     using eShop.Basket.API.Grpc;
@@ -593,7 +593,7 @@ The starting point for this lab already includes updates to the web site to prov
     }
     ```
 
-1. In the `HostingExtensions.cs` file, add a line to register the `Basket.BasketClient` gRPC client in the application's DI container, and configure its `Address` property to point to the `basket-api` resource in the AppHost. Make sure you include a call to `.AddAuthToken()` to add the current user's access token to outgoing requests:
+1. In the `HostingExtensions.cs` file, add a line to register the `Basket.BasketClient` gRPC client in the application's DI container, and configure its `Address` property to point to the `basket-api` resource in the AppHost (adding the necessary `using eShop.Basket.API.Grpc` statement). Make sure you include a call to `.AddAuthToken()` to add the current user's access token to outgoing requests:
 
     ```csharp
     // HTTP and gRPC client registrations
