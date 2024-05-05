@@ -1,4 +1,4 @@
-"${WEBAPP_CLIENT_SECRET}","${WEBAPP_CLIENT_SECRET}",{
+{
   "id" : "e3a46e00-f700-4eaa-b1d3-6aad1045be73",
   "realm" : "eShop",
   "displayName" : "",
@@ -684,7 +684,7 @@
     "enabled" : true,
     "alwaysDisplayInConsole" : false,
     "clientAuthenticatorType" : "client-secret",
-    "secret" : "dAayhA7hWQFrNpKJvskRodHSDuf1burR",
+    "secret" : "${WEBAPP_CLIENT_SECRET}",
     "redirectUris": [ "${WEBAPP_HTTP}/*", "${WEBAPP_HTTPS}/*" ],
     "webOrigins": [ "${WEBAPP_HTTPS}", "${WEBAPP_HTTP}" ],
     "notBefore" : 0,
