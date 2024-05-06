@@ -135,7 +135,7 @@ Containers are extremely useful for hosting service dependencies, but rather tha
 1. Install the `Aspire.Hosting.PostgreSQL` package in the `eShop.AppHost` project:
 
     ```shell
-    dotnet add package Aspire.Hosting.Redis
+    dotnet add package Aspire.Hosting.PostgreSQL
     ```
 
     ```xml
