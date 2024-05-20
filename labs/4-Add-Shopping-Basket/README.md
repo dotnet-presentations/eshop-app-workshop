@@ -78,7 +78,7 @@ In the .NET CLI, we need to do a few steps manually to configure .NET Aspire orc
     ```
 
     ```xml
-    <PackageReference Include="Aspire.Hosting.Redis" Version="8.0.0-preview.6.24214.1" />
+    <PackageReference Include="Aspire.Hosting.Redis" Version="8.0.0-preview.7.24251.11" />
     ```
 
 1. Open the `Program.cs` file in the `eShop.AppHost` project and add a line to create a new Redis resource named `"BasketStore"` and configure it to host a [Redis Commander](https://joeferner.github.io/redis-commander/) instance too (this will make it easier to inspect the Redis database during development). Capture the resource in a `basketStore` variable:
@@ -143,7 +143,7 @@ In the .NET CLI, we need to do a few steps manually to configure .NET Aspire orc
     Add the `Aspire.StackExchange.Redis` component NuGet package to the `Basket.API` project. You can use the **Add > .NET Aspire Compoenent...** project menu item in Visual Studio, the `dotnet add package` command at the command line, or by editing the `Basket.API.csproj` file directly:
 
     ```xml
-    <PackageReference Include="Aspire.StackExchange.Redis" Version="8.0.0-preview.6.24214.1" />
+    <PackageReference Include="Aspire.StackExchange.Redis" Version="8.0.0-preview.7.24251.11" />
     ```
 
 1. In the `AddApplicationServices` method in `HostingExtensions.cs`, add a call to `AddRedis` to configure the Redis client in the application's DI container. Pass the name `"BasketStore"` to the method to indicate that the client should be configured to connect to the Redis resource with that name in the AppHost:
