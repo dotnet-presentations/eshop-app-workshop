@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.Build.NoTargets/3.7.0">
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
+        <!-- Disable parallel build for now due to observed issue with 8.0.300 SDK -->
+        <BuildInParallel Condition=" '$(BuildInParallel)' == '' ">False</BuildInParallel>
     </PropertyGroup>
 
     <ItemGroup>
@@ -12,7 +14,7 @@
         <Message Text="Building @(RepoSlns->Count()) solutions" Importance="High" />
 
         <MSBuild Projects="@(RepoSlns)" Targets="Restore" />
-        <MSBuild Projects="@(RepoSlns)" Targets="Build" BuildInParallel="True" />
+        <MSBuild Projects="@(RepoSlns)" Targets="Build" BuildInParallel="$(BuildInParallel)" />
 
         <Message Text="@(RepoSlns->Count()) solutions successfully built" Importance="High" />
     </Target>
@@ -21,7 +23,7 @@
         <Message Text="Publishing @(RepoSlns->Count()) solutions" Importance="High" />
 
         <MSBuild Projects="@(RepoSlns)" Targets="Restore" />
-        <MSBuild Projects="@(RepoSlns)" Targets="Publish" BuildInParallel="True" />
+        <MSBuild Projects="@(RepoSlns)" Targets="Publish" BuildInParallel="$(BuildInParallel)" />
 
         <Message Text="@(RepoSlns->Count()) solutions successfully published" Importance="High" />
     </Target> -->
@@ -29,7 +31,7 @@
     <Target Name="GenerateAppHostManifests" AfterTargets="PublishRepoSlns">
         <Message Text="Generating manifests for @(AppHostProjects->Count()) AppHost projects" Importance="High" />
 
-        <MSBuild Projects="@(AppHostProjects)" Targets="GenerateAspireManifest" BuildInParallel="True">
+        <MSBuild Projects="@(AppHostProjects)" Targets="GenerateAspireManifest" BuildInParallel="$(BuildInParallel)">
             <Output TaskParameter="TargetOutputs" ItemName="GeneratedManifestFiles" />
         </MSBuild>
 
