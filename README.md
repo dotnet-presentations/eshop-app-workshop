@@ -24,7 +24,7 @@ If you're using macOs or Linux, or on Windows but don't want to use Visual Studi
 
 ### Updating and installing the .NET SDK workload for Aspire
 
-After installing Visual Studio Preview or the required .NET SDK, you will need to update and install the .NET SDK workload for Aspire. This workshop is using the latest preview of .NET Aspire (preview.7). For your convenience, scripts are provided in this repository to make this process easy:
+After installing Visual Studio Preview or the required .NET SDK, you will need to update and install the .NET SDK workload for Aspire. This workshop is using the latest version of .NET Aspire (8.0.1). For your convenience, scripts are provided in this repository to make this process easy:
 
 1. Clone [this repo](https://github.com/dotnet-presentations/eshop-app-workshop) to your machine.
 1. In your terminal, navigate to the repo root and run the command `dotnet --version` to verify you are using version 8.0.100 or later of the .NET SDK:
@@ -43,7 +43,7 @@ After installing Visual Studio Preview or the required .NET SDK, you will need t
     build.sh
     ```
 
-1. This script will download and install the latest build of the preview.7 version of the Aspire workload, followed by building all solutions in this repo.
+1. This script will download and install the latest version of the Aspire workload, followed by building all solutions in this repo.
 1. If your machine is successfully configured, you should see a message indicating the build succeeded:
 
     ```shell
