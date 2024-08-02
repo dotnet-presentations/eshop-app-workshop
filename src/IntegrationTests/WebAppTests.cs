@@ -1,6 +1,7 @@
 using System.Net;
 using IntegrationTests.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
 namespace IntegrationTests;
@@ -11,7 +12,9 @@ public class WebAppTests(ITestOutputHelper outputHelper)
     public async Task GetWebAppUrlsReturnsOkStatusCode()
     {
         var appHostBuilder = await DistributedApplicationTestingBuilder.CreateAsync<Projects.eShop_AppHost>();
-        appHostBuilder.WriteOutputTo(outputHelper);
+        
+        appHostBuilder.Services.AddLogging(logging => logging.AddXUnit(outputHelper));
+
         appHostBuilder.WithRandomParameterValues();
         appHostBuilder.WithRandomVolumeNames();
 
@@ -30,7 +33,11 @@ public class WebAppTests(ITestOutputHelper outputHelper)
         });
 
         await using var app = await appHostBuilder.BuildAsync();
-        await app.StartAsync(waitForResourcesToStart: true);
+
+        var notificationService = app.Services.GetRequiredService<ResourceNotificationService>();
+        await notificationService.WaitForResourceAsync("webapp").WaitAsync(TimeSpan.FromSeconds(30));
+
+        await app.StartAsync();
 
         var httpClient = app.CreateHttpClient("webapp");
 
