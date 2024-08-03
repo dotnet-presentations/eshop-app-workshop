@@ -7,46 +7,12 @@ using System.Reflection;
 using System.Security.Cryptography;
 using IntegrationTests.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace IntegrationTests.Infrastructure;
 
 public static partial class DistributedApplicationExtensions
 {
-    internal const string OutputWriterKey = $"{nameof(DistributedApplicationExtensions)}.OutputWriter";
-
-    /// <summary>
-    /// Adds a background service to watch resource status changes and optionally logs.
-    /// </summary>
-    public static IServiceCollection AddResourceWatching(this IServiceCollection services)
-    {
-        // Add background service to watch resource status changes and optionally logs
-        services.AddSingleton<ResourceWatcher>();
-        services.AddHostedService(sp => sp.GetRequiredService<ResourceWatcher>());
-
-        return services;
-    }
-
-    /// <summary>
-    /// Configures the builder to write logs to the supplied <see cref="TextWriter"/> and store for optional assertion later.
-    /// </summary>
-    public static TBuilder WriteOutputTo<TBuilder>(this TBuilder builder, TextWriter outputWriter)
-        where TBuilder : IDistributedApplicationTestingBuilder
-    {
-        builder.Services.AddResourceWatching();
-
-        // Add a resource log store to capture logs from resources
-        builder.Services.AddSingleton<ResourceLogStore>();
-
-        // Configure the builder's logger to redirect it output & store for assertion later
-        builder.Services.AddKeyedSingleton(OutputWriterKey, outputWriter);
-        builder.Services.AddSingleton<LoggerLogStore>();
-        builder.Services.AddSingleton<ILoggerProvider, StoredLogsLoggerProvider>();
-
-        return builder;
-    }
-
     /// <summary>
     /// Ensures all parameters in the application configuration have values set.
     /// </summary>
@@ -147,33 +113,6 @@ public static partial class DistributedApplicationExtensions
         httpClient.BaseAddress = app.GetEndpoint(resourceName, endpointName);
 
         return httpClient;
-    }
-
-    /// <inheritdoc cref = "IHost.StartAsync" />
-    public static async Task StartAsync(this DistributedApplication app, bool waitForResourcesToStart, CancellationToken cancellationToken = default)
-    {
-        var resourceWatcher = app.Services.GetRequiredService<ResourceWatcher>();
-        var resourcesStartingTask = waitForResourcesToStart ? resourceWatcher.WaitForResourcesToStart() : Task.CompletedTask;
-
-        await app.StartAsync(cancellationToken);
-        await resourcesStartingTask;
-    }
-
-    public static LoggerLogStore GetAppHostLogs(this DistributedApplication app)
-    {
-        var logStore = app.Services.GetService<LoggerLogStore>()
-            ?? throw new InvalidOperationException($"Log store service was not registered. Ensure the '{nameof(WriteOutputTo)}' method is called before attempting to get AppHost logs.");
-        return logStore;
-    }
-
-    /// <summary>
-    /// Gets the logs for all resources in the application.
-    /// </summary>
-    public static ResourceLogStore GetResourceLogs(this DistributedApplication app)
-    {
-        var logStore = app.Services.GetService<ResourceLogStore>()
-            ?? throw new InvalidOperationException($"Log store service was not registered. Ensure the '{nameof(WriteOutputTo)}' method is called before attempting to get resource logs."); ;
-        return logStore;
     }
 
     /// <summary>
