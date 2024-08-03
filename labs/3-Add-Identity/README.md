@@ -109,7 +109,7 @@ Now that our Keycloak instance is setup as an IdP, we can configure the web site
 1. Open the `WebApp` project and add a reference to the `Microsoft.AspNetCore.Authentication.OpenIdConnect` NuGet package, version `8.0.1`. You can use the `dotnet` CLI, Visual Studio NuGet Package Manager, or just edit the .csproj file manually:
 
     ```xml
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.7" />
     ```
 
 1. In the `WebApp` project, open the `HostingExtensions.cs` file and add a new field to define a name for the `HttpClient` instance the OIDC code will use:

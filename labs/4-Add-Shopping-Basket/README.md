@@ -78,7 +78,7 @@ In the .NET CLI, we need to do a few steps manually to configure .NET Aspire orc
     ```
 
     ```xml
-    <PackageReference Include="Aspire.Hosting.Redis" Version="8.0.1" />
+    <PackageReference Include="Aspire.Hosting.Redis" Version="8.1.0" />
     ```
 
 1. Open the `Program.cs` file in the `eShop.AppHost` project and add a line to create a new Redis resource named `"BasketStore"` and configure it to host a [Redis Commander](https://joeferner.github.io/redis-commander/) instance too (this will make it easier to inspect the Redis database during development). Capture the resource in a `basketStore` variable:
@@ -143,7 +143,7 @@ In the .NET CLI, we need to do a few steps manually to configure .NET Aspire orc
     Add the `Aspire.StackExchange.Redis` component NuGet package to the `Basket.API` project. You can use the **Add > .NET Aspire Compoenent...** project menu item in Visual Studio, the `dotnet add package` command at the command line, or by editing the `Basket.API.csproj` file directly:
 
     ```xml
-    <PackageReference Include="Aspire.StackExchange.Redis" Version="8.0.1" />
+    <PackageReference Include="Aspire.StackExchange.Redis" Version="8.1.0" />
     ```
 
 1. In the `AddApplicationServices` method in `HostingExtensions.cs`, add a call to `AddRedis` to configure the Redis client in the application's DI container. Pass the name `"BasketStore"` to the method to indicate that the client should be configured to connect to the Redis resource with that name in the AppHost:
@@ -513,8 +513,8 @@ The starting point for this lab already includes updates to the web site to prov
     - `Grpc.Tools`
 
     ```xml
-    <PackageReference Include="Grpc.AspNetCore.Server.ClientFactory" Version="2.59.0" />
-    <PackageReference Include="Grpc.Tools" PrivateAssets="All" Version="2.60.0" />
+    <PackageReference Include="Grpc.AspNetCore.Server.ClientFactory" Version="2.65.0" />
+    <PackageReference Include="Grpc.Tools" PrivateAssets="All" Version="2.65.0" />
     ```
 
 1. In the `WebApp.csproj` project file, add the `basket.proto` file from the `Basket.API` project as a `Protobuf` item in the project and set the `GrpcServices` metadata to `"Client"` to indicate that it should be used to generate client-side code for the gRPC service:
