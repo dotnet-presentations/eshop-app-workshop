@@ -223,7 +223,7 @@ In the .NET CLI, we need to do a few steps manually to configure .NET Aspire orc
     app.MapGrpcService<BasketService>();
     ```
 
-1. Delete the `Services/GreeterSrevice.cs` file that was included with the template, including the `Services` directory.
+1. Delete the `Services/GreeterService.cs` file that was included with the template, including the `Services` directory.
 
 ## Implement Redis storage logic
 
