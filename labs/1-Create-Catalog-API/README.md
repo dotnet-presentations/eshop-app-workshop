@@ -31,6 +31,8 @@ pgAdmin
 docker run --name pgadmin-dev -e PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False -e PGADMIN_CONFIG_SERVER_MODE=False -e PGADMIN_DEFAULT_EMAIL=admin@domain.com -e PGADMIN_DEFAULT_PASSWORD=admin -p 0:80 -d dpage/pgadmin4
 ```
 
+> Podman users: If using Podman CLI, omit the `-p 0:80` argument when running the `docker run` command above, as Podman has slightly different default behavior with regards to port binding.
+
 ### Docker Desktop
 
 1. Using Docker, create a container to host the PostgreSQL server with the following details:
