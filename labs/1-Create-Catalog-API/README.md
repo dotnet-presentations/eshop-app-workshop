@@ -139,7 +139,7 @@ Containers are extremely useful for hosting service dependencies, but rather tha
     ```
 
     ```xml
-    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="8.1.0" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="8.2.0" />
     ```
 
 1. Use the methods on the `builder` variable to create a PostgreSQL instance called `postgres` with pgAdmin enabled, and a database called `CatalogDB`. Ensure that the `catalog-db-mgr` project resource is configured with a reference to the `catalogDb`:
