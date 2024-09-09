@@ -166,7 +166,7 @@ Now that we have a service we can use to easily retrieve the catalog items from 
 1. [YARP](https://microsoft.github.io/reverse-proxy/) is a package for ASP.NET Core applications that provides highly customizable reverse proxying capabilities. We'll use YARP to proxy the product image requests to the frontend site on to the Catalog API. Add a reference to the `Microsoft.Extensions.ServiceDiscovery.Yarp` package, version `8.0.1`. You can use the [`dotnet` CLI](https://learn.microsoft.com/dotnet/core/tools/dotnet-add-package), or Visual Studio NuGet Package Manager, or edit the `WebApp.csproj` directly:
 
     ```xml
-    <PackageReference Include="Microsoft.Extensions.ServiceDiscovery.Yarp" Version="8.1.0" />
+    <PackageReference Include="Microsoft.Extensions.ServiceDiscovery.Yarp" Version="8.2.0" />
     ```
 
 1. To setup the proxying behavior, first add a line to the `AddApplicationServices` method in the `HostingExtensions.cs` file, to add the require services to the application's DI container:
