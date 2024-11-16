@@ -12,7 +12,7 @@ In this workshop, you'll learn by building out features of the [eShop Reference 
 
 ### Using Windows and Visual Studio
 
-If you're on Windows and using Visual Studio, you must use [Visual Studio 2022 Preview](https://visualstudio.com/preview) (version 17.10.0 Preview 5.0 or later). The preview version of Visual Studio 2022 is safe to install side-by-side with the release version. We recommend using Visual Studio 2022 Preview if you're on Windows as it includes support for working with .NET Aspire projects.
+If you're on Windows and using Visual Studio, you must use [Visual Studio 2022 Preview](https://visualstudio.com/preview) (version 17.12.0 or later). The preview version of Visual Studio 2022 is safe to install side-by-side with the release version.
 
 > Note: When installing Visual Studio you only need to install the `ASP.NET and web development` workload.
 
@@ -20,11 +20,11 @@ If you're in an instructor-led workshop session and have issues downloading the 
 
 ### Using macOS, Linux, or Windows but not using Visual Studio
 
-If you're using macOs or Linux, or on Windows but don't want to use Visual Studio, you must [download](https://www.microsoft.com/net/download) and install the .NET SDK (version 8.0.100 or newer). You can use the editor or IDE of your choice but note that some operations might be more difficult due to lack of support for .NET Aspire at this time.
+If you're using macOs or Linux, or on Windows but don't want to use Visual Studio, you must [download](https://www.microsoft.com/net/download) and install the .NET SDK (version 8.0.100 or newer). .NET Aspire 9.0 runs on both .NET 8.0 and .NET 9.0. You can use the editor or IDE of your choice but note that some operations might be more difficult due to lack of support for .NET Aspire at this time.
 
 ### Updating and installing the .NET SDK workload for Aspire
 
-After installing Visual Studio Preview or the required .NET SDK, you will need to update and install the .NET SDK workload for Aspire. This workshop is using the latest version of .NET Aspire (8.2). For your convenience, scripts are provided in this repository to make this process easy:
+After installing Visual Studio Preview or the required .NET SDK, you will need to update and install the .NET SDK workload for Aspire. This workshop is using the latest version of .NET Aspire (9.0). For your convenience, scripts are provided in this repository to make this process easy:
 
 1. Clone [this repo](https://github.com/dotnet-presentations/eshop-app-workshop) to your machine.
 1. In your terminal, navigate to the repo root and run the command `dotnet --version` to verify you are using version 8.0.100 or later of the .NET SDK:
