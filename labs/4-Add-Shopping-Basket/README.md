@@ -609,7 +609,7 @@ The starting point for this lab already includes updates to the web site to prov
 
 1. Run the AppHost project and load the web site home page. Ten seconds after the home page is initially displayed, you might see an error displayed with the message:
 
-    ```
+    ```bash
     Grpc.Core.RpcException: Status(StatusCode="Unauthenticated", Detail="The caller is not authenticated.")
     ```
 
@@ -624,4 +624,3 @@ The starting point for this lab already includes updates to the web site to prov
     ![eShop web site header showing shopping basket item count](./img/eshop-webapp-header-basket-count.png)
 
     ![eShop web site shopping basket page](./img/eshop-webapp-cart-page.png)
-
