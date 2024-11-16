@@ -5,18 +5,14 @@
     <Nullable>enable</Nullable>
     <PublishAot>true</PublishAot>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Aspire.StackExchange.Redis" Version="8.2.0" />
+    <PackageReference Include="Aspire.StackExchange.Redis" Version="9.0.0" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.65.0" />
   </ItemGroup>
-
   <ItemGroup>
     <Protobuf Include="Proto\basket.proto" GrpcServices="Server" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\eShop.ServiceDefaults\eShop.ServiceDefaults.csproj" />
   </ItemGroup>
-
 </Project>
