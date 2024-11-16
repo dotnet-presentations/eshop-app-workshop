@@ -12,7 +12,7 @@ There are many options available for implementing an IdP, including:
 
 [Keycloak](https://www.keycloak.org/) is available as a configurable container image that makes it very easy to get started with and is supported by a rich community ecosystem. We'll use it to create an IdP for our distributed application.
 
-You can read more about [selecting an identity management solution for ASP.NET Core applications here](https://learn.microsoft.com/aspnet/core/security/how-to-choose-identity-solution?view=aspnetcore-8.0).
+You can read more about [selecting an identity management solution for ASP.NET Core applications here](https://learn.microsoft.com/aspnet/core/security/how-to-choose-identity-solution?view=aspnetcore-9\.0).
 
 ## Compose a Keycloak instance into the AppHost project via a custom resource type
 
