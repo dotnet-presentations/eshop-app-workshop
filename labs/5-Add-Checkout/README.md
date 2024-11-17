@@ -263,6 +263,7 @@ Now that we've verified the Ordering database is working, let's add an HTTP API 
         public required IReadOnlyCollection<BasketItem> Items { get; set; }
     }
     ```
+
 1. Back in the `OrdersApi.cs` file, in the `MapOrdersApi` method, add a call to `app.MapGet` to define an endpoint that responds to POST requests to the `/` path, and is handled by an async lambda that accepts three parameters: a `CreateOrderRequest` that will be deserialized from JSON in the POST request body, a `ClaimsPrincipal` type that will be auto-populated with the current user, and the `OrderingDbContext` instance that will come from the DI container:
 
     ```csharp

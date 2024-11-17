@@ -166,7 +166,7 @@ Now that we have a service we can use to easily retrieve the catalog items from 
 1. [YARP](https://microsoft.github.io/reverse-proxy/) is a package for ASP.NET Core applications that provides highly customizable reverse proxying capabilities. We'll use YARP to proxy the product image requests to the frontend site on to the Catalog API. Add a reference to the `Microsoft.Extensions.ServiceDiscovery.Yarp` package, version `8.0.1`. You can use the [`dotnet` CLI](https://learn.microsoft.com/dotnet/core/tools/dotnet-add-package), or Visual Studio NuGet Package Manager, or edit the `WebApp.csproj` directly:
 
     ```xml
-    <PackageReference Include="Microsoft.Extensions.ServiceDiscovery.Yarp" Version="8.2.0" />
+    <PackageReference Include="Microsoft.Extensions.ServiceDiscovery.Yarp" Version="9.0.0" />
     ```
 
 1. To setup the proxying behavior, first add a line to the `AddApplicationServices` method in the `HostingExtensions.cs` file, to add the require services to the application's DI container:
@@ -191,7 +191,7 @@ Now that we have a service we can use to easily retrieve the catalog items from 
 
 ## Improve the user experience while the catalog page is loading
 
-You may have noticed that, when visiting the catalog page, there is a delay before the page is rendered in the browser. This delay is more noticeable when first loading the page after launching the AppHost project, as it takes a bit of time before the various resources involved are fully started. Let's improve this by utilizing the [streaming rendering feature in Blazor](https://learn.microsoft.com/aspnet/core/blazor/components/rendering?view=aspnetcore-8.0#streaming-rendering) to display a loading message while waiting for the catalog items to be returned by the backend service.
+You may have noticed that, when visiting the catalog page, there is a delay before the page is rendered in the browser. This delay is more noticeable when first loading the page after launching the AppHost project, as it takes a bit of time before the various resources involved are fully started. Let's improve this by utilizing the [streaming rendering feature in Blazor](https://learn.microsoft.com/aspnet/core/blazor/components/rendering?view=aspnetcore-9\.0#streaming-rendering) to display a loading message while waiting for the catalog items to be returned by the backend service.
 
 1. In the `Catalog.razor` file, update the markup to render a simple "Loading..." message if the `catalogResult` field is `null`, instead of rendering nothing:
 

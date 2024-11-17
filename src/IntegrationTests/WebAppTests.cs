@@ -1,4 +1,5 @@
 using System.Net;
+using Aspire.Hosting.ApplicationModel;
 using IntegrationTests.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

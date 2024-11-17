@@ -7,7 +7,8 @@
       "applicationUrl": "http://localhost:5221",
       "environmentVariables": {
         "Identity__Url": "http://localhost:5223",
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DOTNET_RESOURCE_SERVICE_ENDPOINT_URL": "http://localhost:22285"
       }
     },
     "https": {
@@ -16,8 +17,11 @@
       "applicationUrl": "https://localhost:7278;http://localhost:5221",
       "environmentVariables": {
         "Identity__Url": "http://localhost:5223",
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DOTNET_ENVIRONMENT": "Development",
+        "DOTNET_RESOURCE_SERVICE_ENDPOINT_URL": "https://localhost:22143"
+      },
+      "dotnetRunMessages": true
     }
   }
 }

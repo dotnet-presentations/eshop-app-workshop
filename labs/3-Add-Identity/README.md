@@ -12,7 +12,7 @@ There are many options available for implementing an IdP, including:
 
 [Keycloak](https://www.keycloak.org/) is available as a configurable container image that makes it very easy to get started with and is supported by a rich community ecosystem. We'll use it to create an IdP for our distributed application.
 
-You can read more about [selecting an identity management solution for ASP.NET Core applications here](https://learn.microsoft.com/aspnet/core/security/how-to-choose-identity-solution?view=aspnetcore-8.0).
+You can read more about [selecting an identity management solution for ASP.NET Core applications here](https://learn.microsoft.com/aspnet/core/security/how-to-choose-identity-solution?view=aspnetcore-9\.0).
 
 ## Compose a Keycloak instance into the AppHost project via a custom resource type
 
@@ -109,7 +109,7 @@ Now that our Keycloak instance is setup as an IdP, we can configure the web site
 1. Open the `WebApp` project and add a reference to the `Microsoft.AspNetCore.Authentication.OpenIdConnect` NuGet package, version `8.0.1`. You can use the `dotnet` CLI, Visual Studio NuGet Package Manager, or just edit the .csproj file manually:
 
     ```xml
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.11" />
     ```
 
 1. In the `WebApp` project, open the `HostingExtensions.cs` file and add a new field to define a name for the `HttpClient` instance the OIDC code will use:

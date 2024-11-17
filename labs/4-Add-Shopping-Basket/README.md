@@ -78,7 +78,7 @@ In the .NET CLI, we need to do a few steps manually to configure .NET Aspire orc
     ```
 
     ```xml
-    <PackageReference Include="Aspire.Hosting.Redis" Version="8.2.0" />
+    <PackageReference Include="Aspire.Hosting.Redis" Version="9.0.0" />
     ```
 
 1. Open the `Program.cs` file in the `eShop.AppHost` project and add a line to create a new Redis resource named `"BasketStore"` and configure it to host a [Redis Commander](https://joeferner.github.io/redis-commander/) instance too (this will make it easier to inspect the Redis database during development). Capture the resource in a `basketStore` variable:
@@ -143,7 +143,7 @@ In the .NET CLI, we need to do a few steps manually to configure .NET Aspire orc
     Add the `Aspire.StackExchange.Redis` component NuGet package to the `Basket.API` project. You can use the **Add > .NET Aspire Compoenent...** project menu item in Visual Studio, the `dotnet add package` command at the command line, or by editing the `Basket.API.csproj` file directly:
 
     ```xml
-    <PackageReference Include="Aspire.StackExchange.Redis" Version="8.2.0" />
+    <PackageReference Include="Aspire.StackExchange.Redis" Version="9.0.0" />
     ```
 
 1. In the `AddApplicationServices` method in `HostingExtensions.cs`, add a call to `AddRedis` to configure the Redis client in the application's DI container. Pass the name `"BasketStore"` to the method to indicate that the client should be configured to connect to the Redis resource with that name in the AppHost:
@@ -496,7 +496,7 @@ The starting point for this lab already includes updates to the web site to prov
 1. Open the `BasketState.cs` file in the `WebApp` project and add take a moment to read through the code. This class is used to manage the current state of the shopping bag during a web request. Blazor components run their logic individually as the component tree is rendered, so the state of the shopping basket needs to be managed in a way that is shared between components during a single request.
 1. Open the `CartPage.razor` file and take a moment to read through the code. This component displays the items in the shopping basket and allows the user to update the quantity of items in the basket. The component uses the `BasketState` class to manage the state of the shopping basket during the request.
 
-    Pay special note to the logic in the    `CurrentOrPendingQuantity` method that ensures the quantity rendered in the UI matches what the user has requested if they have requested a change, or the current quantity if they have not. This is required due to the way Blazor components are rendered and re-rendered during a request when using [Streaming Rendering](https://learn.microsoft.com/aspnet/core/blazor/components/rendering?view=aspnetcore-8.0#streaming-rendering).
+    Pay special note to the logic in the    `CurrentOrPendingQuantity` method that ensures the quantity rendered in the UI matches what the user has requested if they have requested a change, or the current quantity if they have not. This is required due to the way Blazor components are rendered and re-rendered during a request when using [Streaming Rendering](https://learn.microsoft.com/aspnet/core/blazor/components/rendering?view=aspnetcore-9\.0#streaming-rendering).
 
 1. Open the `ItemPage.razor` file and take a moment to read through the code. This component has been updated with a form that the user can use to add the item to their cart, or sign in if required. If the item is already in their basket, it displays the quantity.
 
@@ -609,7 +609,7 @@ The starting point for this lab already includes updates to the web site to prov
 
 1. Run the AppHost project and load the web site home page. Ten seconds after the home page is initially displayed, you might see an error displayed with the message:
 
-    ```
+    ```bash
     Grpc.Core.RpcException: Status(StatusCode="Unauthenticated", Detail="The caller is not authenticated.")
     ```
 
@@ -624,4 +624,3 @@ The starting point for this lab already includes updates to the web site to prov
     ![eShop web site header showing shopping basket item count](./img/eshop-webapp-header-basket-count.png)
 
     ![eShop web site shopping basket page](./img/eshop-webapp-cart-page.png)
-

@@ -5,6 +5,8 @@ using System.Diagnostics;
 using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
+using Aspire.Hosting;
+using Aspire.Hosting.ApplicationModel;
 using IntegrationTests.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -121,7 +123,7 @@ public static partial class DistributedApplicationExtensions
     public static async Task<bool> TryApplyEfMigrationsAsync(this DistributedApplication app, ProjectResource project)
     {
         var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(TryApplyEfMigrationsAsync));
-        var projectName = project.GetName();
+        var projectName = project.Name;
 
         // First check if the project has a migration endpoint, if it doesn't it will respond with a 404
         logger.LogInformation("Checking if project '{ProjectName}' has a migration endpoint", projectName);

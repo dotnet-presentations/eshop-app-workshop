@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.Build.NoTargets/3.7.0">
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <!-- Disable parallel build for now due to observed issue with 8.0.300 SDK -->
         <BuildInParallel Condition=" '$(BuildInParallel)' == '' ">False</BuildInParallel>
     </PropertyGroup>

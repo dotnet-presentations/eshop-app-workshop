@@ -21,13 +21,13 @@ We're going to run 2 docker container:, the PostgreSQL container, and [pgAdmin](
 
 postgres
 
-```
+```bash
 docker run --name postgres-dev -e POSTGRES_HOST_AUTH_METHOD=trust -p 5432:5432 -d postgres
 ```
 
 pgAdmin
 
-```
+```bash
 docker run --name pgadmin-dev -e PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False -e PGADMIN_CONFIG_SERVER_MODE=False -e PGADMIN_DEFAULT_EMAIL=admin@domain.com -e PGADMIN_DEFAULT_PASSWORD=admin -p 0:80 -d dpage/pgadmin4
 ```
 
@@ -65,15 +65,16 @@ docker run --name pgadmin-dev -e PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False -
 1. Stop the application and try launching it again and seeing the output of the `/health` endpoint return `Degraded` while the database initialization is still in progress.
 1. Find the port assigned to the pgAdmin container.
 
-**Docker CLI**
+### Docker CLI
 
-```
+
+```bash
 docker ps
 ```
 
 ![Image of the docker CLI showing the port for pgAdmin](./img/find-docker-endpoint.png)
 
-**Docker Desktop**
+###Docker Desktop
 
 ![Image of docker desktop UI showing the port for pgAdmin](./img/find-docker-endpoint-ui.png)
 
@@ -108,7 +109,7 @@ Containers are extremely useful for hosting service dependencies, but rather tha
 
 1. Run the following commands in the `src` folder to create the `eShop.AppHost` and `eShop.ServiceDefaults` projects.
 
-    ```
+    ```bash
     dotnet new aspire-apphost -n eShop.AppHost
     dotnet new aspire-servicedefaults -n eShop.ServiceDefaults
     dotnet sln add eShop.AppHost
@@ -117,7 +118,7 @@ Containers are extremely useful for hosting service dependencies, but rather tha
 
 1. Now add a reference to the `eShop.AppHost`:
 
-    ```
+    ```bash
     cd eShop.AppHost
     dotnet add reference ..\Catalog.Data.Manager
     ```
@@ -141,7 +142,7 @@ Containers are extremely useful for hosting service dependencies, but rather tha
     ```
 
     ```xml
-    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="8.2.0" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.0.0" />
     ```
 
 1. Use the methods on the `builder` variable to create a PostgreSQL instance called `postgres` with pgAdmin enabled, and a database called `CatalogDB`. Ensure that the `catalog-db-mgr` project resource is configured with a reference to the `catalogDb`:
@@ -345,6 +346,7 @@ Now that we've setup the solution to use Aspire for composing our distributed ap
 
     ###
     ```
+
 1. Click the **Send request** link displayed above it to send the request and have the response displayed:
 
     ![Catalog.API.http file open in Visual Studio](./img/vs-catalog.api-http-file.png)
